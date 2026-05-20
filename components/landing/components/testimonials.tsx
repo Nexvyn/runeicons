@@ -1,7 +1,14 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import { Hand } from "lucide-react";
+
+import { useGitHubStars } from "@/components/icon-page/panels/header/hooks/use-github-stars";
+import { NORMAL_ICONS_MANIFEST } from "@/lib/icons/manifest.generated";
+
+const ICON_COUNT = NORMAL_ICONS_MANIFEST.length;
+const ICON_COUNT_LABEL =
+  ICON_COUNT >= 1000 ? `${(ICON_COUNT / 1000).toFixed(1)}k+` : `${ICON_COUNT}+`;
 
 interface Testimonial {
   quote: string;
@@ -149,25 +156,7 @@ const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => {
 };
 
 const Testimonials = () => {
-  const [stars, setStars] = useState<string>("—");
-
-  useEffect(() => {
-    const fetchStars = async () => {
-      try {
-        const response = await fetch("https://api.github.com/repos/AitijhyaModak/rune-icons");
-        const data = await response.json();
-        const count = data.stargazers_count;
-        if (count >= 1000) {
-          setStars(`${(count / 1000).toFixed(1)}k+`);
-        } else {
-          setStars(`${count}+`);
-        }
-      } catch (error) {
-        setStars("—");
-      }
-    };
-    fetchStars();
-  }, []);
+  const stars = useGitHubStars();
 
   return (
     <section className="mt-8 w-full">
@@ -183,7 +172,7 @@ const Testimonials = () => {
         </div>
         <div className="flex flex-col items-start gap-6 sm:flex-row sm:gap-10">
           <div className="flex flex-col items-start">
-            <span className="text-4xl tracking-tight text-foreground">1.2k+</span>
+            <span className="text-4xl tracking-tight text-foreground">{ICON_COUNT_LABEL}</span>
             <div className="mt-1 flex items-center gap-1.5">
               <Hand className="text-muted-foreground" size={16} />{" "}
               <span className="text-base text-muted-foreground">Hand-crafted Icons</span>

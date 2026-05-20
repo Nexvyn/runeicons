@@ -27,12 +27,6 @@ export function Navbar() {
             >
               Icons
             </Link>
-            <Link
-              href="/sponsor"
-              className="cursor-pointer text-foreground transition-all duration-150"
-            >
-              Sponsor
-            </Link>
           </div>
         </div>
 

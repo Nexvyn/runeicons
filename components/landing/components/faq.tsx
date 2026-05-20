@@ -53,7 +53,7 @@ export default function Faq() {
     <section className="w-full py-24">
       <div className="relative w-full overflow-hidden px-4 py-8 sm:px-10 sm:py-14 lg:px-16 lg:py-16">
         <div className="relative z-10 flex flex-col gap-10 lg:flex-row lg:gap-20">
-          <div className="flex shrink-0 flex-col gap-8 lg:w-[340px]">
+          <div className="flex shrink-0 flex-col gap-8 lg:w-[440px]">
             <div className="flex flex-col gap-2">
               <span className="text-4xl font-medium">
                 Frequently asked <br />
@@ -69,7 +69,7 @@ export default function Faq() {
           </div>
 
           {/* Right column - Accordion */}
-          <div className="flex-1">
+          <div className="w-full flex-1">
             <Accordion type="single" collapsible defaultValue="item-1" className="w-full space-y-3">
               {faqItems.map((item) => (
                 <AccordionItem

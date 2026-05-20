@@ -71,7 +71,7 @@ const Navbar = () => {
       </m.div>
 
       <div className="flex w-full justify-center border-b-2 border-dashed bg-[#F5F5F5] dark:bg-background">
-        <div className="flex w-[90vw] max-w-[1440px] items-center justify-between bg-[#F5F5F5] px-4 py-3 max-sm:px-1.5 2xl:w-[85vw] dark:bg-background">
+        <div className="flex w-[90vw] max-w-[1440px] items-center justify-between bg-[#F5F5F5] px-4 py-3 max-sm:px-1.5 2xl:w-[85vw] 2xl:max-w-[1800px] dark:bg-background">
           <div className="flex items-end justify-center gap-5">
             <span>
               <LightLogo />
