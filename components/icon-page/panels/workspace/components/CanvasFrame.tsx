@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 
 import { AnimatePresence, motion } from "motion/react";
 
@@ -12,7 +12,7 @@ interface CanvasFrameProps {
 
 export function CanvasFrame({ children, trayNode, showGrid }: CanvasFrameProps) {
   return (
-    <div className="relative flex flex-1 flex-col overflow-hidden">
+    <div className="relative flex flex-1 flex-col min-h-0">
       <AnimatePresence>
         {showGrid && (
           <motion.div
@@ -20,17 +20,15 @@ export function CanvasFrame({ children, trayNode, showGrid }: CanvasFrameProps) 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="absolute inset-0 z-0"
+            className="absolute inset-0 z-0 pointer-events-none"
           >
             <WorkspaceGround />
           </motion.div>
         )}
       </AnimatePresence>
-      <div className="relative z-10 flex flex-1 -translate-y-10 cursor-default items-center justify-center">
-        <div className="relative flex aspect-[11/8] w-full flex-col bg-transparent shadow-none">
-          {children}
-          {trayNode}
-        </div>
+      <div className="relative z-10 flex flex-1 flex-col min-h-0 h-full cursor-default">
+        {children}
+        {trayNode}
       </div>
     </div>
   );

@@ -40,10 +40,78 @@ export async function generateStandaloneSvg(selectedIcon: IconData, state: Custo
         iconViewBoxSize = Math.max(vbParts[2], vbParts[3]);
       }
 
-      const effectiveFillColor = fillColor === "none" ? strokeColor : fillColor;
-      const colorized = content
-        .replace(/\bstroke="(?!none)[^"]*"/g, `stroke="${strokeColor}"`)
-        .replace(/\bfill="(?!none)[^"]*"/g, `fill="${effectiveFillColor}"`);
+      const renderAsDesigned =
+        state.iconType === "duotone" ||
+        state.iconType === "fill" ||
+        state.iconType === "glass" ||
+        state.iconType === "pixelated";
+
+      let colorized: string;
+      if (renderAsDesigned) {
+        const color = state.colors[0] || "#000000";
+        let result = content;
+        if (state.iconType === "duotone") {
+          result = result
+            .replace(/stroke="#DDDDDD"/gi, `stroke="${color}"`)
+            .replace(/stroke="#A4A5A6"/gi, `stroke="${color}80"`)
+            .replace(/fill="#DDDDDD"/gi, `fill="${color}"`)
+            .replace(/fill="#A4A5A6"/gi, `fill="${color}80"`);
+        } else if (state.iconType === "fill") {
+          result = result
+            .replace(/fill="#DDDDDD"/gi, `fill="${color}"`)
+            .replace(/fill="#1C1F21"/gi, `fill="${color}cc"`)
+            .replace(/stroke="#1C1F21"/gi, `stroke="${color}cc"`)
+            .replace(/stroke="#DDDDDD"/gi, `stroke="${color}"`);
+        } else if (state.iconType === "pixelated") {
+          result = result
+            .replace(/fill="black"/gi, `fill="${color}"`)
+            .replace(/fill="#000000"/gi, `fill="${color}"`)
+            .replace(/fill="#000"/gi, `fill="${color}"`);
+        } else if (state.iconType === "glass") {
+          const accentGradientIds: string[] = [];
+          const gradRegex = /<(?:linearGradient|radialGradient)\s+id="([^"]+)"[^>]*>([\s\S]*?)<\/(?:linearGradient|radialGradient)>/gi;
+          let match;
+          while ((match = gradRegex.exec(content)) !== null) {
+            const id = match[1];
+            const inner = match[2];
+            if (/#575757|#151515/i.test(inner)) {
+              accentGradientIds.push(id);
+            }
+          }
+
+          if (state.iconGradient) {
+            accentGradientIds.forEach((id) => {
+              const escapedId = id.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+              const refRegex = new RegExp(`url\\(#${escapedId}\\)`, 'gi');
+              result = result.replace(refRegex, 'url(#icon-gradient)');
+            });
+            result = result
+              .replace(/fill="#575757"/gi, 'fill="url(#icon-gradient)"')
+              .replace(/fill="#151515"/gi, 'fill="url(#icon-gradient)"')
+              .replace(/stroke="#575757"/gi, 'stroke="url(#icon-gradient)"')
+              .replace(/stroke="#151515"/gi, 'stroke="url(#icon-gradient)"');
+          } else {
+            result = result
+              .replace(/stop-color="#575757"/gi, `stop-color="${color}"`)
+              .replace(/stop-color="#151515"/gi, `stop-color="${color}" stop-opacity="0.85"`)
+              .replace(/fill="#575757"/gi, `fill="${color}"`)
+              .replace(/fill="#151515"/gi, `fill="${color}d9"`)
+              .replace(/stroke="#575757"/gi, `stroke="${color}"`)
+              .replace(/stroke="#151515"/gi, `stroke="${color}d9"`);
+          }
+        }
+        if (state.iconGradient && state.iconType !== "glass") {
+          result = result
+            .replace(/\bstroke="(?!none)[^"]*"/g, `stroke="url(#icon-gradient)"`)
+            .replace(/\bfill="(?!none)[^"]*"/g, `fill="url(#icon-gradient)"`);
+        }
+        colorized = result;
+      } else {
+        const effectiveFillColor = fillColor === "none" ? strokeColor : fillColor;
+        colorized = content
+          .replace(/\bstroke="(?!none)[^"]*"/g, `stroke="${strokeColor}"`)
+          .replace(/\bfill="(?!none)[^"]*"/g, `fill="${effectiveFillColor}"`);
+      }
       innerContent = colorized;
     } catch {
       innerContent = `
@@ -248,7 +316,7 @@ export async function generateStandaloneSvg(selectedIcon: IconData, state: Custo
   <rect x="${vbx}" y="${vby}" width="${vbw}" height="${vbh}" rx="${rx}" ry="${rx}" fill="transparent"/>
   <g transform="translate(${vbx + paddingVB}, ${vby + paddingVB}) scale(${iconScaleFactor})"${
     state.shadow.enabled && !state.shadow.inner ? ' filter="url(#drop-shadow)"' : ''}>
-    <g transform="${finalTransform}${state.iconType === "isometric" ? " rotateX(45) rotateZ(-45)" : ""}" class="icon-anim-group icon-anim-path" stroke="${strokeColor}" fill="${fillColor}" stroke-width="${STROKE_STYLE_MAP[state.strokeStyle ?? "round"].strokeWidth}" stroke-linecap="${STROKE_STYLE_MAP[state.strokeStyle ?? "round"].strokeLinecap}" stroke-linejoin="${STROKE_STYLE_MAP[state.strokeStyle ?? "round"].strokeLinejoin}"${
+    <g transform="${finalTransform}${state.iconType === "isometric" ? " rotateX(45) rotateZ(-45)" : ""}" class="icon-anim-group icon-anim-path"${(state.iconType === "glass" || state.iconType === "pixelated") ? "" : ` stroke="${strokeColor}"`}${(state.iconType === "glass" || state.iconType === "pixelated") ? "" : ` fill="${fillColor}"`} stroke-width="${STROKE_STYLE_MAP[state.strokeStyle ?? "round"].strokeWidth}" stroke-linecap="${STROKE_STYLE_MAP[state.strokeStyle ?? "round"].strokeLinecap}" stroke-linejoin="${STROKE_STYLE_MAP[state.strokeStyle ?? "round"].strokeLinejoin}"${
     state.shadow.enabled && state.shadow.inner ? ' filter="url(#inner-shadow)"' :
     state.blur > 0 ? ' filter="url(#icon-blur)"' :
     state.iconType === "pixelated" ? ' filter="url(#pixelate)"' :
@@ -382,7 +450,12 @@ async function fetchSvgInnerContent(url: string): Promise<{ content: string; vie
   }
 }
 
+const svgFetchCache = new Map<string, { content: string; viewBox: string }>();
+
 export async function fetchSvgInnerContentRaw(url: string): Promise<{ content: string; viewBox: string }> {
+  const cached = svgFetchCache.get(url);
+  if (cached) return cached;
+
   const res = await fetch(url);
   if (!res.ok) throw new Error(`SVG fetch failed: ${res.status}`);
   const text = await res.text();
@@ -406,7 +479,9 @@ export async function fetchSvgInnerContentRaw(url: string): Promise<{ content: s
     }
   }
   
-  return { content, viewBox };
+  const result = { content, viewBox };
+  svgFetchCache.set(url, result);
+  return result;
 }
 
 export async function generatePng(

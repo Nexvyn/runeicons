@@ -44,13 +44,13 @@ function DropdownMenuContent({
         sideOffset={sideOffset}
         className={cn(
           'z-50 min-w-[8rem] overflow-hidden rounded-md bg-foreground px-1 py-1.5 text-background shadow-md',
-          'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+          'duration-0',
           className,
         )}
         {...props}
       >
         {children}
-        <DropdownMenuPrimitive.Arrow className="size-2.5 rotate-45 rounded-[2px] z-50 translate-y-[calc(-50%_-_2px)] bg-foreground fill-foreground" />
+        <DropdownMenuPrimitive.Arrow className="fill-foreground" width={12} height={6} />
       </DropdownMenuPrimitive.Content>
     </DropdownMenuPrimitive.Portal>
   )
@@ -200,7 +200,12 @@ function DropdownMenuShortcut({
 function DropdownMenuSub({
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Sub>) {
-  return <DropdownMenuPrimitive.Sub data-slot="dropdown-menu-sub" {...props} />
+  return (
+    <DropdownMenuPrimitive.Sub
+      data-slot="dropdown-menu-sub"
+      {...props}
+    />
+  )
 }
 
 function DropdownMenuSubTrigger({
@@ -237,13 +242,13 @@ function DropdownMenuSubContent({
       data-slot="dropdown-menu-sub-content"
       className={cn(
         'z-50 min-w-[8rem] overflow-hidden rounded-md bg-foreground px-1 py-1.5 text-background shadow-md',
-        'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+        'duration-0',
         className,
       )}
       {...props}
     >
       {children}
-      <DropdownMenuPrimitive.Arrow className="size-2.5 rotate-45 rounded-[2px] z-50 translate-y-[calc(-50%_-_2px)] bg-foreground fill-foreground" />
+      <DropdownMenuPrimitive.Arrow className="fill-foreground" width={12} height={6} />
     </DropdownMenuPrimitive.SubContent>
   )
 }

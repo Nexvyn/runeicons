@@ -42,7 +42,7 @@ export function WorkspacePanel({
     <>
       <SvgDefinitions state={state} />
       <main
-        className="flex-1 flex flex-col relative overflow-hidden"
+        className="flex-1 flex flex-col relative min-h-0"
         aria-label="Preview area"
       >
         <PreviewArea

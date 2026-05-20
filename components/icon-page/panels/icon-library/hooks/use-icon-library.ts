@@ -9,7 +9,13 @@ export function useIconLibrary(
   customIcons: Array<{ id: string; name: string; url: string }> = []
 ) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedQuery(searchQuery), 120);
+    return () => clearTimeout(id);
+  }, [searchQuery]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -42,8 +48,8 @@ export function useIconLibrary(
       icons = icons.filter((icon) => icon.category === selectedCategory);
     }
 
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
+    if (debouncedQuery) {
+      const query = debouncedQuery.toLowerCase();
       icons = icons.filter(
         (icon) =>
           icon.name.toLowerCase().includes(query) ||
@@ -52,7 +58,7 @@ export function useIconLibrary(
     }
 
     return icons;
-  }, [allIcons, searchQuery, selectedCategory]);
+  }, [allIcons, debouncedQuery, selectedCategory]);
 
   const handleIconClick = useCallback(
     (icon: IconData) => {

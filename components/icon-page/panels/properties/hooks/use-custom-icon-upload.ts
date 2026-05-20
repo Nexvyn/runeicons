@@ -1,5 +1,4 @@
-import { useState, useCallback } from "react";
-import DOMPurify from "dompurify";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { CustomizationState } from "@/lib/types";
 
@@ -14,6 +13,15 @@ export function useCustomIconUpload(
   const [isDragging, setIsDragging] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  const blobUrlsRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    return () => {
+      blobUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+      blobUrlsRef.current.clear();
+    };
+  }, []);
 
   const validateFile = (file: File): string | null => {
     if (file.size > MAX_FILE_SIZE) {
@@ -37,7 +45,8 @@ export function useCustomIconUpload(
     return null;
   };
 
-  const sanitizeSVG = (svgContent: string): string => {
+  const sanitizeSVG = async (svgContent: string): Promise<string> => {
+    const { default: DOMPurify } = await import("dompurify");
     return DOMPurify.sanitize(svgContent, {
       USE_PROFILES: { svg: true, svgFilters: true },
     });
@@ -55,12 +64,13 @@ export function useCustomIconUpload(
         let url: string;
         if (file.type === "image/svg+xml") {
           const text = await file.text();
-          const sanitized = sanitizeSVG(text);
+          const sanitized = await sanitizeSVG(text);
           const blob = new Blob([sanitized], { type: "image/svg+xml" });
           url = URL.createObjectURL(blob);
         } else {
           url = URL.createObjectURL(file);
         }
+        blobUrlsRef.current.add(url);
 
         const newIcon = {
           id: `${Date.now()}-${Math.random().toString(36)}`,
@@ -138,6 +148,7 @@ export function useCustomIconUpload(
       const icon = state.customIcons.find((i) => i.id === id);
       if (icon && icon.url.startsWith("blob:")) {
         URL.revokeObjectURL(icon.url);
+        blobUrlsRef.current.delete(icon.url);
       }
 
       onDeleteIcon?.(id);

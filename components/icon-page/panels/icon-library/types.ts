@@ -1,4 +1,4 @@
-import { IconData, IconCategory } from "@/lib/types";
+import { IconData, IconCategory, CustomizationState } from "@/lib/types";
 import type { IconType } from "@/lib/icons";
 
 export interface IconLibraryPanelProps {
@@ -8,4 +8,5 @@ export interface IconLibraryPanelProps {
   onCategoryChange: (category: IconCategory) => void;
   customIcons?: Array<{ id: string; name: string; url: string }>;
   iconType: IconType;
+  customizationState?: CustomizationState;
 }

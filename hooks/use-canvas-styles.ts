@@ -21,10 +21,17 @@ export function useCanvasStyles(state: CustomizationState) {
 
   const boxShadow = useMemo(
     () =>
-      state.shadow.enabled && state.shadow.opacity > 0
-        ? `${state.shadow.inner ? "inset " : ""}${state.shadow.offsetX}px ${state.shadow.offsetY}px ${state.shadow.blur}px rgba(0, 0, 0, ${state.shadow.opacity / 100})`
+      state.shadow.enabled && !state.shadow.inner && state.shadow.opacity > 0
+        ? `${state.shadow.offsetX}px ${state.shadow.offsetY}px ${state.shadow.blur}px rgba(0, 0, 0, ${state.shadow.opacity / 100})`
         : "none",
-    [state.shadow],
+    [
+      state.shadow.enabled,
+      state.shadow.inner,
+      state.shadow.opacity,
+      state.shadow.offsetX,
+      state.shadow.offsetY,
+      state.shadow.blur,
+    ],
   );
 
   const supportsFilter = useMemo(
@@ -35,8 +42,15 @@ export function useCanvasStyles(state: CustomizationState) {
     [],
   );
 
-  const blurFilter = "";
-  const noiseFilter = "";
+  const blurFilter = useMemo(
+    () => (state.blur > 0 ? `url(#inner-blur)` : ""),
+    [state.blur],
+  );
+
+  const noiseFilter = useMemo(
+    () => (state.noise.enabled && state.noise.intensity > 0 ? "url(#noise-filter)" : ""),
+    [state.noise.enabled, state.noise.intensity],
+  );
 
   return {
     transform,

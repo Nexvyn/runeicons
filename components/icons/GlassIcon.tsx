@@ -9,8 +9,8 @@ export function GlassIcon(props: React.SVGProps<SVGSVGElement>) {
         <path d="M16.2096 10.8158C15.4308 9.53305 13.5692 9.53305 12.7904 10.8158L7.84447 18.962C7.03524 20.2949 7.99477 22 9.55404 22L14.5 22L19.4459 22C21.0052 22 21.9647 20.2949 21.1555 18.962L16.2096 10.8158Z" fill="url(#eut73l23cs8-1760522037876-2830671_shapes_existing_3_6dgypxtwj)"></path>
         <defs>
           <linearGradient id="eut73l23cs8-1760522037876-2830671_shapes_existing_0_3s8gtsgok" x1="16" y1="-.048" x2="16" y2="9.8" gradientUnits="userSpaceOnUse">
-            <stop stopColor="rgba(0, 0, 0, 1)" data-glass-11="on"></stop>
-            <stop offset="1" stopColor="rgba(21, 21, 21, 1)" data-glass-12="on"></stop>
+            <stop stopColor="currentColor" data-glass-11="on"></stop>
+            <stop offset="1" stopColor="currentColor" stopOpacity="0.85" data-glass-12="on"></stop>
           </linearGradient>
           <linearGradient id="eut73l23cs8-1760522037876-2830671_shapes_existing_1_x3vfmzlrv" x1="7.5" y1="5" x2="7.5" y2="18" gradientUnits="userSpaceOnUse">
             <stop stopColor="rgba(227, 227, 229, 0.6)" data-glass-21="on"></stop>
@@ -21,8 +21,8 @@ export function GlassIcon(props: React.SVGProps<SVGSVGElement>) {
             <stop offset="1" stopColor="rgba(255, 255, 255, 1)" stopOpacity="0" data-glass-light="on"></stop>
           </linearGradient>
           <linearGradient id="eut73l23cs8-1760522037876-2830671_shapes_existing_3_6dgypxtwj" x1="14.5" y1="8" x2="14.5" y2="22" gradientUnits="userSpaceOnUse">
-            <stop stopColor="rgba(0, 0, 0, 1)" data-glass-11="on"></stop>
-            <stop offset="1" stopColor="rgba(21, 21, 21, 1)" data-glass-12="on"></stop>
+            <stop stopColor="currentColor" data-glass-11="on"></stop>
+            <stop offset="1" stopColor="currentColor" stopOpacity="0.85" data-glass-12="on"></stop>
           </linearGradient>
           <filter id="eut73l23cs8-1760522037876-2830671_shapes_filter_pky57diox" x="-100%" y="-100%" width="400%" height="400%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse">
             <feGaussianBlur stdDeviation="2" x="0%" y="0%" width="100%" height="100%" in="SourceGraphic" edgeMode="none" result="blur"></feGaussianBlur>

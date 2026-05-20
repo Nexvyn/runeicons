@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { HeaderPanel } from "@/components/icon-page/panels/header";
 import { WorkspaceShell } from "@/components/icon-page/panels/workspace";
 import { TuningProvider } from "@/components/icon-page/tuning";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export const metadata: Metadata = {
   title: "Icons | RuneIcons",
@@ -14,7 +15,9 @@ export default function Home() {
     <TuningProvider>
       <div className="flex flex-col h-screen bg-background">
         <HeaderPanel />
-        <WorkspaceShell />
+        <ErrorBoundary>
+          <WorkspaceShell />
+        </ErrorBoundary>
       </div>
     </TuningProvider>
   );

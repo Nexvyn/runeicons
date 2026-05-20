@@ -14,6 +14,7 @@ export function IconLibraryPanel({
   onCategoryChange,
   customIcons = [],
   iconType,
+  customizationState,
 }: IconLibraryPanelProps) {
   const {
     searchQuery,
@@ -54,6 +55,7 @@ export function IconLibraryPanel({
             onIconClick={handleIconClick}
             isSearching={isSearching}
             iconType={iconType}
+            customizationState={customizationState}
           />
           <EmptyState isVisible={filteredIcons.length === 0} onClearSearch={clearSearch} />
         </div>
