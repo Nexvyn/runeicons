@@ -32,7 +32,7 @@ export function AmountSelector({
   const handleCustom = () => {
     setCustomMode(true);
     const num = parseInt(customValue, 10);
-    if (num > 0) onAmountChange(num);
+    onAmountChange(num > 0 ? num : 0);
   };
 
   const handleCustomInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,7 +69,6 @@ export function AmountSelector({
               <button
                 key={amount}
                 type="button"
-                onMouseEnter={() => handlePreset(amount)}
                 onFocus={() => handlePreset(amount)}
                 onClick={() => handlePreset(amount)}
                 className="relative flex flex-1 cursor-pointer items-center justify-center py-3 text-[13px] font-medium"
@@ -95,7 +94,6 @@ export function AmountSelector({
           })}
           <button
             type="button"
-            onMouseEnter={handleCustom}
             onFocus={handleCustom}
             onClick={handleCustom}
             className="relative flex flex-1 cursor-pointer items-center justify-center py-3 text-[13px] font-medium"
