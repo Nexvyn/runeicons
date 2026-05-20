@@ -17,11 +17,7 @@ interface IconGridProps {
 }
 
 export function IconGrid({ icons, selectedIconId, onIconClick, isSearching, iconType }: IconGridProps) {
-  const invertInDark =
-    iconType === "normal" ||
-    iconType === "pixelated" ||
-    iconType === "duotone" ||
-    iconType === "fill";
+  const invertInDark = iconType === "normal" || iconType === "pixelated";
   const containerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const container = containerRef.current;

@@ -61,7 +61,7 @@ export function IconTray({
               slotType === "fill" ||
               slotType === "pixelated" ||
               slotType === "glass";
-            const invertInDark = isDesigned && slotType !== "glass";
+            const invertInDark = slotType === "pixelated";
             const isSelected = trayIcon.id === selectedIconId;
 
             return (
