@@ -77,29 +77,20 @@ export const PreviewContent = memo(
         }
 
         const color = state.colors[0] || "currentColor";
-        const isFill = effectiveIconType === "fill";
-        const isDuotone = effectiveIconType === "duotone";
 
         let baseColorized: string;
         if (state.iconGradient) {
           const gt = state.gradient.target ?? "both";
           const strokeVal = gt === "stroke" || gt === "both" ? "url(#icon-gradient)" : color;
           const fillVal =
-            gt === "fill" || gt === "both"
-              ? "url(#icon-gradient)"
-              : isFill
-                ? color
-                : isDuotone
-                  ? `${color}33`
-                  : "none";
+            gt === "fill" || gt === "both" ? "url(#icon-gradient)" : "none";
           baseColorized = svgContent
             .replace(/\bstroke="(?!none)[^"]*"/g, `stroke="${strokeVal}"`)
             .replace(/\bfill="(?!none)[^"]*"/g, `fill="${fillVal}"`);
         } else {
-          const fillVal = isFill ? color : isDuotone ? `${color}33` : "none";
           baseColorized = svgContent
             .replace(/\bstroke="(?!none)[^"]*"/g, `stroke="${color}"`)
-            .replace(/\bfill="(?!none)[^"]*"/g, `fill="${fillVal}"`);
+            .replace(/\bfill="(?!none)[^"]*"/g, `fill="none"`);
         }
 
         let result = baseColorized
@@ -366,15 +357,7 @@ export const PreviewContent = memo(
                               ? "url(#icon-gradient)"
                               : state.colors[0] || "currentColor"
                         }
-                        fill={
-                          renderAsDesigned
-                            ? "none"
-                            : effectiveIconType === "fill"
-                              ? (applyGradToFill ? "url(#icon-gradient)" : state.colors[0] || "currentColor")
-                              : effectiveIconType === "duotone"
-                                ? (applyGradToFill ? "url(#icon-gradient)" : `${state.colors[0] || "currentColor"}33`)
-                                : "none"
-                        }
+                        fill="none"
                         className={cn(
                           "h-full w-full",
                           renderAsDesigned && !renderRawFromPublic && "dark:invert",
