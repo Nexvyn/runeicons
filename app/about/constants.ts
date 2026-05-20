@@ -41,20 +41,6 @@ const UserDetails = [
     img: "/about/Nexvyn-v4.webp",
     accentColor: "#22C55E",
   },
-  {
-    id: 5,
-    name: "Pranav",
-    description:
-      "Product manager bridging the gap between engineering and business. orchestrating product lifecycles from conception to launch.",
-    industry: "Full Stack",
-    status: "Active",
-    socials: [
-      { type: "globe", url: "https://ambitionlessdev.in" },
-      { type: "twitter", url: "https://x.com/ambitionlessGuy" },
-    ],
-    img: "/about/pranav-v4.webp",
-    accentColor: "#A855F7",
-  },
 ];
 
 export default UserDetails;

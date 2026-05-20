@@ -22,10 +22,12 @@ const SWIFT = [0.19, 1, 0.22, 1] as const;
 const TIMING = {
   panelOpacity: 0.22,
   nav: 0.2,
-  navDelay: 0.2,
-  info: 0.16,
-  drawer: 0.55,
+  navDelay: 0.1,
+  // Slightly longer so the blur fade is perceivable on card switches.
+  info: 0.28,
+  drawer: 0.3,
 };
+const INFO_BLUR_PX = 8;
 const DRAWER_DISMISS_DISTANCE = 120;
 const DRAWER_DISMISS_VELOCITY = 600;
 
@@ -59,7 +61,7 @@ const DetailView = ({
     return (
       <m.div
         data-detail-keep
-        className="fixed right-0 bottom-0 left-0 z-50 flex h-[60vh] flex-col rounded-t-3xl border-t border-white/10 bg-[#0A0A0A]/95 backdrop-blur-2xl"
+        className="fixed right-0 bottom-0 left-0 z-50 flex h-[60vh] flex-col rounded-t-3xl border-t border-white/10 bg-[#0A0A0A]/95 backdrop-blur-xl"
         initial={{ y: reduceMotion ? 0 : "100%" }}
         animate={{ y: 0 }}
         exit={{ y: reduceMotion ? 0 : "100%" }}
@@ -112,9 +114,17 @@ const DetailView = ({
           <AnimatePresence mode="wait" initial={false}>
             <m.div
               key={`info-mobile-${user.id}`}
-              initial={{ opacity: 0, y: reduceMotion ? 0 : 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: reduceMotion ? 0 : -4 }}
+              initial={{
+                opacity: 0,
+                y: reduceMotion ? 0 : 4,
+                filter: reduceMotion ? "blur(0px)" : `blur(${INFO_BLUR_PX}px)`,
+              }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{
+                opacity: 0,
+                y: reduceMotion ? 0 : -4,
+                filter: reduceMotion ? "blur(0px)" : `blur(${INFO_BLUR_PX}px)`,
+              }}
               transition={{ duration: TIMING.info, ease: EASE_OUT }}
             >
               <h2 className="mb-4 font-['Syne'] text-3xl font-bold text-white">
@@ -223,14 +233,22 @@ const DetailView = ({
         animate={{ x: 0, opacity: 1 }}
         exit={{ x: reduceMotion ? 0 : 24, opacity: 0 }}
         transition={rightPanelTransition}
-        className="fixed top-0 right-0 bottom-0 z-50 flex w-[30%] flex-col justify-center border-l border-white/10 bg-[#0A0A0A]/55 p-12 backdrop-blur-2xl"
+        className="fixed top-0 right-0 bottom-0 z-50 flex w-[30%] flex-col justify-center border-l border-white/10 bg-[#0A0A0A]/55 p-12 backdrop-blur-xl"
       >
         <AnimatePresence mode="wait" initial={false}>
           <m.div
             key={`info-${user.id}`}
-            initial={{ opacity: 0, y: reduceMotion ? 0 : 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: reduceMotion ? 0 : -4 }}
+            initial={{
+              opacity: 0,
+              y: reduceMotion ? 0 : 4,
+              filter: reduceMotion ? "blur(0px)" : `blur(${INFO_BLUR_PX}px)`,
+            }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            exit={{
+              opacity: 0,
+              y: reduceMotion ? 0 : -4,
+              filter: reduceMotion ? "blur(0px)" : `blur(${INFO_BLUR_PX}px)`,
+            }}
             transition={{ duration: TIMING.info, ease: EASE_OUT }}
           >
             <h2 className="mb-6 font-['Syne'] text-4xl font-bold text-white">

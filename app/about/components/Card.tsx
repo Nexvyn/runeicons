@@ -96,7 +96,7 @@ const Card = ({
 
   const float = FLOAT[index % FLOAT.length];
   const showTooltip = isHovered && !isDetailOpen;
-  const entranceDelay = 0.08 + index * 0.12;
+  const entranceDelay = 0.04 + index * 0.06;
 
   return (
     <m.div
@@ -170,7 +170,7 @@ const Card = ({
         initial={
           reduceMotion
             ? { opacity: 1, scale: 1, y: 0 }
-            : { opacity: 0, scale: 0.65, y: 50 }
+            : { opacity: 0, scale: 0.92, y: 12 }
         }
         animate={
           reduceMotion || isDetailOpen
@@ -186,8 +186,8 @@ const Card = ({
           reduceMotion || isDetailOpen
             ? { duration: 0.4, ease: EASE_OUT }
             : {
-                opacity: { duration: 0.85, delay: entranceDelay, ease: EASE_OUT },
-                scale: { duration: 0.85, delay: entranceDelay, ease: EASE_OUT },
+                opacity: { duration: 0.4, delay: entranceDelay, ease: EASE_OUT },
+                scale: { duration: 0.4, delay: entranceDelay, ease: EASE_OUT },
                 y: {
                   duration: float.duration,
                   delay: float.delay,
