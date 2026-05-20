@@ -50,21 +50,12 @@ export const PreviewContent = memo(
       }, [selectedIcon?.url]);
 
       const isDrawAnim = motionEnabled && (animationType === "draw" || animationType === "stroke");
-      // Each tray icon carries its own iconType (stamped at selection time).
-      // The sidebar `state.iconType` controls library browsing + the type
-      // stamped onto newly added icons, but it must NOT mutate the rendering
-      // of an icon that's already been selected. Fall back to the sidebar
-      // type only when nothing is selected.
       const effectiveIconType = selectedIcon?.iconType ?? state.iconType;
       const renderAsDesigned =
         effectiveIconType === "duotone" ||
         effectiveIconType === "fill" ||
         effectiveIconType === "glass" ||
         effectiveIconType === "pixelated";
-      // Strict subset of renderAsDesigned that should be rendered EXACTLY as
-      // authored in /public — no dark:invert flip, no forced stroke-style.
-      // Pixelated is intentionally excluded so its black pixel grid stays
-      // visible in dark mode via the existing invert.
       const renderRawFromPublic =
         effectiveIconType === "duotone" ||
         effectiveIconType === "fill" ||
@@ -302,7 +293,12 @@ export const PreviewContent = memo(
             }}
             style={{
               background: state.backgroundColor || "transparent",
-              overflow: "hidden",
+              overflow:
+                animationType === "bounce" ||
+                animationType === "shake" ||
+                animationType === "jump"
+                  ? "visible"
+                  : "hidden",
               borderRadius: state.cornerRadius,
               transition: "border-radius 0.2s ease",
               ...(!supportsFilter &&

@@ -189,12 +189,9 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
       label: "Draw",
       preview: (
         <svg viewBox="0 0 32 32" width="32" height="32" fill="none" strokeLinecap="round">
-          {/* ghost path */}
           <path d="M4 22 C4 22 9 6 16 6 C23 6 28 22 28 22" stroke="currentColor" strokeWidth="1.5" strokeOpacity="0.12" />
-          {/* drawing in */}
           <path d="M4 22 C4 22 9 6 16 6 C23 6 28 22 28 22" stroke="currentColor" strokeWidth="1.5"
             style={{ strokeDasharray: 56, strokeDashoffset: 56, animation: "mta-draw 1.8s ease-in-out infinite" }} />
-          {/* lead dot */}
           <circle cx="4" cy="22" r="2.2" fill="currentColor"
             style={{ animation: "mta-draw-dot 1.8s ease-in-out infinite" }} />
         </svg>
@@ -205,9 +202,7 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
       label: "Stroke",
       preview: (
         <svg viewBox="0 0 32 32" width="32" height="32" fill="none" strokeLinecap="round">
-          {/* ghost */}
           <path d="M4 22 C8 22 10 10 16 10 C22 10 24 22 28 22" stroke="currentColor" strokeWidth="1.5" strokeOpacity="0.12" />
-          {/* pulsing stroke */}
           <path d="M4 22 C8 22 10 10 16 10 C22 10 24 22 28 22" stroke="currentColor"
             style={{ animation: "mta-stroke 1.4s ease-in-out infinite" }} />
         </svg>
@@ -233,7 +228,6 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
         <svg viewBox="0 0 32 32" width="32" height="32" fill="none" strokeLinecap="round">
           <rect x="13" y="13" width="6" height="6" rx="1.5" fill="currentColor"
             style={{ animation: "mta-shake 0.55s ease-in-out infinite", transformOrigin: "16px 16px" }} />
-          {/* motion blur lines */}
           <line x1="5" y1="16" x2="9" y2="16" stroke="currentColor" strokeWidth="1" strokeOpacity="0.2"
             style={{ animation: "mta-shake-trail-l 0.55s ease-in-out infinite" }} />
           <line x1="23" y1="16" x2="27" y2="16" stroke="currentColor" strokeWidth="1" strokeOpacity="0.2"
@@ -259,7 +253,16 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
     <Section
       title="Motion"
       headerAction={
-        <Switch checked={isEnabled} onCheckedChange={(v) => handleGlobalChange({ enabled: v })} />
+        <Switch
+          checked={isEnabled}
+          onCheckedChange={(v) =>
+            handleGlobalChange(
+              v
+                ? { enabled: true, isPaused: false, scrubProgress: null }
+                : { enabled: false }
+            )
+          }
+        />
       }
     >
       <style>{`
