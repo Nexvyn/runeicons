@@ -22,8 +22,6 @@ const collaboratorsLinks = [
   { title: "Nexvyn", href: "#" },
   { title: "Vansh", href: "#" },
   { title: "Abhinav", href: "#" },
-  { title: "Mohit", href: "#" },
-  { title: "Pranav", href: "#" },
 ];
 
 const Footer = () => {

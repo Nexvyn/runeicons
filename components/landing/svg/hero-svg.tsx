@@ -4,10 +4,7 @@ import { useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
-import { RefreshCcw } from "lucide-react";
 import { toast } from "sonner";
-
-import { Button } from "@/components/ui/button";
 
 gsap.registerPlugin(useGSAP, MotionPathPlugin);
 
@@ -19,96 +16,252 @@ const HeroSvg = () => {
 
   useGSAP(
     () => {
-      setShowReset(false);
-      setIsResetting(false);
+      const mm = gsap.matchMedia();
 
-      // --- Beam setup: hidden until button is clicked ---
-      const beams = gsap.utils.toArray<SVGPathElement>(".Beam");
-      beams.forEach((beam) => {
-        const length = beam.getTotalLength();
-        gsap.set(beam, {
-          strokeDasharray: length,
-          strokeDashoffset: length,
-          opacity: 0,
-        });
-      });
+      mm.add(
+        {
+          fullMotion: "(prefers-reduced-motion: no-preference)",
+          reduceMotion: "(prefers-reduced-motion: reduce)",
+        },
+        (ctx) => {
+          const conditions = ctx.conditions as {
+            fullMotion: boolean;
+            reduceMotion: boolean;
+          };
+          const fullMotion = !!conditions.fullMotion;
+          const reduceMotion = !!conditions.reduceMotion;
 
-      function fireBeams() {
-        beams.forEach((beam, i) => {
-          const length = (beam as SVGPathElement).getTotalLength();
-          gsap.fromTo(
-            beam,
-            { strokeDashoffset: length, opacity: 1 },
-            {
-              strokeDashoffset: 0,
-              duration: 1.4,
-              ease: "power2.out",
-              delay: i * 0.3,
-            },
-          );
-        });
+          setShowReset(false);
+          setIsResetting(false);
 
-        // Rocket launch: 1s after the last beam finishes drawing
-        const rocketEl = svgRef.current?.querySelector<SVGGElement>(".rocket");
-        if (rocketEl) {
-          const beamEndTime = 1.4 + (beams.length - 1) * 0.3;
-
-          // Reset/cleanup in case launch is triggered again.
-          gsap.killTweensOf(rocketEl);
-          gsap.set(rocketEl, {
-            transformOrigin: "50% 100%",
-            x: 0,
-            y: 0,
-            rotation: 0,
-            opacity: 1,
-          });
-
-          const rocketTl = gsap.timeline({
-            delay: beamEndTime + 1,
-            onComplete: () => setShowReset(true),
-          });
-
-          // Continuous liftoff: smooth, uninterrupted upward movement
-          rocketTl.to(rocketEl, {
-            y: -760,
-            duration: 2.4,
-            ease: "power2.inOut",
-          });
-
-          // Subtle, continuous vibration during ascent
-          const vibration = gsap.timeline({ repeat: -1, yoyo: true });
-          vibration.to(rocketEl, {
-            x: 0.7,
-            rotation: 0.25,
-            duration: 0.055,
-            ease: "none",
-          });
-          vibration.to(rocketEl, {
-            x: -0.7,
-            rotation: -0.25,
-            duration: 0.055,
-            ease: "none",
-          });
-
-          // Stop vibration and fade out near the end
-          rocketTl.to(
-            rocketEl,
-            {
+          // --- Beam setup: hidden until button is clicked ---
+          const beams = gsap.utils.toArray<SVGPathElement>(".Beam");
+          beams.forEach((beam) => {
+            const length = beam.getTotalLength();
+            gsap.set(beam, {
+              strokeDasharray: length,
+              strokeDashoffset: length,
               opacity: 0,
-              duration: 0.42,
-              ease: "power1.out",
-              onStart: function () {
-                vibration.kill();
-              },
-            },
-            "+=0.1",
-          );
-        }
-      }
+            });
+          });
 
-      // --- Pulse animation ---
-      const pulse = svgRef.current?.querySelector<SVGPathElement>(".Pluse");
-      if (pulse) {
+          function fireBeams() {
+            beams.forEach((beam, i) => {
+              const length = (beam as SVGPathElement).getTotalLength();
+              gsap.fromTo(
+                beam,
+                { strokeDashoffset: length, opacity: 1 },
+                {
+                  strokeDashoffset: 0,
+                  duration: 1.0,
+                  ease: "power2.out",
+                  delay: i * 0.22,
+                },
+              );
+            });
+
+            // Rocket launch: 1s after the last beam finishes drawing
+            const rocketEl = svgRef.current?.querySelector<SVGGElement>(".rocket");
+            if (rocketEl) {
+              const beamEndTime = 1.0 + (beams.length - 1) * 0.22;
+              const trailEl =
+                rocketEl.querySelector<SVGPathElement>(".rocketTrail");
+
+              // Reset/cleanup in case launch is triggered again.
+              gsap.killTweensOf(rocketEl);
+              if (trailEl) gsap.killTweensOf(trailEl);
+              gsap.set(rocketEl, {
+                transformOrigin: "50% 100%",
+                x: 0,
+                y: 0,
+                rotation: 0,
+                opacity: 1,
+              });
+              if (trailEl) {
+                gsap.set(trailEl, {
+                  opacity: 0,
+                  scaleY: 1,
+                  transformOrigin: "50% 0%",
+                });
+              }
+              rocketEl.style.willChange = "transform, opacity";
+
+              let flickerTl: gsap.core.Timeline | null = null;
+
+              const rocketTl = gsap.timeline({
+                delay: beamEndTime + 1,
+                onComplete: () => {
+                  setShowReset(true);
+                  rocketEl.style.willChange = "";
+
+                  // Animate the in-scene Relaunch pill in.
+                  const relaunchEl =
+                    svgRef.current?.querySelector<SVGGElement>(
+                      ".RelaunchButton",
+                    );
+                  if (relaunchEl) {
+                    if (reduceMotion) {
+                      gsap.set(relaunchEl, {
+                        opacity: 1,
+                        scale: 1,
+                        pointerEvents: "auto",
+                        transformOrigin: "50% 50%",
+                      });
+                    } else {
+                      gsap.set(relaunchEl, {
+                        pointerEvents: "auto",
+                        transformOrigin: "50% 50%",
+                      });
+                      gsap.fromTo(
+                        relaunchEl,
+                        { opacity: 0, scale: 0.95 },
+                        {
+                          opacity: 1,
+                          scale: 1,
+                          duration: 0.25,
+                          ease: "power2.out",
+                        },
+                      );
+                    }
+                  }
+                },
+              });
+
+              // Trail fade-in. Peaks at 0.88 so the flicker can oscillate
+              // continuously between 0.88 and 0.72 without a visible jump.
+              if (trailEl) {
+                rocketTl.to(
+                  trailEl,
+                  {
+                    opacity: 0.88,
+                    duration: 0.35,
+                    ease: "power2.out",
+                  },
+                  0,
+                );
+
+                if (fullMotion) {
+                  // Trail stretches downward as the rocket accelerates.
+                  // On-screen movement -> ease-in-out (skill flowchart).
+                  rocketTl.to(
+                    trailEl,
+                    {
+                      scaleY: 1.6,
+                      duration: 1.4,
+                      ease: "power1.inOut",
+                    },
+                    0.2,
+                  );
+
+                  // Flicker timeline: subtle opacity oscillation while the
+                  // rocket ascends. Yoyos between the post-fade-in value and
+                  // 0.72 to read as live exhaust without jumping.
+                  flickerTl = gsap.timeline({
+                    repeat: -1,
+                    yoyo: true,
+                    paused: true,
+                  });
+                  flickerTl.to(trailEl, {
+                    opacity: 0.72,
+                    duration: 0.22,
+                    ease: "sine.inOut",
+                  });
+                  rocketTl.call(
+                    () => {
+                      flickerTl?.play();
+                    },
+                    [],
+                    0.4,
+                  );
+                }
+
+                // Trail dies mid-liftoff so it stops streaking through the
+                // viewport after the rocket's head exits. Finishes at
+                // t=2.25, before the rocket group fade-out at t=2.5.
+                rocketTl.to(
+                  trailEl,
+                  {
+                    opacity: 0,
+                    duration: 0.55,
+                    ease: "power2.out",
+                    overwrite: "auto",
+                    onStart: () => {
+                      flickerTl?.kill();
+                    },
+                  },
+                  1.7,
+                );
+              }
+
+              // Liftoff: ease-out so the rocket pops off the pad with strong
+              // initial velocity and decelerates as it leaves the viewport.
+              rocketTl.to(
+                rocketEl,
+                {
+                  y: -760,
+                  duration: 2.4,
+                  ease: "power2.out",
+                },
+                0,
+              );
+
+              // Subtle, continuous vibration during ascent — full motion only.
+              let vibration: gsap.core.Timeline | null = null;
+              if (fullMotion) {
+                vibration = gsap.timeline({ repeat: -1, yoyo: true });
+                vibration.to(rocketEl, {
+                  x: 0.7,
+                  rotation: 0.25,
+                  duration: 0.055,
+                  ease: "none",
+                });
+                vibration.to(rocketEl, {
+                  x: -0.7,
+                  rotation: -0.25,
+                  duration: 0.055,
+                  ease: "none",
+                });
+              }
+
+              // Stop vibration and fade out near the end
+              rocketTl.to(
+                rocketEl,
+                {
+                  opacity: 0,
+                  duration: 0.42,
+                  ease: "power1.out",
+                  onStart: function () {
+                    vibration?.kill();
+                  },
+                },
+                "+=0.1",
+              );
+            }
+          }
+
+          // Under reduce-motion: jump the intro to its final pose
+          // (layer4 visible) and unlock the launch button immediately so the
+          // click payoff still works.
+          if (reduceMotion) {
+            const layers = gsap.utils.toArray<SVGGElement>(
+              ".layer1, .layer2, .layer3, .layer4",
+            );
+            layers.forEach((l) => {
+              (l as SVGGElement).style.visibility = "visible";
+            });
+            gsap.set([".layer1", ".layer2", ".layer3"], { opacity: 0 });
+            gsap.set(".layer4", {
+              opacity: 1,
+              y: 54,
+              filter: "blur(0px)",
+            });
+          }
+
+          // --- Pulse animation (full-motion only — ambient loop) ---
+          const pulse = fullMotion
+            ? svgRef.current?.querySelector<SVGPathElement>(".Pluse")
+            : null;
+          if (pulse) {
         const len = pulse.getTotalLength();
         gsap.set(pulse, {
           strokeDasharray: len,
@@ -169,86 +322,103 @@ const HeroSvg = () => {
           });
       }
 
-      // --- Piston animation (staggered phases) ---
-      const pistons = gsap.utils.toArray<SVGPathElement>(".piston");
-      pistons.forEach((piston, i) => {
-        const box = piston.getBBox();
-        const moveOnY = box.height >= box.width;
-        const travel = gsap.utils.clamp(2, 6, (moveOnY ? box.height : box.width) * 0.03);
+      // --- Piston animation (full-motion only — on-screen back-and-forth) ---
+      if (fullMotion) {
+        const pistons = gsap.utils.toArray<SVGPathElement>(".piston");
+        pistons.forEach((piston, i) => {
+          const box = piston.getBBox();
+          const moveOnY = box.height >= box.width;
+          const travel = gsap.utils.clamp(2, 6, (moveOnY ? box.height : box.width) * 0.03);
 
-        gsap.set(piston, { transformOrigin: "50% 50%" });
+          gsap.set(piston, { transformOrigin: "50% 50%" });
 
-        gsap
-          .timeline({
-            repeat: -1,
-            delay: i * 0.2,
-            defaults: { duration: 0.42, ease: "sine.inOut" },
-          })
-          .to(piston, moveOnY ? { y: -travel } : { x: -travel })
-          .to(piston, moveOnY ? { y: travel } : { x: travel })
-          .to(piston, moveOnY ? { y: 0 } : { x: 0 });
-      });
-
-      // --- Layer stack reveal (1 -> 4) ---
-      const layers = gsap.utils.toArray<SVGGElement>(".layer1, .layer2, .layer3, .layer4");
-      let layerSequenceDuration = 0;
-      if (layers.length) {
-        // Custom per-layer drop distances (px): layer1, layer2, layer3, layer4...
-        const layerDropValues = [10, 24, 38, 54];
-
-        gsap.set(layers, {
-          opacity: 0,
-          y: 0,
-          filter: "blur(4px)",
+          gsap
+            .timeline({
+              repeat: -1,
+              delay: i * 0.2,
+              defaults: { duration: 0.42, ease: "sine.inOut" },
+            })
+            .to(piston, moveOnY ? { y: -travel } : { x: -travel })
+            .to(piston, moveOnY ? { y: travel } : { x: travel })
+            .to(piston, moveOnY ? { y: 0 } : { x: 0 });
         });
+      }
 
-        const LAYER_STAGGER = 0.38;
-        const LAYER_REVEAL_DURATION = 0.85;
-        const LAST_LAYER_FADE_DELAY = 0.15;
-        const LAST_LAYER_FADE_DURATION = 0.45;
+      // --- Layer stack reveal (1 -> 4) — full-motion only ---
+      let layerSequenceDuration = 0;
+      if (fullMotion) {
+        const layers = gsap.utils.toArray<SVGGElement>(".layer1, .layer2, .layer3, .layer4");
+        if (layers.length) {
+          // Custom per-layer drop distances (px): layer1, layer2, layer3, layer4...
+          const layerDropValues = [10, 24, 38, 54];
 
-        const layerTl = gsap.timeline({ defaults: { ease: "power3.out" } });
-        layers.forEach((layer, i) => {
-          const drop = layerDropValues[i] ?? layerDropValues[layerDropValues.length - 1] ?? 10;
+          gsap.set(layers, {
+            opacity: 0,
+            y: 0,
+            filter: "blur(4px)",
+          });
 
-          if (i > 0) {
+          const LAYER_STAGGER = 0.38;
+          const LAYER_REVEAL_DURATION = 0.85;
+          const LAST_LAYER_FADE_DELAY = 0.15;
+          const LAST_LAYER_FADE_DURATION = 0.45;
+
+          const layerTl = gsap.timeline({ defaults: { ease: "power3.out" } });
+          layers.forEach((layer, i) => {
+            const drop = layerDropValues[i] ?? layerDropValues[layerDropValues.length - 1] ?? 10;
+
+            if (i > 0) {
+              layerTl.to(
+                layers.slice(0, i),
+                {
+                  opacity: 0,
+                  filter: "blur(3px)",
+                  duration: 0.32,
+                  // Exit motion — ease-out keeps it from feeling sluggish.
+                  ease: "power2.out",
+                  overwrite: "auto",
+                },
+                i * LAYER_STAGGER,
+              );
+            }
+
             layerTl.to(
-              layers.slice(0, i),
+              layer,
               {
-                opacity: 0,
-                filter: "blur(3px)",
-                duration: 0.32,
-                ease: "power2.in",
-                overwrite: "auto",
+                opacity: 1,
+                y: drop,
+                filter: "blur(0px)",
+                duration: LAYER_REVEAL_DURATION,
+                // On the very first reveal, flip visibility so the JSX-level
+                // `visibility: hidden` no longer holds the layer dark and
+                // we get no flash-of-unanimated-content before GSAP runs.
+                onStart:
+                  i === 0
+                    ? () => {
+                        layers.forEach((l) => {
+                          (l as SVGGElement).style.visibility = "visible";
+                        });
+                      }
+                    : undefined,
               },
               i * LAYER_STAGGER,
             );
-          }
+          });
 
-          layerTl.to(
-            layer,
-            {
-              opacity: 1,
-              y: drop,
-              filter: "blur(0px)",
-              duration: LAYER_REVEAL_DURATION,
-            },
-            i * LAYER_STAGGER,
-          );
-        });
+          // Measure duration after all reveal tweens, then append last-layer fade-out
+          const revealDuration = layerTl.duration();
+          gsap.to(layers[layers.length - 1], {
+            opacity: 0,
+            filter: "blur(3px)",
+            duration: LAST_LAYER_FADE_DURATION,
+            // Exit motion — ease-out family stays paired with reveals.
+            ease: "power2.out",
+            delay: revealDuration + LAST_LAYER_FADE_DELAY,
+            overwrite: "auto",
+          });
 
-        // Measure duration after all reveal tweens, then append last-layer fade-out
-        const revealDuration = layerTl.duration();
-        gsap.to(layers[layers.length - 1], {
-          opacity: 0,
-          filter: "blur(3px)",
-          duration: LAST_LAYER_FADE_DURATION,
-          ease: "power2.in",
-          delay: revealDuration + LAST_LAYER_FADE_DELAY,
-          overwrite: "auto",
-        });
-
-        layerSequenceDuration = revealDuration + LAST_LAYER_FADE_DELAY + LAST_LAYER_FADE_DURATION;
+          layerSequenceDuration = revealDuration + LAST_LAYER_FADE_DELAY + LAST_LAYER_FADE_DURATION;
+        }
       }
 
       const path1StartDelay = layerSequenceDuration + 0.1;
@@ -258,84 +428,102 @@ const HeroSvg = () => {
       const path2Duration = 4.8;
       const introCompleteAt = path2StartDelay + path2Duration;
 
-      let launchUnlocked = false;
+      // Under reduce-motion the intro is skipped, so the launch click payoff
+      // is available immediately.
+      let launchUnlocked = reduceMotion;
       let launchTriggered = false;
       let lastBlockedToastAt = -Infinity;
-      gsap.delayedCall(introCompleteAt, () => {
-        launchUnlocked = true;
-      });
-
-      // --- Move path1svg1 along path1 ---
-      const mover = svgRef.current?.querySelector<SVGGElement>(".path1svg1");
-      const guideLine = svgRef.current?.querySelector<SVGLineElement>(".path1");
-      if (mover && guideLine) {
-        const x1 = Number(guideLine.getAttribute("x1") ?? 0);
-        const y1 = Number(guideLine.getAttribute("y1") ?? 0);
-        const x2 = Number(guideLine.getAttribute("x2") ?? 0);
-        const y2 = Number(guideLine.getAttribute("y2") ?? 0);
-
-        const box = mover.getBBox();
-        const centerX = box.x + box.width / 2;
-        const centerY = box.y + box.height / 2;
-
-        gsap.set(mover, {
-          transformOrigin: "50% 50%",
-          x: x1 - centerX,
-          y: y1 - centerY,
-          opacity: 0,
-        });
-
-        gsap.to(mover, {
-          opacity: 1,
-          duration: 0.2,
-          ease: "power1.out",
-          delay: path1StartDelay,
-        });
-
-        gsap.to(mover, {
-          duration: path1Duration,
-          ease: "none",
-          delay: path1StartDelay,
-          x: x2 - centerX,
-          y: y2 - centerY,
+      if (fullMotion) {
+        gsap.delayedCall(introCompleteAt, () => {
+          launchUnlocked = true;
         });
       }
 
-      // --- Move path2svg2 along path2 ---
-      const mover2 = svgRef.current?.querySelector<SVGGElement>(".path2svg2");
-      const guideLine2 = svgRef.current?.querySelector<SVGLineElement>(".path2");
-      if (mover2 && guideLine2) {
-        const x1 = Number(guideLine2.getAttribute("x1") ?? 0);
-        const y1 = Number(guideLine2.getAttribute("y1") ?? 0);
-        const x2 = Number(guideLine2.getAttribute("x2") ?? 0);
-        const y2 = Number(guideLine2.getAttribute("y2") ?? 0);
-        const path2YOffset = -6;
+      // --- Move path1svg1 along path1 (full-motion only) ---
+      if (fullMotion) {
+        const mover = svgRef.current?.querySelector<SVGGElement>(".path1svg1");
+        const guideLine = svgRef.current?.querySelector<SVGLineElement>(".path1");
+        if (mover && guideLine) {
+          const x1 = Number(guideLine.getAttribute("x1") ?? 0);
+          const y1 = Number(guideLine.getAttribute("y1") ?? 0);
+          const x2 = Number(guideLine.getAttribute("x2") ?? 0);
+          const y2 = Number(guideLine.getAttribute("y2") ?? 0);
 
-        const box = mover2.getBBox();
-        const centerX = box.x + box.width / 2;
-        const centerY = box.y + box.height / 2;
+          const box = mover.getBBox();
+          const centerX = box.x + box.width / 2;
+          const centerY = box.y + box.height / 2;
 
-        gsap.set(mover2, {
-          transformOrigin: "50% 50%",
-          x: x1 - centerX,
-          y: y1 - centerY + path2YOffset,
-          opacity: 0,
-        });
+          gsap.set(mover, {
+            transformOrigin: "50% 50%",
+            x: x1 - centerX,
+            y: y1 - centerY,
+            opacity: 0,
+          });
+          mover.style.willChange = "transform, opacity";
 
-        gsap.to(mover2, {
-          opacity: 1,
-          duration: 0.2,
-          ease: "power1.out",
-          delay: path2StartDelay,
-        });
+          gsap.to(mover, {
+            opacity: 1,
+            duration: 0.2,
+            ease: "power1.out",
+            delay: path1StartDelay,
+          });
 
-        gsap.to(mover2, {
-          duration: path2Duration,
-          ease: "none",
-          delay: path2StartDelay,
-          x: x2 - centerX,
-          y: y2 - centerY + path2YOffset,
-        });
+          gsap.to(mover, {
+            duration: path1Duration,
+            // Organic acceleration/deceleration along the line beats raw
+            // linear motion for narrative travel.
+            ease: "power1.inOut",
+            delay: path1StartDelay,
+            x: x2 - centerX,
+            y: y2 - centerY,
+            onComplete: () => {
+              mover.style.willChange = "";
+            },
+          });
+        }
+      }
+
+      // --- Move path2svg2 along path2 (full-motion only) ---
+      if (fullMotion) {
+        const mover2 = svgRef.current?.querySelector<SVGGElement>(".path2svg2");
+        const guideLine2 = svgRef.current?.querySelector<SVGLineElement>(".path2");
+        if (mover2 && guideLine2) {
+          const x1 = Number(guideLine2.getAttribute("x1") ?? 0);
+          const y1 = Number(guideLine2.getAttribute("y1") ?? 0);
+          const x2 = Number(guideLine2.getAttribute("x2") ?? 0);
+          const y2 = Number(guideLine2.getAttribute("y2") ?? 0);
+          const path2YOffset = -6;
+
+          const box = mover2.getBBox();
+          const centerX = box.x + box.width / 2;
+          const centerY = box.y + box.height / 2;
+
+          gsap.set(mover2, {
+            transformOrigin: "50% 50%",
+            x: x1 - centerX,
+            y: y1 - centerY + path2YOffset,
+            opacity: 0,
+          });
+          mover2.style.willChange = "transform, opacity";
+
+          gsap.to(mover2, {
+            opacity: 1,
+            duration: 0.2,
+            ease: "power1.out",
+            delay: path2StartDelay,
+          });
+
+          gsap.to(mover2, {
+            duration: path2Duration,
+            ease: "power1.inOut",
+            delay: path2StartDelay,
+            x: x2 - centerX,
+            y: y2 - centerY + path2YOffset,
+            onComplete: () => {
+              mover2.style.willChange = "";
+            },
+          });
+        }
       }
 
       // --- LaunchButton interactions ---
@@ -346,17 +534,25 @@ const HeroSvg = () => {
 
       btn.addEventListener("mouseenter", () => {
         if (launchTriggered) return;
-        gsap.to(btn, { y: 4, duration: 0.18, ease: "power2.out" });
+        if (fullMotion) {
+          gsap.to(btn, { y: 4, duration: 0.18, ease: "power2.out" });
+        }
       });
 
       btn.addEventListener("mouseleave", () => {
         if (launchTriggered) return;
-        gsap.to(btn, { y: 0, duration: 0.22, ease: "power2.out" });
+        if (fullMotion) {
+          gsap.to(btn, { y: 0, duration: 0.22, ease: "power2.out" });
+        }
       });
 
       btn.addEventListener("mousedown", () => {
         if (launchTriggered) return;
-        gsap.to(btn, { y: 8, duration: 0.1, ease: "power2.in" });
+        if (fullMotion) {
+          // Snap into the pressed position (ease-out, not ease-in) so the
+          // click feedback is instantaneous, not mushy.
+          gsap.to(btn, { y: 8, duration: 0.1, ease: "power2.out" });
+        }
       });
 
       btn.addEventListener("mouseup", () => {
@@ -364,7 +560,9 @@ const HeroSvg = () => {
           return;
         }
 
-        gsap.to(btn, { y: 4, duration: 0.18, ease: "power2.out" });
+        if (fullMotion) {
+          gsap.to(btn, { y: 4, duration: 0.18, ease: "power2.out" });
+        }
 
         if (!launchUnlocked) {
           const now = performance.now();
@@ -383,9 +581,89 @@ const HeroSvg = () => {
 
         fireBeams();
       });
+        },
+      );
+
+      return () => mm.revert();
     },
     { scope: svgRef, dependencies: [animationRun], revertOnUpdate: true },
   );
+
+  const handleRelaunch = () => {
+    if (isResetting) return;
+
+    const rocketEl = svgRef.current?.querySelector<SVGGElement>(".rocket");
+    if (!rocketEl) {
+      setShowReset(false);
+      setAnimationRun((v) => v + 1);
+      return;
+    }
+
+    setIsResetting(true);
+
+    // Reset the trail so a relaunch starts from a clean scale + opacity, and
+    // make sure any lingering flicker yoyo is killed.
+    const trailEl = rocketEl.querySelector<SVGPathElement>(".rocketTrail");
+    if (trailEl) {
+      gsap.killTweensOf(trailEl);
+      gsap.set(trailEl, {
+        opacity: 0,
+        scaleY: 1,
+        transformOrigin: "50% 0%",
+      });
+    }
+
+    // Fade the in-scene Relaunch pill out in parallel with the descent.
+    const relaunchEl =
+      svgRef.current?.querySelector<SVGGElement>(".RelaunchButton");
+    if (relaunchEl) {
+      gsap.killTweensOf(relaunchEl);
+      gsap.to(relaunchEl, {
+        opacity: 0,
+        scale: 0.95,
+        duration: 0.18,
+        ease: "power2.out",
+        transformOrigin: "50% 50%",
+        onComplete: () => {
+          gsap.set(relaunchEl, { pointerEvents: "none" });
+        },
+      });
+    }
+
+    gsap.killTweensOf(rocketEl);
+
+    gsap
+      .timeline({
+        onComplete: () => {
+          setIsResetting(false);
+          setShowReset(false);
+          setAnimationRun((v) => v + 1);
+        },
+      })
+      .set(rocketEl, {
+        transformOrigin: "50% 100%",
+        x: 0,
+        rotation: 0,
+        opacity: 1,
+      })
+      .to(rocketEl, {
+        y: 0,
+        duration: 2.1,
+        ease: "power3.out",
+      })
+      .to(rocketEl, {
+        y: 8,
+        duration: 0.2,
+        // Paired ease-out across all three reset legs makes the
+        // return-overshoot-settle feel like one continuous motion.
+        ease: "power2.out",
+      })
+      .to(rocketEl, {
+        y: 0,
+        duration: 0.26,
+        ease: "power2.out",
+      });
+  };
 
   return (
     <div className="relative h-full w-full">
@@ -512,6 +790,12 @@ const HeroSvg = () => {
           stroke="black"
         />
         <g className="rocket">
+          <path
+            className="rocketTrail"
+            d="M658 487 Q683 540 672 730 L708 730 Q697 540 722 487 Z"
+            fill="url(#rocketTrailGradient)"
+            style={{ opacity: 0 }}
+          />
           <path
             d="M661.605 262.632V247.135C663.194 248.879 665.407 250.775 668.104 252.421C668.896 252.904 669.731 253.366 670.603 253.796C677.357 257.126 686.403 258.554 696.098 253.358C697.092 252.826 698.092 252.224 699.098 251.547C701.247 250.101 703.419 248.313 705.596 246.136V260.633V267.631C708.43 269.692 709.618 272.417 710.016 274.63C710.236 275.852 710.214 276.918 710.095 277.629C710.075 277.712 710.054 277.793 710.033 277.874L710.143 299.125L710.359 340.617L710.437 355.614L710.46 360.113L710.486 365.112L710.541 375.61L710.568 380.859L710.595 386.108L723.093 411.603V470.092C721.26 472.591 716.494 476.99 712.095 474.591V480.59C704.856 486.22 697.962 485.874 693.099 483.98C690.708 483.048 688.808 481.743 687.6 480.59C684.4 482.189 681.268 481.256 680.101 480.59C673.303 486.988 663.938 485.922 660.105 484.589C656.773 483.422 650.807 479.79 653.607 474.591C647.208 473.791 644.608 471.258 644.108 470.092V411.603L657.391 385.108V380.859V376.61V372.111V366.112V361.113V355.614V340.617V299.125V275.63C657.331 270.739 659.592 268.001 661.605 266.132V262.632Z"
             fill="white"
@@ -730,7 +1014,7 @@ const HeroSvg = () => {
           stroke="black"
         />
 
-        <g className="layer1">
+        <g className="layer1" style={{ visibility: "hidden" }}>
           <rect
             width="73.1803"
             height="73.1803"
@@ -810,7 +1094,7 @@ const HeroSvg = () => {
           fill="white"
           stroke="black"
         />
-        <g className="layer2">
+        <g className="layer2" style={{ visibility: "hidden" }}>
           <rect
             width="73.1803"
             height="73.1803"
@@ -829,7 +1113,7 @@ const HeroSvg = () => {
           />
         </g>
 
-        <g className="layer3">
+        <g className="layer3" style={{ visibility: "hidden" }}>
           <rect
             width="73.1803"
             height="73.1803"
@@ -870,7 +1154,7 @@ const HeroSvg = () => {
             strokeLinejoin="round"
           />
         </g>
-        <g className="layer4">
+        <g className="layer4" style={{ visibility: "hidden" }}>
           <rect
             width="73.1803"
             height="73.1803"
@@ -1025,6 +1309,106 @@ const HeroSvg = () => {
             fill="black"
           />
         </g>
+        <g
+          className="RelaunchButton"
+          style={{
+            opacity: 0,
+            pointerEvents: "none",
+            cursor: "pointer",
+            transformOrigin: "50% 50%",
+          }}
+          aria-hidden={!showReset}
+          onClick={handleRelaunch}
+          onMouseEnter={(e) => {
+            if (isResetting) return;
+            if (
+              typeof window !== "undefined" &&
+              window.matchMedia("(prefers-reduced-motion: reduce)").matches
+            )
+              return;
+            gsap.to(e.currentTarget, {
+              scale: 1.04,
+              duration: 0.15,
+              ease: "power2.out",
+              transformOrigin: "50% 50%",
+            });
+          }}
+          onMouseLeave={(e) => {
+            if (isResetting) return;
+            if (
+              typeof window !== "undefined" &&
+              window.matchMedia("(prefers-reduced-motion: reduce)").matches
+            )
+              return;
+            gsap.to(e.currentTarget, {
+              scale: 1,
+              duration: 0.18,
+              ease: "power2.out",
+              transformOrigin: "50% 50%",
+            });
+          }}
+          onMouseDown={(e) => {
+            if (isResetting) return;
+            if (
+              typeof window !== "undefined" &&
+              window.matchMedia("(prefers-reduced-motion: reduce)").matches
+            )
+              return;
+            gsap.to(e.currentTarget, {
+              scale: 0.97,
+              duration: 0.1,
+              ease: "power2.out",
+              transformOrigin: "50% 50%",
+            });
+          }}
+          onMouseUp={(e) => {
+            if (isResetting) return;
+            if (
+              typeof window !== "undefined" &&
+              window.matchMedia("(prefers-reduced-motion: reduce)").matches
+            )
+              return;
+            gsap.to(e.currentTarget, {
+              scale: 1.04,
+              duration: 0.15,
+              ease: "power2.out",
+              transformOrigin: "50% 50%",
+            });
+          }}
+          role="button"
+          aria-label="Relaunch"
+        >
+          <rect
+            x="270"
+            y="314"
+            width="92"
+            height="26"
+            rx="13"
+            fill="white"
+            stroke="black"
+          />
+          {/* Refresh glyph: a small arc with an arrow head */}
+          <path
+            d="M283 332 A5 5 0 1 0 282 322 L286 322 M282 322 L284 320 M282 322 L284 324"
+            stroke="black"
+            strokeWidth="1.2"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <text
+            x="320"
+            y="332"
+            textAnchor="middle"
+            fontSize="10"
+            fontFamily="inherit"
+            fontWeight="600"
+            fill="black"
+            letterSpacing="0.6"
+          >
+            RELAUNCH
+          </text>
+        </g>
         <path
           d="M346.004 376.59L317.02 393.324C316.542 393.6 315.767 393.6 315.288 393.324L286.229 376.547"
           stroke="black"
@@ -1127,6 +1511,17 @@ const HeroSvg = () => {
           stroke="url(#paint25_linear_4_2)"
         />
         <defs>
+          <linearGradient
+            id="rocketTrailGradient"
+            x1="0"
+            y1="0"
+            x2="0"
+            y2="1"
+          >
+            <stop offset="0%" stopColor="#5B78F2" stopOpacity="0.9" />
+            <stop offset="55%" stopColor="#5B78F2" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#5B78F2" stopOpacity="0" />
+          </linearGradient>
           <filter
             id="filter0_ii_4_2"
             x="336.094"
@@ -1503,60 +1898,6 @@ const HeroSvg = () => {
           </linearGradient>
         </defs>
       </svg>
-      {showReset && (
-        <Button
-          size={"icon"}
-          variant={"outline"}
-          disabled={isResetting}
-          type="button"
-          onClick={() => {
-            if (isResetting) return;
-
-            const rocketEl = svgRef.current?.querySelector<SVGGElement>(".rocket");
-            if (!rocketEl) {
-              setShowReset(false);
-              setAnimationRun((v) => v + 1);
-              return;
-            }
-
-            setIsResetting(true);
-            gsap.killTweensOf(rocketEl);
-
-            gsap
-              .timeline({
-                onComplete: () => {
-                  setIsResetting(false);
-                  setShowReset(false);
-                  setAnimationRun((v) => v + 1);
-                },
-              })
-              .set(rocketEl, {
-                transformOrigin: "50% 100%",
-                x: 0,
-                rotation: 0,
-                opacity: 1,
-              })
-              .to(rocketEl, {
-                y: 0,
-                duration: 2.1,
-                ease: "power3.out",
-              })
-              .to(rocketEl, {
-                y: 8,
-                duration: 0.2,
-                ease: "power1.inOut",
-              })
-              .to(rocketEl, {
-                y: 0,
-                duration: 0.26,
-                ease: "power2.out",
-              });
-          }}
-          className="fixed right-4 bottom-4 z-50 text-xs transition hover:-translate-y-px disabled:opacity-70"
-        >
-          <RefreshCcw />
-        </Button>
-      )}
     </div>
   );
 };
