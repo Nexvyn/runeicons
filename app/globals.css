@@ -201,6 +201,28 @@
   animation: rainbow 6s linear infinite;
 }
 
+@keyframes relaunchArrowHover {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(3px, -14px);
+  }
+}
+
+.relaunchArrow {
+  animation: relaunchArrowHover 1.8s cubic-bezier(0.455, 0.03, 0.515, 0.955)
+    infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .relaunchArrow {
+    animation: none;
+  }
+}
+
 .bg-workspace-pattern {
   background-color: var(--background);
   background-image: url("data:image/svg+xml,%3Csvg width='160' height='160' viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='rgba(0,0,0,0.02)' font-family='monospace' font-size='8'%3E%3Ctext x='10' y='20'%3ERUNE_SYSTEM%3C/text%3E%3Ctext x='80' y='60'%3ECORE.TSX%3C/text%3E%3Ctext x='20' y='100'%3EUTILS.LIB%3C/text%3E%3Ctext x='90' y='140'%3EUI.LAYOUT%3C/text%3E%3C/g%3E%3C/svg%3E");
