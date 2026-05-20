@@ -51,31 +51,36 @@ export const EditorIconTray = memo(function EditorIconTray({
                 y: TRAY_ITEM.exitY,
               }}
               transition={TRAY_ITEM.spring}
-              className="relative group flex items-center justify-center will-change-transform"
+              className="group flex items-center justify-center will-change-transform"
             >
-              <button
-                type="button"
-                className={cn(
-                  "w-11 h-11 rounded-lg border flex items-center justify-center p-2",
-                  "transition-[colors,transform,box-shadow] duration-150 ease-out hover:scale-105 active:scale-[0.97]",
-                  "bg-card shadow-sm cursor-pointer",
-                  isSelected
-                    ? "border-primary ring-2 ring-primary/30"
-                    : "border-border/50 hover:border-border",
-                )}
-                onClick={() => onAssetSelect(asset)}
-                aria-label={`Select ${asset.name}`}
-              >
-                <EditorSvgPreview document={asset} className="h-full w-full" />
-              </button>
-              <button
-                type="button"
-                onClick={() => onRemoveAsset(asset.id)}
-                className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition-[opacity,transform] duration-150 ease-out flex items-center justify-center shadow-lg hover:scale-110 active:scale-90 z-10"
-                aria-label={`Remove ${asset.name}`}
-              >
-                <X className="w-2.5 h-2.5" />
-              </button>
+              <div className="relative">
+                <button
+                  type="button"
+                  className={cn(
+                    "w-11 h-11 rounded-lg border flex items-center justify-center p-2",
+                    "transition-[colors,transform,box-shadow] duration-150 ease-out hover:scale-105 active:scale-[0.97]",
+                    "bg-card shadow-sm cursor-pointer",
+                    isSelected
+                      ? "border-primary ring-2 ring-primary/30"
+                      : "border-border/50 hover:border-border",
+                  )}
+                  onClick={() => onAssetSelect(asset)}
+                  aria-label={`Select ${asset.name}`}
+                >
+                  <EditorSvgPreview document={asset} className="h-full w-full" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemoveAsset(asset.id);
+                  }}
+                  className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition-[opacity,transform] duration-150 ease-out flex items-center justify-center shadow-lg hover:scale-110 active:scale-90 z-10"
+                  aria-label={`Remove ${asset.name}`}
+                >
+                  <X className="w-2.5 h-2.5" />
+                </button>
+              </div>
             </m.div>
           );
         })}

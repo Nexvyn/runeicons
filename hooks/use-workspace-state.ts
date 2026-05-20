@@ -81,7 +81,15 @@ export function useWorkspaceState(
       const savedState = localStorage.getItem("rune_workspace_state");
       if (savedState) {
         const parsed = JSON.parse(savedState);
-        setState({ ...DEFAULT_STATE, ...parsed });
+        setState({
+          ...DEFAULT_STATE,
+          ...parsed,
+          motion: { ...DEFAULT_STATE.motion, ...(parsed.motion ?? {}) },
+          shadow: { ...DEFAULT_STATE.shadow, ...(parsed.shadow ?? {}) },
+          noise: { ...DEFAULT_STATE.noise, ...(parsed.noise ?? {}) },
+          texture: { ...DEFAULT_STATE.texture, ...(parsed.texture ?? {}) },
+          gradient: { ...DEFAULT_STATE.gradient, ...(parsed.gradient ?? {}) },
+        });
       }
     } catch (error) {
       console.error("Failed to load state from storage:", error);

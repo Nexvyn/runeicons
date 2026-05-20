@@ -50,11 +50,16 @@ export const PreviewContent = memo(
       }, [selectedIcon?.url]);
 
       const isDrawAnim = motionEnabled && (animationType === "draw" || animationType === "stroke");
+      const effectiveIconType = selectedIcon?.iconType ?? state.iconType;
       const renderAsDesigned =
-        state.iconType === "duotone" ||
-        state.iconType === "fill" ||
-        state.iconType === "glass" ||
-        state.iconType === "pixelated";
+        effectiveIconType === "duotone" ||
+        effectiveIconType === "fill" ||
+        effectiveIconType === "glass" ||
+        effectiveIconType === "pixelated";
+      const renderRawFromPublic =
+        effectiveIconType === "duotone" ||
+        effectiveIconType === "fill" ||
+        effectiveIconType === "glass";
 
       const colorizedSvgContent = useMemo(() => {
         if (!svgData) return null;
@@ -72,29 +77,20 @@ export const PreviewContent = memo(
         }
 
         const color = state.colors[0] || "currentColor";
-        const isFill = state.iconType === "fill";
-        const isDuotone = state.iconType === "duotone";
 
         let baseColorized: string;
         if (state.iconGradient) {
           const gt = state.gradient.target ?? "both";
           const strokeVal = gt === "stroke" || gt === "both" ? "url(#icon-gradient)" : color;
           const fillVal =
-            gt === "fill" || gt === "both"
-              ? "url(#icon-gradient)"
-              : isFill
-                ? color
-                : isDuotone
-                  ? `${color}33`
-                  : "none";
+            gt === "fill" || gt === "both" ? "url(#icon-gradient)" : "none";
           baseColorized = svgContent
             .replace(/\bstroke="(?!none)[^"]*"/g, `stroke="${strokeVal}"`)
             .replace(/\bfill="(?!none)[^"]*"/g, `fill="${fillVal}"`);
         } else {
-          const fillVal = isFill ? color : isDuotone ? `${color}33` : "none";
           baseColorized = svgContent
             .replace(/\bstroke="(?!none)[^"]*"/g, `stroke="${color}"`)
-            .replace(/\bfill="(?!none)[^"]*"/g, `fill="${fillVal}"`);
+            .replace(/\bfill="(?!none)[^"]*"/g, `fill="none"`);
         }
 
         let result = baseColorized
@@ -110,7 +106,7 @@ export const PreviewContent = memo(
         }
 
         return result;
-      }, [svgData, state.colors, state.iconGradient, state.gradient.target, state.iconType, state.strokeStyle, isDrawAnim, renderAsDesigned]);
+      }, [svgData, state.colors, state.iconGradient, state.gradient.target, effectiveIconType, state.strokeStyle, isDrawAnim, renderAsDesigned]);
       useEffect(() => {
         const container = lucideWrapRef.current;
         if (!container || !isDrawAnim) return;
@@ -288,7 +284,12 @@ export const PreviewContent = memo(
             }}
             style={{
               background: state.backgroundColor || "transparent",
-              overflow: "hidden",
+              overflow:
+                animationType === "bounce" ||
+                animationType === "shake" ||
+                animationType === "jump"
+                  ? "visible"
+                  : "hidden",
               borderRadius: state.cornerRadius,
               transition: "border-radius 0.2s ease",
               ...(!supportsFilter &&
@@ -310,7 +311,7 @@ export const PreviewContent = memo(
             <AnimatePresence mode="popLayout">
               {selectedIcon ? (
                 <motion.div
-                  key={`${selectedIcon.id}-${state.iconType}-${state.motion?.replayNonce ?? 0}`}
+                  key={`${selectedIcon.id}-${effectiveIconType}-${state.motion?.replayNonce ?? 0}`}
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0, opacity: 0 }}
@@ -321,11 +322,11 @@ export const PreviewContent = memo(
                   }}
                   className={cn(
                     "flex h-full w-full items-center justify-center",
-                    state.iconType === "isometric" &&
+                    effectiveIconType === "isometric" &&
                       "[transform:rotateX(45deg)_rotateZ(-45deg)] transform",
-                    state.iconType === "pixelated" &&
+                    effectiveIconType === "pixelated" &&
                       "[filter:url(#pixelate)] [image-rendering:pixelated]",
-                    state.iconType === "dither" && "[filter:url(#dither-filter)]",
+                    effectiveIconType === "dither" && "[filter:url(#dither-filter)]",
                   )}
                 >
                   <div
@@ -340,9 +341,15 @@ export const PreviewContent = memo(
                     {colorizedSvgContent ? (
                       <svg
                         viewBox={svgData?.viewBox || "0 0 24 24"}
-                        strokeWidth={strokeAttrs.strokeWidth}
-                        strokeLinecap={strokeAttrs.strokeLinecap}
-                        strokeLinejoin={strokeAttrs.strokeLinejoin}
+                        strokeWidth={
+                          renderRawFromPublic ? undefined : strokeAttrs.strokeWidth
+                        }
+                        strokeLinecap={
+                          renderRawFromPublic ? undefined : strokeAttrs.strokeLinecap
+                        }
+                        strokeLinejoin={
+                          renderRawFromPublic ? undefined : strokeAttrs.strokeLinejoin
+                        }
                         stroke={
                           renderAsDesigned
                             ? undefined
@@ -350,18 +357,10 @@ export const PreviewContent = memo(
                               ? "url(#icon-gradient)"
                               : state.colors[0] || "currentColor"
                         }
-                        fill={
-                          renderAsDesigned
-                            ? undefined
-                            : state.iconType === "fill"
-                              ? (applyGradToFill ? "url(#icon-gradient)" : state.colors[0] || "currentColor")
-                              : state.iconType === "duotone"
-                                ? (applyGradToFill ? "url(#icon-gradient)" : `${state.colors[0] || "currentColor"}33`)
-                                : "none"
-                        }
+                        fill="none"
                         className={cn(
                           "h-full w-full",
-                          renderAsDesigned && state.iconType !== "glass" && "dark:invert",
+                          renderAsDesigned && !renderRawFromPublic && "dark:invert",
                         )}
                         style={{
                           transform: `rotate(${state.rotation}deg) ${state.flipH ? "scaleX(-1)" : ""} ${state.flipV ? "scaleY(-1)" : ""}`.trim(),
@@ -383,16 +382,16 @@ export const PreviewContent = memo(
                         const LucideIcon = SelectedIconComponent as any;
                         return (
                           <LucideIcon
-                            className={cn(renderAsDesigned && state.iconType !== "glass" && "dark:invert")}
+                            className={cn(renderAsDesigned && !renderRawFromPublic && "dark:invert")}
                             size="100%"
                             strokeWidth={strokeAttrs.strokeWidth}
                             strokeLinecap={strokeAttrs.strokeLinecap}
                             strokeLinejoin={strokeAttrs.strokeLinejoin}
                             stroke={applyGradToStroke ? "url(#icon-gradient)" : state.colors[0] || "currentColor"}
                             fill={
-                              state.iconType === "fill"
+                              effectiveIconType === "fill"
                                 ? (applyGradToFill ? "url(#icon-gradient)" : state.colors[0] || "currentColor")
-                                : state.iconType === "duotone"
+                                : effectiveIconType === "duotone"
                                   ? (applyGradToFill ? "url(#icon-gradient)" : `${state.colors[0] || "currentColor"}33`)
                                   : "none"
                             }
@@ -418,7 +417,7 @@ export const PreviewContent = memo(
                       <div
                         className={cn(
                           "h-full w-full flex items-center justify-center",
-                          renderAsDesigned && state.iconType !== "glass" && "dark:invert",
+                          renderAsDesigned && !renderRawFromPublic && "dark:invert",
                         )}
                         style={{
                           WebkitMaskImage: selectedIcon?.url ? `url(${selectedIcon.url})` : "none",

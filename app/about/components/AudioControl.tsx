@@ -1,5 +1,7 @@
 import * as m from "motion/react-m";
 
+import { Kbd } from "@/components/ui/kbd";
+
 interface AudioControlProps {
   isMuted: boolean;
   onToggle: () => void;
@@ -10,18 +12,22 @@ const AudioControl = ({ isMuted, onToggle }: AudioControlProps) => {
     <m.button
       data-detail-keep
       onClick={onToggle}
-      aria-label={isMuted ? "Unmute" : "Mute"}
-      className="group absolute top-8 left-20 z-50 flex size-9 cursor-pointer items-center justify-center rounded-full text-[#595959] transition-colors hover:text-white"
+      aria-label={isMuted ? "Unmute (M)" : "Mute (M)"}
+      aria-pressed={isMuted}
+      title={isMuted ? "Unmute (M)" : "Mute (M)"}
+      className="group absolute top-8 left-20 z-50 flex cursor-pointer items-center justify-center rounded-md p-1 text-[#595959] transition-colors hover:text-white"
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.94 }}
       transition={{ duration: 0.15 }}
     >
-      <span className="relative font-mono text-base font-semibold leading-none select-none">
-        M
+      <span className="relative inline-flex">
+        <Kbd className="h-7 min-w-7 px-2 font-mono text-sm font-semibold">
+          M
+        </Kbd>
         {isMuted && (
           <span
             aria-hidden
-            className="pointer-events-none absolute top-1/2 left-[-2px] h-[1.5px] w-[calc(100%+4px)] origin-center bg-current"
+            className="pointer-events-none absolute top-1/2 left-[-3px] h-[1.5px] w-[calc(100%+6px)] origin-center bg-current"
             style={{ transform: "translateY(-50%) rotate(-18deg)" }}
           />
         )}

@@ -28,7 +28,25 @@ export function CanvasFrame({ children, trayNode, showGrid }: CanvasFrameProps) 
       </AnimatePresence>
       <div className="relative z-10 flex flex-1 flex-col min-h-0 h-full cursor-default">
         {children}
-        {trayNode}
+      </div>
+
+      <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center">
+        <div className="w-full h-full flex items-center justify-center -translate-y-10">
+          <svg
+            width="1100"
+            height="800"
+            viewBox="0 0 1100 800"
+            preserveAspectRatio="xMidYMid meet"
+            className="max-w-full max-h-full w-auto h-auto"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <foreignObject x={150} y={650} width={800} height={100}>
+              <div className="w-full h-full pointer-events-auto">
+                {trayNode}
+              </div>
+            </foreignObject>
+          </svg>
+        </div>
       </div>
     </div>
   );
