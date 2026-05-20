@@ -102,10 +102,10 @@ export function IconTypeList({
                   size="icon"
                   onClick={() => onTypeChange?.(type.id)}
                   className={cn(
-                    "h-8 w-8 rounded-md bg-white dark:bg-[#1a1a1a] border-border transition-[background-color,color,scale] duration-150 ease-out focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[0.96]",
+                    "h-8 w-8 rounded-md border-border transition-[background-color,color,scale] duration-150 ease-out focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[0.96]",
                     isActive
-                      ? "bg-primary/10 border-primary/30 text-primary hover:bg-primary/20"
-                      : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                      ? "bg-brand dark:bg-brand text-white border-brand/20 hover:bg-brand/90 dark:hover:bg-brand/90"
+                      : "bg-white dark:bg-[#1a1a1a] text-muted-foreground hover:bg-accent hover:text-foreground",
                   )}
                   aria-label={type.label}
                   role="radio"

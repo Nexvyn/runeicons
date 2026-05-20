@@ -52,7 +52,6 @@ export const Scrubber: React.FC<ScrubberProps> = ({
   const [isOverlapping, setIsOverlapping] = useState(false);
   const value = controlledValue !== undefined ? controlledValue : internalValue;
 
-  // Sync inputValue when value changes from outside (e.g. scrubbing)
   useEffect(() => {
     if (!isEditing) {
       setInputValue(value.toString());
@@ -84,7 +83,6 @@ export const Scrubber: React.FC<ScrubberProps> = ({
       `linear-gradient(to right, black 0%, black calc(${v}% - 10px), transparent calc(${v}% + 10px), transparent 100%)`,
   );
 
-  // Rubber band motion values
   const rubberStretchPx = useMotionValue(0);
   const rubberBandWidth = useTransform(
     rubberStretchPx,
@@ -125,12 +123,6 @@ export const Scrubber: React.FC<ScrubberProps> = ({
   }, [label, springX]);
 
   useEffect(() => {
-    if (
-      (isEditing || showInput) &&
-      inputRef.current &&
-      document.activeElement === inputRef.current
-    ) {
-    }
     if (isEditing && inputRef.current) {
       inputRef.current.focus();
       inputRef.current.select();
@@ -209,7 +201,6 @@ export const Scrubber: React.FC<ScrubberProps> = ({
     if (!containerRef.current || disabled) return;
     const rect = containerRef.current.getBoundingClientRect();
 
-    // Rubber band stretch logic
     if (isDragging) {
       if (clientX < rect.left) {
         rubberStretchPx.set(computeRubberStretch(clientX, -1));
@@ -258,7 +249,6 @@ export const Scrubber: React.FC<ScrubberProps> = ({
     e.currentTarget.releasePointerCapture(e.pointerId);
     setIsDragging(false);
 
-    // Spring rubber band back
     if (rubberStretchPx.get() !== 0) {
       animate(rubberStretchPx, 0, {
         type: "spring",
@@ -284,12 +274,6 @@ export const Scrubber: React.FC<ScrubberProps> = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onKeyDown={handleSliderKeyDown}
-      animate={{ transform: "scale(1)" }}
-      transition={{
-        type: "spring",
-        stiffness: values.springStiffness,
-        damping: values.springDamping,
-      }}
       style={{ width: rubberBandWidth, x: rubberBandX }}
       className={cn(
         "group relative h-[34px] w-full touch-none overflow-hidden rounded-sm border border-border/40 bg-muted/10 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.15)]",
@@ -315,7 +299,6 @@ export const Scrubber: React.FC<ScrubberProps> = ({
           trackClassName,
         )}
       >
-        {/* Hashmarks */}
         <div className="pointer-events-none absolute inset-0 flex items-center">
           <div className="flex w-full justify-between px-[10px] opacity-[0.06]">
             {(() => {

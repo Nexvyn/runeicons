@@ -11,7 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { CustomizationState } from "@/lib/types";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import { useTuning } from "@/components/icon-page/tuning";
 
 interface UploadSectionProps {
@@ -230,29 +230,7 @@ export function UploadSection({
                       )}
                       aria-label={armedDeleteId === icon.id ? `Confirm delete ${icon.name}` : `Delete ${icon.name}`}
                     >
-                      <AnimatePresence mode="wait">
-                        {armedDeleteId === icon.id ? (
-                          <motion.div
-                            key="alert"
-                            initial={{ scale: 0.8, opacity: 0, filter: "blur(4px)" }}
-                            animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
-                            exit={{ scale: 0.25, opacity: 0, filter: "blur(4px)" }}
-                            transition={{ type: "spring", duration: 0.3, bounce: 0 }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </motion.div>
-                        ) : (
-                          <motion.div
-                            key="trash"
-                            initial={{ scale: 0.8, opacity: 0, filter: "blur(4px)" }}
-                            animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
-                            exit={{ scale: 0.25, opacity: 0, filter: "blur(4px)" }}
-                            transition={{ type: "spring", duration: 0.3, bounce: 0 }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </motion.div>
                 </motion.div>
