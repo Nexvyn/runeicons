@@ -62,6 +62,7 @@ export function useWorkspaceState(
   const [state, setState] = useState<CustomizationState>(DEFAULT_STATE);
   const [hasInitializedTheme, setHasInitializedTheme] = useState(false);
   const [hasLoadedFromStorage, setHasLoadedFromStorage] = useState(false);
+  const colorsManuallySetRef = useRef(false);
   const customIconsRef = useRef<
     Array<{ id: string; name: string; url: string }>
   >([]);
@@ -106,19 +107,20 @@ export function useWorkspaceState(
   const lastHistoryIndexRef = useRef(historyIndex);
   const lastStateRef = useRef<CustomizationState>(state);
   useEffect(() => {
-
     if (historyIndex !== lastHistoryIndexRef.current) {
       lastHistoryIndexRef.current = historyIndex;
       const historicalState = history[historyIndex];
       lastStateRef.current = historicalState;
-
       setState(historicalState);
       return;
     }
 
     if (state !== lastStateRef.current) {
-      pushState(state);
-      lastStateRef.current = state;
+      const timeoutId = setTimeout(() => {
+        pushState(state);
+        lastStateRef.current = state;
+      }, 600);
+      return () => clearTimeout(timeoutId);
     }
   }, [historyIndex, history, state, pushState]);
 
@@ -161,9 +163,10 @@ export function useWorkspaceState(
       : null;
     const currentState = lastStateRef.current;
     const shouldSyncAdaptivePalette =
-      !previousAdaptiveState ||
-      (areStringArraysEqual(currentState.colors, previousAdaptiveState.colors) &&
-        areGradientsEqual(currentState.gradient, previousAdaptiveState.gradient));
+      !colorsManuallySetRef.current &&
+      (!previousAdaptiveState ||
+        (areStringArraysEqual(currentState.colors, previousAdaptiveState.colors) &&
+          areGradientsEqual(currentState.gradient, previousAdaptiveState.gradient)));
 
     lastResolvedThemeRef.current = resolvedTheme;
 
@@ -179,10 +182,14 @@ export function useWorkspaceState(
   }, [resolvedTheme, hasInitializedTheme]);
 
   const handleChange = useCallback((updates: Partial<CustomizationState>) => {
+    if ("colors" in updates || "gradient" in updates) {
+      colorsManuallySetRef.current = true;
+    }
     setState((prev: CustomizationState) => ({ ...prev, ...updates }));
   }, []);
 
   const handleReset = useCallback(() => {
+    colorsManuallySetRef.current = false;
     setState(createAdaptiveState(resolvedTheme));
   }, [resolvedTheme]);
 

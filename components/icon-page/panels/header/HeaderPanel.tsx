@@ -36,15 +36,17 @@ export function HeaderPanel({ className }: HeaderPanelProps) {
       )}
     >
       <div className="bg-pattern-vertical-dashes pointer-events-none absolute inset-0" />
-      <div className="relative z-10 flex h-full w-full">
+      <div className="relative z-10 flex h-full w-full min-w-0">
         <Link
           href="/"
-          className="group flex h-full w-12 cursor-pointer items-center justify-center border-r border-border transition-colors duration-150 ease-out hover:bg-muted/50"
+          className="group flex h-full w-12 shrink-0 cursor-pointer items-center justify-center border-r border-border transition-colors duration-150 ease-out hover:bg-muted/50"
         >
           <HeaderLogo className="h-8 w-8 transition-transform duration-150 ease-out group-hover:scale-[1.02]" />
         </Link>
-        <div className="flex h-full w-[320px] items-center border-r border-border px-5"></div>
-        <div className="flex h-full flex-1 items-center justify-end border-r border-border px-6">
+
+        <div className="hidden lg:flex h-full w-[320px] shrink-0 items-center border-r border-border px-5" />
+
+        <div className="hidden sm:flex h-full flex-1 min-w-0 items-center justify-center lg:justify-end border-r border-border px-4 lg:px-6">
           <div className="relative flex h-8 items-center gap-1 rounded-md border border-border bg-[#f5f5f5] p-1 dark:bg-[#1a1a1a]">
             <Link
               href="/icons"
@@ -80,11 +82,13 @@ export function HeaderPanel({ className }: HeaderPanelProps) {
             </Link>
           </div>
         </div>
-        <div className="flex h-full w-[340px] items-center justify-end gap-2.5 px-6">
+
+        <div className="flex h-full shrink-0 items-center justify-end gap-2 px-3 lg:w-85 lg:gap-2.5 lg:px-6">
           <Link
             href="https://github.com/rune-icon/runeicons"
             target="_blank"
             rel="noopener noreferrer"
+            className="hidden sm:block"
           >
             <Button
               variant="outline"

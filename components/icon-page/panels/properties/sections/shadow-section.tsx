@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Scrubber } from "@/components/ui/scrubber";
+import { Switch } from "@/components/ui/switch";
 import { CustomizationState } from "@/lib/types";
 
 interface ShadowSectionProps {
@@ -17,44 +18,50 @@ export function ShadowSection({
   onChange,
 }: ShadowSectionProps) {
   return (
-    <Section 
+    <Section
       title="Shadow"
       headerAction={
-        <div className="flex p-0.5 rounded-md border border-border/50 bg-muted/20">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() =>
-              onChange({
-                shadow: { ...state.shadow, inner: false },
-              })
-            }
-            className={cn(
-              "h-6 px-3 text-[9px] uppercase tracking-tighter rounded-sm transition-all duration-150 active:scale-[0.98]",
-              !state.shadow.inner
-                ? "bg-background text-foreground shadow-sm border border-border/60"
-                : "text-muted-foreground hover:text-foreground hover:bg-background/40",
-            )}
-          >
-            Outer
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() =>
-              onChange({
-                shadow: { ...state.shadow, inner: true },
-              })
-            }
-            className={cn(
-              "h-6 px-3 text-[9px] uppercase tracking-tighter rounded-sm transition-all duration-150 active:scale-[0.98]",
-              state.shadow.inner
-                ? "bg-background text-foreground shadow-sm border border-border/60"
-                : "text-muted-foreground hover:text-foreground hover:bg-background/40",
-            )}
-          >
-            Inner
-          </Button>
+        <div className="flex items-center gap-2">
+          <div className="flex p-0.5 rounded-md border border-border/50 bg-muted/20">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() =>
+                onChange({
+                  shadow: { ...state.shadow, inner: false, enabled: true },
+                })
+              }
+              className={cn(
+                "h-6 px-3 text-[9px] uppercase tracking-tighter rounded-sm transition-all duration-150 active:scale-[0.98]",
+                !state.shadow.inner
+                  ? "bg-background text-foreground shadow-sm border border-border/60"
+                  : "text-muted-foreground hover:text-foreground hover:bg-background/40",
+              )}
+            >
+              Outer
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() =>
+                onChange({
+                  shadow: { ...state.shadow, inner: true, enabled: true },
+                })
+              }
+              className={cn(
+                "h-6 px-3 text-[9px] uppercase tracking-tighter rounded-sm transition-all duration-150 active:scale-[0.98]",
+                state.shadow.inner
+                  ? "bg-background text-foreground shadow-sm border border-border/60"
+                  : "text-muted-foreground hover:text-foreground hover:bg-background/40",
+              )}
+            >
+              Inner
+            </Button>
+          </div>
+          <Switch
+            checked={state.shadow.enabled}
+            onCheckedChange={(v) => onChange({ shadow: { ...state.shadow, enabled: v } })}
+          />
         </div>
       }
     >

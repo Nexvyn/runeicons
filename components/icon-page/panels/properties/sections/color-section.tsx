@@ -134,7 +134,7 @@ export function ColorSection({ state, onChange }: ColorSectionProps) {
                                 <div className="flex h-[34px] w-full items-center justify-between rounded-sm border border-border/40 bg-muted/10 px-2 shadow-[inset_0_1.5px_4px_rgba(0,0,0,0.08)] transition-all hover:border-foreground/20">
                                     <span className="text-[10px] tracking-widest text-foreground/70 uppercase ml-1">Projection</span>
                                     <div className="flex items-center gap-1">
-                                        {(['linear', 'radial'] as const).map((t) => (
+                                        {(['linear', 'radial', 'angular'] as const).map((t) => (
                                             <button
                                                 key={t}
                                                 onClick={() => onChange({ gradient: { ...state.gradient, type: t } })}
@@ -161,11 +161,16 @@ export function ColorSection({ state, onChange }: ColorSectionProps) {
                                     />
                                 )}
 
-                                {state.gradient.type === 'radial' && (
+                                {(state.gradient.type === 'radial' || state.gradient.type === 'angular') && (
                                     <div className="space-y-2">
                                         <Scrubber label="Center X" value={state.gradient.cx ?? 50} onChange={(v) => onChange({ gradient: { ...state.gradient, cx: v } })} min={0} max={100} />
                                         <Scrubber label="Center Y" value={state.gradient.cy ?? 50} onChange={(v) => onChange({ gradient: { ...state.gradient, cy: v } })} min={0} max={100} />
-                                        <Scrubber label="Radius" value={state.gradient.r ?? 50} onChange={(v) => onChange({ gradient: { ...state.gradient, r: v } })} min={5} max={150} />
+                                        {state.gradient.type === 'radial' && (
+                                            <Scrubber label="Radius" value={state.gradient.r ?? 50} onChange={(v) => onChange({ gradient: { ...state.gradient, r: v } })} min={5} max={150} />
+                                        )}
+                                        {state.gradient.type === 'angular' && (
+                                            <Scrubber label="Angle" value={state.gradient.angle} onChange={(v) => onChange({ gradient: { ...state.gradient, angle: v } })} min={0} max={360} />
+                                        )}
                                     </div>
                                 )}
 
