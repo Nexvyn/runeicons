@@ -3,13 +3,19 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Diamond, Hammer, Paintbrush, Rocket, Sparkles, Zap } from "lucide-react";
+import { useReducedMotion } from "motion/react";
 import * as m from "motion/react-m";
 
 import { Button } from "@/components/ui/button";
 
 import Mascot from "../svg/mascot";
 
+const EASE_OUT_QUART = [0.165, 0.84, 0.44, 1] as const;
+const ENTRANCE_DURATION = 0.35;
+const HOVER_DURATION = 0.15;
+
 const CTA = () => {
+  const shouldReduceMotion = useReducedMotion();
   const icons = [
     { icon: Rocket, x: "10%", y: "20%", size: 32, delay: 0 },
     { icon: Sparkles, x: "85%", y: "15%", size: 24, delay: 1 },
@@ -45,7 +51,6 @@ const CTA = () => {
           </svg>
         </div>
 
-        {/* Floating Icons */}
         {icons.map((item, i) => (
           <m.div
             key={`${item.x}-${item.y}`}
@@ -74,15 +79,20 @@ const CTA = () => {
         ))}
       </div>
       <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center text-center">
-        <div className="mb-3 h-20 w-20">
+        <m.div
+          initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.92 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, margin: "-10% 0px" }}
+          transition={{ duration: ENTRANCE_DURATION, ease: EASE_OUT_QUART, delay: 0 }}
+          className="mb-3 h-20 w-20"
+        >
           <Mascot />
-        </div>
-        {/* Heading Style (Synced with HeroSection) */}
+        </m.div>
         <m.h2
-          initial={{ opacity: 0, y: 20 }}
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.1 }}
+          viewport={{ once: true, margin: "-10% 0px" }}
+          transition={{ duration: ENTRANCE_DURATION, ease: EASE_OUT_QUART, delay: 0.08 }}
           className="mb-8 text-3xl leading-[1.1] font-medium tracking-tight sm:text-xl md:text-xl lg:text-5xl"
         >
           <span className="bg-linear-to-b from-white to-white/70 bg-clip-text text-transparent">
@@ -91,20 +101,32 @@ const CTA = () => {
         </m.h2>
 
         <m.div
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.3 }}
+          viewport={{ once: true, margin: "-10% 0px" }}
+          transition={{ duration: ENTRANCE_DURATION, ease: EASE_OUT_QUART, delay: 0.18 }}
           className="flex flex-col items-center justify-center gap-4 sm:flex-row"
         >
-          <Link href="/icons">
-            <Button size={"lg"} variant={"default"}>
-              Browse Icons
+          <m.div
+            whileHover={shouldReduceMotion ? undefined : { scale: 1.03 }}
+            whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
+            transition={{ duration: HOVER_DURATION, ease: "easeOut" }}
+          >
+            <Link href="/icons">
+              <Button size={"lg"} variant={"default"}>
+                Browse Icons
+              </Button>
+            </Link>
+          </m.div>
+          <m.div
+            whileHover={shouldReduceMotion ? undefined : { scale: 1.03 }}
+            whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
+            transition={{ duration: HOVER_DURATION, ease: "easeOut" }}
+          >
+            <Button size={"lg"} variant={"secondary"}>
+              Star On GitHub
             </Button>
-          </Link>
-          <Button size={"lg"} variant={"secondary"}>
-            Star On GitHub
-          </Button>
+          </m.div>
         </m.div>
       </div>
     </section>

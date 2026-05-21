@@ -4,7 +4,7 @@ import { useState } from "react";
 import { CreemCheckout } from "@creem_io/nextjs";
 import * as m from "motion/react-m";
 
-import { getProductIdForAmount } from "@/lib/creem";
+import { getCheckoutForAmount } from "@/lib/creem";
 
 import { AmountSelector } from "./ui/amount-selector";
 import { CertificateCard } from "./ui/certificate-card";
@@ -13,7 +13,7 @@ import { Navbar } from "./ui/navbar";
 export default function SponsorContent() {
   const [selectedAmount, setSelectedAmount] = useState(5);
 
-  const productId = getProductIdForAmount(selectedAmount) || "";
+  const checkout = getCheckoutForAmount(selectedAmount);
 
   return (
     <div className="relative grid min-h-screen w-full grid-cols-[1fr_auto_1fr] grid-rows-[auto_1px_1fr] overflow-hidden bg-[#F5F5F5] font-(family-name:--font-inter-tight) dark:bg-background">
@@ -93,15 +93,15 @@ export default function SponsorContent() {
               <div className="absolute inset-0 mx-6 border-t border-dashed border-border sm:mx-8" />
             </div>
 
-            {/* Bottom: certificate (flush, no outer border) */}
+            {/* Bottom: certificate (flush, no outer border).
+                Only the Sponsor button inside the card triggers checkout;
+                clicking elsewhere on the card does nothing. */}
             <div className="w-full">
-              {productId ? (
-                <CreemCheckout productId={productId} successUrl="/sponsor">
-                  <CertificateCard amount={selectedAmount} flush />
-                </CreemCheckout>
-              ) : (
-                <CertificateCard amount={selectedAmount} flush />
-              )}
+              <CertificateCard
+                amount={selectedAmount}
+                checkout={checkout}
+                flush
+              />
             </div>
           </div>
         </m.div>

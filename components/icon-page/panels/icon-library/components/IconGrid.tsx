@@ -15,8 +15,8 @@ const iconVariants = {
 };
 
 const labelVariants = {
-  initial: { opacity: 0, y: 4, filter: "blur(4px)" },
-  hover: { opacity: 1, y: 0, filter: "blur(0px)" },
+  initial: { opacity: 0, y: 4, scale: 0.94 },
+  hover: { opacity: 1, y: 0, scale: 1 },
 };
 
 interface IconGridProps {
@@ -29,11 +29,7 @@ interface IconGridProps {
 }
 
 function IconGridInner({ icons, selectedIconId, onIconClick, isSearching, iconType, customizationState }: IconGridProps) {
-  const invertInDark =
-    iconType === "normal" ||
-    iconType === "pixelated" ||
-    iconType === "duotone" ||
-    iconType === "fill";
+  const invertInDark = iconType === "normal" || iconType === "pixelated";
   const containerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const container = containerRef.current;
@@ -121,7 +117,7 @@ function IconGridInner({ icons, selectedIconId, onIconClick, isSearching, iconTy
               tabIndex={0}
             >
               <motion.div
-                className="relative z-10 flex items-center justify-center p-3"
+                className="relative z-10 flex items-center justify-center p-3 will-change-transform"
                 variants={iconVariants}
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
               >
@@ -172,14 +168,11 @@ function IconGridInner({ icons, selectedIconId, onIconClick, isSearching, iconTy
               </motion.div>
 
               <motion.div
-                className="pointer-events-none absolute right-0 bottom-1 left-0 z-10 flex justify-center px-1.5 text-center"
+                className="pointer-events-none absolute right-0 bottom-1 left-0 z-10 px-1.5 text-center"
                 variants={labelVariants}
                 transition={{ duration: 0.2, ease: "easeOut" }}
               >
-                <span
-                  className="text-[8.5px] leading-[1.1] font-bold tracking-[0.04em] whitespace-normal text-muted-foreground/80 uppercase"
-                  style={{ textWrap: "balance" } as React.CSSProperties}
-                >
+                <span className="block truncate text-[8.5px] leading-[1.1] font-bold tracking-[0.04em] text-muted-foreground/80 uppercase">
                   {icon.name}
                 </span>
               </motion.div>

@@ -9,8 +9,21 @@ import Card from "./Card";
 import DetailView from "./DetailView";
 import UserDetails from "../constants";
 
-const BASE_X = [-246, -82, 95, 276];
-const BASE_Y = [-15, -10, 7, 0];
+const RAW_BASE_X = [-246, -82, 95, 276];
+const RAW_BASE_Y = [-15, -10, 7, 0];
+
+// Re-center the idle layout around its own centroid for however many cards
+// UserDetails currently has, so removing/adding an entry doesn't drift the row.
+const ACTIVE_COUNT = UserDetails.length;
+const CENTROID_X =
+  RAW_BASE_X.slice(0, ACTIVE_COUNT).reduce((sum, x) => sum + x, 0) /
+  ACTIVE_COUNT;
+const CENTROID_Y =
+  RAW_BASE_Y.slice(0, ACTIVE_COUNT).reduce((sum, y) => sum + y, 0) /
+  ACTIVE_COUNT;
+
+const BASE_X = RAW_BASE_X.map((x) => x - CENTROID_X);
+const BASE_Y = RAW_BASE_Y.map((y) => y - CENTROID_Y);
 const NAT_W = [270, 230, 255, 285];
 const Z_IDX = [4, 3, 2, 1];
 const GRID_X_PCT = [-25, 25, -25, 25];
@@ -20,10 +33,10 @@ const PANEL_W = 360;
 const MOBILE_BREAKPOINT = 700;
 const DRAWER_HEIGHT_RATIO = 0.6;
 
-const CB_SPRING = "cubic-bezier(0.34, 1.56, 0.64, 1)";
+const EASE_OUT_QUART = "cubic-bezier(0.165, 0.84, 0.44, 1)";
 
-const POSITIONER_TRANSITION = `transform 0.72s ${CB_SPRING}`;
-const INNER_TRANSITION = `transform 0.72s ${CB_SPRING}, opacity 0.5s ease, filter 0.5s ease`;
+const POSITIONER_TRANSITION = `transform 0.32s ${EASE_OUT_QUART}`;
+const INNER_TRANSITION = `transform 0.32s ${EASE_OUT_QUART}, opacity 0.22s ease-out`;
 
 function getScale(mobile = false) {
   if (typeof window === "undefined") return 1;
@@ -110,7 +123,6 @@ export default function AboutContent() {
       if (!el) return;
       el.style.transform = "";
       el.style.opacity = "";
-      el.style.filter = "";
     });
   }, [isMobile]);
 
@@ -141,7 +153,6 @@ export default function AboutContent() {
           if (inner) {
             inner.style.transform = `scale(${heroScale})`;
             inner.style.opacity = "1";
-            inner.style.filter = "none";
           }
         } else if (isMobile) {
           const gx = (GRID_X_PCT[i] / 100) * vw;
@@ -151,7 +162,6 @@ export default function AboutContent() {
           if (inner) {
             inner.style.transform = "scale(0.6)";
             inner.style.opacity = "0";
-            inner.style.filter = "grayscale(1) brightness(0.4)";
           }
         } else {
           const rep = getRepulsion(heroIdx, i);
@@ -160,7 +170,6 @@ export default function AboutContent() {
           if (inner) {
             inner.style.transform = "scale(0.72)";
             inner.style.opacity = "0.28";
-            inner.style.filter = "grayscale(1) brightness(0.45)";
           }
         }
       });
@@ -181,6 +190,24 @@ export default function AboutContent() {
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, [isOpen, focusedIndex, applyIdlePositions, applyOpenPositions]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "m" && e.key !== "M") return;
+      const t = e.target as HTMLElement | null;
+      if (
+        t &&
+        (t.tagName === "INPUT" ||
+          t.tagName === "TEXTAREA" ||
+          t.isContentEditable)
+      ) {
+        return;
+      }
+      setIsMuted((v) => !v);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;

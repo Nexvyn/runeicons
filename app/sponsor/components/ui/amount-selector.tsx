@@ -32,7 +32,7 @@ export function AmountSelector({
   const handleCustom = () => {
     setCustomMode(true);
     const num = parseInt(customValue, 10);
-    if (num > 0) onAmountChange(num);
+    onAmountChange(num > 0 ? num : 0);
   };
 
   const handleCustomInput = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -197,6 +197,36 @@ export function EditorWorkspacePanel({
                 </div>
               </foreignObject>
 
+              {/* Editor canvas — spans cells (cols 2..7, rows 1..5) of the geometric grid:
+                  x=250..850, y=150..650. Slotted between mini-preview row (ends y=150) and
+                  tray row (starts y=650), horizontally aligned with the tray. Living inside
+                  the same overlay SVG guarantees pixel-perfect alignment with the grid
+                  cells regardless of how the workspace resizes. */}
+              <foreignObject x={250} y={150} width={600} height={500}>
+                <div className="w-full h-full pointer-events-auto relative">
+                  {/* Sharp boundary indicator — separate layer so it does not get
+                      softened by the canvas mask below. Square corners blend
+                      cleanly with the geometric grid cells. */}
+                  <div className="pointer-events-none absolute inset-0 border border-white/15 bg-white/2.5" />
+
+                  {/* Editor canvas — soft-fades at the corners via radial mask so
+                      paths that escape the boundary do not produce a hard cut. */}
+                  <div
+                    className="absolute inset-0 overflow-hidden"
+                    style={{
+                      maskImage:
+                        "radial-gradient(circle at center, black 70%, transparent 100%)",
+                      WebkitMaskImage:
+                        "radial-gradient(circle at center, black 70%, transparent 100%)",
+                    }}
+                  >
+                    <div className="absolute inset-0 z-10">
+                      {editorCanvas}
+                    </div>
+                  </div>
+                </div>
+              </foreignObject>
+
               {/* Icon tray — spans cells 2..7 (x=250..850, y=650..750), 6 cells wide,
                   perfectly centered on grid center (x=550). grid-cols-6 inside → 1 icon = 1 cell. */}
               <foreignObject x={250} y={650} width={600} height={100}>
@@ -219,18 +249,6 @@ export function EditorWorkspacePanel({
             mode={editorMode}
             onModeChange={setEditorMode}
           />
-        </div>
-
-        {/* Canvas — sized to fit between the mini-preview (top cell) and tray (bottom cells).
-            The grid is shifted up by 40px (translate-y-10) inside WorkspaceGround, so we
-            mirror that translate here for true grid-center alignment. ~60% of workspace
-            height keeps the canvas inside SVG y=150..650 (the middle of the geometric grid). */}
-        <div className="relative z-10 flex-1 flex items-center justify-center min-h-0 px-4">
-          <div className="relative h-[60%] aspect-square max-w-full overflow-hidden rounded-xl -translate-y-10">
-            <div className="absolute inset-0 z-10">
-              {editorCanvas}
-            </div>
-          </div>
         </div>
 
         {/* Floating action bar — shared /icons component (WorkspaceActionBar).

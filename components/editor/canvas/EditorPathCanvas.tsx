@@ -86,7 +86,7 @@ export function EditorPathCanvas({
   );
   const vbSize = Math.max(viewBoxParts[2] || 24, viewBoxParts[3] || 24);
   const scaleFactor = vbSize / 250;
-  const vbPad = vbSize * 0.1;
+  const vbPad = vbSize * 0.35;
   const paddedViewBox = `${(viewBoxParts[0] || 0) - vbPad} ${(viewBoxParts[1] || 0) - vbPad} ${(viewBoxParts[2] || 24) + vbPad * 2} ${(viewBoxParts[3] || 24) + vbPad * 2}`;
 
   const backgroundPaths = useMemo(() => {
@@ -205,13 +205,6 @@ export function EditorPathCanvas({
           y: nextPoints[dragIdx - 1].y + dy,
         };
       }
-      if (dragIdx > 1 && nextPoints[dragIdx - 2]?.isControl) {
-        nextPoints[dragIdx - 2] = {
-          ...nextPoints[dragIdx - 2],
-          x: nextPoints[dragIdx - 2].x + dx,
-          y: nextPoints[dragIdx - 2].y + dy,
-        };
-      }
       if (
         dragIdx < nextPoints.length - 1 &&
         nextPoints[dragIdx + 1]?.isControl
@@ -220,16 +213,6 @@ export function EditorPathCanvas({
           ...nextPoints[dragIdx + 1],
           x: nextPoints[dragIdx + 1].x + dx,
           y: nextPoints[dragIdx + 1].y + dy,
-        };
-      }
-      if (
-        dragIdx < nextPoints.length - 2 &&
-        nextPoints[dragIdx + 2]?.isControl
-      ) {
-        nextPoints[dragIdx + 2] = {
-          ...nextPoints[dragIdx + 2],
-          x: nextPoints[dragIdx + 2].x + dx,
-          y: nextPoints[dragIdx + 2].y + dy,
         };
       }
     }
