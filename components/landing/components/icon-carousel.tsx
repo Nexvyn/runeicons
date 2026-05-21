@@ -54,7 +54,7 @@ const IconCarousel = () => {
   };
 
   return (
-    <div className="flex h-full min-h-48 w-full flex-col justify-between self-stretch">
+    <div className="flex h-full w-full flex-col gap-4 self-stretch">
       <div className="no-scrollbar flex h-12 items-center gap-2 overflow-x-auto mask-r-from-90% mask-l-from-90% px-4">
         {/* Animation Group */}
         <div className="flex h-8 shrink-0 items-center rounded-md border shadow-sm">
@@ -136,12 +136,12 @@ const IconCarousel = () => {
         </div>
       </div>
 
-      <div className="relative flex flex-1 items-center justify-center">
+      <div className="relative flex min-h-0 flex-1 items-center justify-center mask-r-from-70% mask-l-from-70%">
         <m.div
           className="absolute flex items-center justify-center"
-          animate={{ x: -activeIndex * ICON_GAP }}
+          animate={{ x: -activeIndex * ICON_GAP, y: "-50%" }}
           transition={{ type: "spring", stiffness: 200, damping: 28 }}
-          style={{ left: "50%", marginLeft: -ICON_GAP / 2 }}
+          style={{ left: "50%", top: "50%", marginLeft: -ICON_GAP / 2 }}
         >
           {ICONS.map((item, i) => {
             const isActive = i === activeIndex;
@@ -221,17 +221,6 @@ const IconCarousel = () => {
         </m.div>
       </div>
 
-      <div className="flex items-center justify-center gap-1.5">
-        {ICONS.map((_, i) => (
-          <button
-            key={`dot-${i}`}
-            onClick={() => goTo(i)}
-            className={`h-1.5 w-1.5 cursor-pointer rounded-full transition-all duration-300 ${
-              i === activeIndex ? "scale-125 bg-foreground/70" : "bg-foreground/15"
-            }`}
-          />
-        ))}
-      </div>
     </div>
   );
 };

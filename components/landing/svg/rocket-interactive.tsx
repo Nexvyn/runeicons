@@ -102,7 +102,7 @@ export default function RocketInteractive() {
   const viewBox = `${VB.x} ${VB.y} ${VB.w} ${VB.h}`;
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center">
+    <div className="relative w-full h-full flex items-center justify-center lg:p-8 xl:p-12">
       {isModified && (
         <button
           type="button"

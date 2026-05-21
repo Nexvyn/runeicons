@@ -13,6 +13,8 @@ interface BentoCardProps {
   className?: string;
   graphicClassName?: string;
   fullBackgroundGraphic?: boolean;
+  inlineLabel?: boolean;
+  transparentBg?: boolean;
 }
 
 const BentoCard = ({
@@ -22,10 +24,25 @@ const BentoCard = ({
   className,
   graphicClassName,
   fullBackgroundGraphic,
+  inlineLabel,
+  transparentBg,
 }: BentoCardProps) => {
+  const label = (title || description) && (
+    <div
+      className={
+        inlineLabel
+          ? "relative z-10 p-4 md:px-8 md:pb-6"
+          : "pointer-events-none absolute inset-x-0 bottom-0 z-10 p-4 md:px-8 md:pb-6"
+      }
+    >
+      <h3 className="md:text-md mb-1 text-sm font-semibold">{title}</h3>
+      <p className="md:text-md text-sm text-muted-foreground">{description}</p>
+    </div>
+  );
+
   return (
     <div
-      className={`relative flex min-h-0 flex-col overflow-hidden rounded-2xl border border-border bg-card text-card-foreground transition-all duration-300 hover:shadow-lg md:rounded-3xl ${className}`}
+      className={`relative flex min-h-0 flex-col overflow-hidden rounded-2xl border border-border ${transparentBg ? "bg-transparent" : "bg-card"} text-card-foreground transition-all duration-300 hover:shadow-lg md:rounded-3xl ${className}`}
     >
       <div
         className={
@@ -36,12 +53,7 @@ const BentoCard = ({
       >
         {children}
       </div>
-      {(title || description) && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 p-4 md:px-8 md:pb-6">
-          <h3 className="md:text-md mb-1 text-sm font-semibold">{title}</h3>
-          <p className="md:text-md text-sm text-muted-foreground">{description}</p>
-        </div>
-      )}
+      {label}
     </div>
   );
 };
@@ -53,17 +65,21 @@ const Bento = () => {
         <div className="grid min-h-0 grid-cols-1 gap-2 md:gap-4 lg:col-span-4 lg:grid-rows-[6fr_4fr]">
           <BentoCard
             title="Five styles, one library"
-            description="From clean outlines to glossy 3D — every icon comes in five distinct flavors."
+            description="From clean outlines to glossy 3D, every icon comes in five distinct flavors."
             className="flex h-full items-center justify-center"
+            inlineLabel
+            transparentBg
           >
-            <IconVarietyShowcase />
+            <RocketInteractive />
           </BentoCard>
           <BentoCard
             title="Interactive SVG Editing"
             description="Drag points, reshape paths, and customize vectors directly in the browser."
             className="h-full"
+            inlineLabel
+            transparentBg
           >
-            <RocketInteractive />
+            <IconVarietyShowcase />
           </BentoCard>
         </div>
 
@@ -71,15 +87,20 @@ const Bento = () => {
           title="Modular by design"
           description="Composable shapes that snap into any layout without breaking your grid."
           className="h-full min-h-0 max-sm:p-5 lg:col-span-3"
+          inlineLabel
+          transparentBg
         >
           <BentoCenterSvg />
         </BentoCard>
 
-        <div className="grid min-h-0 grid-cols-1 gap-2 md:gap-4 lg:col-span-5 lg:grid-rows-[4fr_6fr]">
+        <div className="grid min-h-0 grid-cols-1 gap-2 md:gap-4 lg:col-span-5 lg:grid-rows-[5fr_5fr]">
           <BentoCard
             title="Tweak every detail"
-            description="Stroke, size, color, animation — dial each icon in until it fits your brand."
+            description="Stroke, size, color, animation, dial each icon in until it fits your brand."
             className="h-full"
+            graphicClassName="!p-0"
+            inlineLabel
+            transparentBg
           >
             <IconCarousel />
           </BentoCard>
@@ -88,6 +109,7 @@ const Bento = () => {
             description="Hand-tuned strokes and perfect curves that scale to any size without losing detail."
             className="h-full max-lg:aspect-square"
             fullBackgroundGraphic
+            transparentBg
           >
             <BentoSvg />
           </BentoCard>

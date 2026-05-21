@@ -69,7 +69,6 @@ export function AmountSelector({
               <button
                 key={amount}
                 type="button"
-                onFocus={() => handlePreset(amount)}
                 onClick={() => handlePreset(amount)}
                 className="relative flex flex-1 cursor-pointer items-center justify-center py-3 text-[13px] font-medium"
               >
@@ -94,7 +93,6 @@ export function AmountSelector({
           })}
           <button
             type="button"
-            onFocus={handleCustom}
             onClick={handleCustom}
             className="relative flex flex-1 cursor-pointer items-center justify-center py-3 text-[13px] font-medium"
           >
@@ -137,7 +135,6 @@ export function AmountSelector({
                   value={customValue}
                   onChange={handleCustomInput}
                   onBlur={handleCustomBlur}
-                  placeholder={`Between $${MIN_AMOUNT} and $${MAX_AMOUNT.toLocaleString()}`}
                   autoFocus
                   className="flex-1 bg-transparent px-2 py-3 text-lg font-medium text-foreground outline-none placeholder:text-muted-foreground/60"
                   aria-label="Custom contribution amount"
