@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 
-import { CreemCheckout } from "@creem_io/nextjs";
 import * as m from "motion/react-m";
 
 import { getCheckoutForAmount } from "@/lib/creem";
