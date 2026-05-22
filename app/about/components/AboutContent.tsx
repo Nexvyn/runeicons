@@ -12,8 +12,6 @@ import UserDetails from "../constants";
 const RAW_BASE_X = [-246, -82, 95, 276];
 const RAW_BASE_Y = [-15, -10, 7, 0];
 
-// Re-center the idle layout around its own centroid for however many cards
-// UserDetails currently has, so removing/adding an entry doesn't drift the row.
 const ACTIVE_COUNT = UserDetails.length;
 const CENTROID_X =
   RAW_BASE_X.slice(0, ACTIVE_COUNT).reduce((sum, x) => sum + x, 0) /
@@ -99,26 +97,13 @@ export default function AboutContent() {
   );
 
   const applyIdlePositions = useCallback(() => {
-    if (isMobile) {
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
-      positionerRefs.current.forEach((el, i) => {
-        if (!el) return;
-        const x = (GRID_X_PCT[i] / 100) * vw;
-        const y = (GRID_Y_PCT[i] / 100) * vh;
-        el.style.transition = POSITIONER_TRANSITION;
-        el.style.transform = `translateX(${x}px) translateY(${y}px)`;
-        el.style.zIndex = String(Z_IDX[i]);
-      });
-    } else {
-      const s = getScale(false);
-      positionerRefs.current.forEach((el, i) => {
-        if (!el) return;
-        el.style.transition = POSITIONER_TRANSITION;
-        el.style.transform = `translateX(${BASE_X[i] * s}px) translateY(${BASE_Y[i] * s}px)`;
-        el.style.zIndex = String(Z_IDX[i]);
-      });
-    }
+    const s = getScale(isMobile);
+    positionerRefs.current.forEach((el, i) => {
+      if (!el) return;
+      el.style.transition = POSITIONER_TRANSITION;
+      el.style.transform = `translateX(${BASE_X[i] * s}px) translateY(${BASE_Y[i] * s}px)`;
+      el.style.zIndex = String(Z_IDX[i]);
+    });
     innerRefs.current.forEach((el) => {
       if (!el) return;
       el.style.transform = "";
@@ -255,7 +240,7 @@ export default function AboutContent() {
   };
 
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-[#050505] text-[#EEEEEE]">
+    <section className="relative h-screen w-full overflow-hidden bg-[#050505] text-[#EEEEEE] font-(family-name:--font-inter-tight)">
       <BackButton />
       <AudioControl isMuted={isMuted} onToggle={() => setIsMuted(!isMuted)} />
 
@@ -307,7 +292,7 @@ export default function AboutContent() {
       </div>
 
       <div
-        className={`absolute bottom-8 left-0 right-0 z-10 flex flex-col items-center gap-2 transition-opacity duration-400 ease-out ${
+        className={`absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 rounded-md px-6 py-3 transition-opacity duration-400 ease-out ${
           isOpen ? "pointer-events-none opacity-0" : "opacity-100"
         }`}
       >

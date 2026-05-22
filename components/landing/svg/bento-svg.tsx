@@ -81,7 +81,6 @@ const BentoSvg = ({ className }: { className?: string }) => {
       ref={wrapperRef}
       className={`absolute inset-0 h-full w-full dark:invert-75 ${className ?? ""}`}
     >
-      {/* Background grid lines — stretched to fill the container edges */}
       <svg
         viewBox="0 0 489 488"
         fill="none"
@@ -167,7 +166,6 @@ const BentoSvg = ({ className }: { className?: string }) => {
         />
       </svg>
 
-      {/* Foreground — circles, rects, icon, labels (aspect preserved) */}
       <svg
         viewBox="0 0 489 488"
         fill="none"

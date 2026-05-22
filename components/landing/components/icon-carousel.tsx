@@ -56,7 +56,6 @@ const IconCarousel = () => {
   return (
     <div className="flex h-full w-full flex-col gap-4 self-stretch">
       <div className="no-scrollbar flex h-12 items-center gap-2 overflow-x-auto mask-r-from-90% mask-l-from-90% px-4">
-        {/* Animation Group */}
         <div className="flex h-8 shrink-0 items-center rounded-md border shadow-sm">
           <Select value={animation} onValueChange={setAnimation}>
             <SelectTrigger className="h-full w-24 shrink-0 justify-between gap-1 rounded-none border-none px-3 text-[10px] shadow-none transition-colors hover:bg-accent focus:ring-0 sm:text-xs">
@@ -71,7 +70,6 @@ const IconCarousel = () => {
           </Select>
         </div>
 
-        {/* Stroke Group */}
         <div className="flex h-8 shrink-0 items-center rounded-md border bg-background shadow-sm">
           <Button
             variant="ghost"
@@ -96,7 +94,6 @@ const IconCarousel = () => {
           </Button>
         </div>
 
-        {/* Color Group */}
         <div className="flex h-8 shrink-0 items-center gap-2 rounded-md border bg-background px-3 shadow-sm">
           {COLORS.map((c) => (
             <button
@@ -112,7 +109,6 @@ const IconCarousel = () => {
           ))}
         </div>
 
-        {/* Size Group */}
         <div className="ml-auto flex h-8 min-w-[110px] shrink-0 items-center gap-3 rounded-md border bg-background px-3 shadow-sm">
           <span className="text-[10px] font-semibold tracking-tight whitespace-nowrap text-muted-foreground uppercase">
             Size

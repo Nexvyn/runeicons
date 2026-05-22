@@ -7,7 +7,7 @@ import { getCheckoutForAmount } from "@/lib/creem";
 
 import { AmountSelector } from "./ui/amount-selector";
 import { CertificateCard } from "./ui/certificate-card";
-import { Navbar } from "./ui/navbar";
+import Navbar from "@/components/ui/navbar";
 
 export default function SponsorContent() {
   const [selectedAmount, setSelectedAmount] = useState(5);
@@ -16,14 +16,18 @@ export default function SponsorContent() {
 
   return (
     <div className="relative grid min-h-screen w-full grid-cols-[1fr_auto_1fr] grid-rows-[auto_1px_1fr] overflow-hidden bg-[#F5F5F5] font-(family-name:--font-inter-tight) dark:bg-background">
-      {/* Row 1: Navbar */}
       <div className="relative col-start-2 row-start-1 flex w-[95vw] max-w-[1440px] flex-col overflow-hidden md:w-[90vw] 2xl:w-[85vw]">
-        <Navbar />
+        <Navbar
+          showDashedBorder
+          links={[
+            { href: "/", label: "Home" },
+            { href: "/icons", label: "Icons" },
+          ]}
+        />
       </div>
 
       <div className="pointer-events-none col-span-full col-start-1 row-start-2 border-b-2 border-dashed" />
 
-      {/* Row 2: Hero + Sponsor Box (single section) */}
       <div className="col-start-2 row-start-3 flex w-[95vw] max-w-[1440px] flex-col items-center px-3 pt-16 pb-14 sm:px-6 sm:pt-20 sm:pb-16 md:w-[90vw] 2xl:w-[85vw]">
         <m.div
           initial={{ opacity: 0, y: 20 }}
@@ -79,7 +83,6 @@ export default function SponsorContent() {
           className="flex w-full max-w-3xl flex-col items-center"
         >
           <div className="w-full overflow-hidden rounded-3xl border border-border bg-card text-card-foreground shadow-sm transition-shadow duration-300 hover:shadow-lg">
-            {/* Top: amount selector */}
             <div className="px-6 pt-6 pb-5 sm:px-8 sm:pt-8 sm:pb-6">
               <AmountSelector
                 selectedAmount={selectedAmount}
@@ -87,14 +90,10 @@ export default function SponsorContent() {
               />
             </div>
 
-            {/* Divider */}
             <div className="relative h-px w-full">
               <div className="absolute inset-0 mx-6 border-t border-dashed border-border sm:mx-8" />
             </div>
 
-            {/* Bottom: certificate (flush, no outer border).
-                Only the Sponsor button inside the card triggers checkout;
-                clicking elsewhere on the card does nothing. */}
             <div className="w-full">
               <CertificateCard
                 amount={selectedAmount}
@@ -106,7 +105,6 @@ export default function SponsorContent() {
         </m.div>
       </div>
 
-      {/* Decorative side borders */}
       <div className="pointer-events-none z-50 col-start-2 row-span-full row-start-1 border-x-2 border-dashed" />
     </div>
   );

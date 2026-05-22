@@ -64,7 +64,6 @@ const ICONS = [
 const Search = () => {
   return (
     <div className="flex h-full flex-col gap-5 py-6 lg:flex-row">
-      {/* Left - Hero text card */}
       <div className="min-h-[400px] lg:min-h-0 lg:w-1/2">
         <div className="relative h-full min-h-[400px] w-full overflow-hidden rounded-2xl bg-background bg-center">
           <Image
@@ -77,7 +76,6 @@ const Search = () => {
         </div>
       </div>
 
-      {/* Right - Search panel */}
       <div className="lg:w-1/2">
         <div
           className="flex h-full w-full items-center justify-center rounded-2xl bg-center bg-no-repeat p-6 max-sm:p-2 md:p-10"
@@ -101,7 +99,6 @@ const Search = () => {
                 </Button>
               </div>
 
-              {/* Icons grid - responsive columns and always show all icons on mobile */}
               <div className="my-3 mt-4 grid grid-cols-3 justify-items-center gap-2 px-1 sm:my-4 sm:mt-6 sm:grid-cols-4 sm:gap-3 sm:px-0 md:grid-cols-5">
                 {ICONS.map(({ Icon, name }, index) => (
                   <div
