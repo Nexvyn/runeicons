@@ -16,7 +16,7 @@ const SceneCubes = ({ labelText, launchButtonState }: SceneCubesProps) => (
           x="167"
           y="285"
           textAnchor="middle"
-          fontSize="7"
+          fontSize="8"
           fontWeight="700"
           letterSpacing="0.4"
           fill="black"
@@ -48,6 +48,15 @@ const SceneCubes = ({ labelText, launchButtonState }: SceneCubesProps) => (
           d="M279.962 369.47L310.273 345.139V355.139L279.962 372.639V369.47Z"
           fill="white"
           stroke="black"
+        />
+        <g className="LaunchButtonHit">
+        <rect
+          x="285"
+          y="346"
+          width="62"
+          height="68"
+          fill="none"
+          pointerEvents="all"
         />
         <g className="LaunchButton">
           <path
@@ -118,6 +127,7 @@ const SceneCubes = ({ labelText, launchButtonState }: SceneCubesProps) => (
           >
             RE-LAUNCH
           </text>
+        </g>
         </g>
         <g
           className="relaunchArrow"
