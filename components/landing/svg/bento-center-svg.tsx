@@ -3,28 +3,6 @@
 import { useReducedMotion } from "motion/react";
 import * as m from "motion/react-m";
 
-/* ─────────────────────────────────────────────────────────
- * ANIMATION STORYBOARD — Bento Center Cubes
- *
- *    0ms   waiting for viewport (whileInView, amount 0.35)
- *  600ms   stage 1 — explosion + line extension (sync)
- *           - top cube     y: +141 → 0           (slides up)
- *           - bottom cube  y: -141 → 0           (slides down)
- *           - 6 connectors y2: anchor → free      (extend FROM middle
- *                                                 cube outward; anchor
- *                                                 end pinned at middle)
- * 1750ms   done
- *
- * Easing: cubic-bezier(0.23, 1, 0.32, 1)  (matches fynt EASE_OUT)
- * Reference: fynt apps/web/components/landing-page/hero/HeroAnimation.tsx
- *
- * Why animate y2 instead of scaleY: vertical SVG <line> elements have
- * a 0-width bbox which makes transform-box: fill-box + transform-origin
- * unreliable. Animating the SVG y2 attribute extends the line from a
- * pinned anchor point (x1, y1) outward, with the dashed pattern intact
- * at every frame — the true "explosion view" effect.
- * ───────────────────────────────────────────────────────── */
-
 const STACKED = { top: 141, bottom: -141 } as const;
 
 const lineVariants = (anchor: number, free: number) => ({

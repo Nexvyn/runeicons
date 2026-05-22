@@ -68,7 +68,6 @@ export default function Faq() {
             </div>
           </div>
 
-          {/* Right column - Accordion */}
           <div className="w-full flex-1">
             <Accordion type="single" collapsible defaultValue="item-1" className="w-full space-y-3">
               {faqItems.map((item) => (

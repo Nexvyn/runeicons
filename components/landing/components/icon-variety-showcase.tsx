@@ -119,9 +119,6 @@ const IconVarietyShowcase = () => {
     };
   }, [phase]);
 
-  // Fade the ghost out after GHOST_LIFETIME_MS. Lifted out of the phase effect
-  // so the cleanup is symmetric — each new ghost gets its own timer, and on
-  // unmount the pending timer is released.
   useEffect(() => {
     if (!ghost) return;
     const timer = setTimeout(() => setGhost(null), GHOST_LIFETIME_MS);

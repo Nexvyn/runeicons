@@ -110,7 +110,6 @@ const testimonials: Testimonial[] = [
   },
 ];
 
-// Split testimonials into 3 columns (masonry-style)
 const column1 = [testimonials[0], testimonials[3], testimonials[6]];
 const column2 = [testimonials[1], testimonials[4], testimonials[7]];
 const column3 = [testimonials[2], testimonials[5], testimonials[8]];
@@ -124,9 +123,7 @@ const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => {
 
   return (
     <div className="group relative cursor-pointer rounded-xl">
-      {/* Rainbow gradient border - visible on hover */}
       <div className="animate-rainbow absolute inset-0 rounded-xl bg-[linear-gradient(45deg,var(--color-1),var(--color-5),var(--color-3),var(--color-4),var(--color-2))] bg-[length:200%] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-      {/* Inner card */}
       <div className="relative m-[1.5px] flex flex-col gap-4 rounded-[12px] bg-card p-6 transition-all duration-300">
         <p className="text-sm leading-relaxed whitespace-pre-line text-card-foreground">
           {testimonial.quote}
@@ -149,7 +146,6 @@ const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => {
           </div>
         </div>
       </div>
-      {/* Default border (visible when not hovered) */}
       <div className="pointer-events-none absolute inset-0 rounded-xl border border-border transition-opacity duration-500 group-hover:opacity-0" />
     </div>
   );
@@ -160,7 +156,6 @@ const Testimonials = () => {
 
   return (
     <section className="mt-8 w-full">
-      {/* Header */}
       <div className="mb-16 flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div className="flex flex-col gap-3">
           <h2 className="text-4xl font-medium tracking-tight text-foreground">
@@ -197,23 +192,19 @@ const Testimonials = () => {
         </div>
       </div>
 
-      {/* Masonry Grid - 3 Columns */}
       <div className="grid grid-cols-1 gap-4 mask-b-from-80% md:grid-cols-2 lg:grid-cols-3">
-        {/* Column 1 */}
         <div className="flex flex-col gap-4">
           {column1.map((testimonial) => (
             <TestimonialCard key={testimonial.handle} testimonial={testimonial} />
           ))}
         </div>
 
-        {/* Column 2 */}
         <div className="flex flex-col gap-4">
           {column2.map((testimonial) => (
             <TestimonialCard key={testimonial.handle} testimonial={testimonial} />
           ))}
         </div>
 
-        {/* Column 3 */}
         <div className="flex flex-col gap-4">
           {column3.map((testimonial) => (
             <TestimonialCard key={testimonial.handle} testimonial={testimonial} />
