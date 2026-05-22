@@ -47,6 +47,59 @@ export function simplifyPoints(points: DrawPoint[], tolerance = 0.5): DrawPoint[
   return [first, last];
 }
 
+export function rectPath(start: DrawPoint, end: DrawPoint, closed = true): string {
+  const x = Math.min(start.x, end.x);
+  const y = Math.min(start.y, end.y);
+  const w = Math.abs(end.x - start.x);
+  const h = Math.abs(end.y - start.y);
+  if (w === 0 && h === 0) return "";
+  const d = `M${x.toFixed(2)} ${y.toFixed(2)} h${w.toFixed(2)} v${h.toFixed(2)} h${(-w).toFixed(2)}`;
+  return closed ? `${d} Z` : `${d} v${(-h).toFixed(2)}`;
+}
+
+export function ellipsePath(start: DrawPoint, end: DrawPoint): string {
+  const cx = (start.x + end.x) / 2;
+  const cy = (start.y + end.y) / 2;
+  const rx = Math.abs(end.x - start.x) / 2;
+  const ry = Math.abs(end.y - start.y) / 2;
+  if (rx === 0 && ry === 0) return "";
+  return (
+    `M${(cx - rx).toFixed(2)} ${cy.toFixed(2)} ` +
+    `a${rx.toFixed(2)} ${ry.toFixed(2)} 0 1 0 ${(rx * 2).toFixed(2)} 0 ` +
+    `a${rx.toFixed(2)} ${ry.toFixed(2)} 0 1 0 ${(-rx * 2).toFixed(2)} 0 Z`
+  );
+}
+
+export function linePath(start: DrawPoint, end: DrawPoint): string {
+  if (start.x === end.x && start.y === end.y) return "";
+  return `M${start.x.toFixed(2)} ${start.y.toFixed(2)} L${end.x.toFixed(2)} ${end.y.toFixed(2)}`;
+}
+
+export function constrainShapePoint(
+  start: DrawPoint,
+  end: DrawPoint,
+  tool: "rect" | "ellipse" | "line",
+): DrawPoint {
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+
+  if (tool === "line") {
+    const angle = Math.atan2(dy, dx);
+    const snapped = Math.round(angle / (Math.PI / 4)) * (Math.PI / 4);
+    const length = Math.hypot(dx, dy);
+    return {
+      x: start.x + Math.cos(snapped) * length,
+      y: start.y + Math.sin(snapped) * length,
+    };
+  }
+
+  const size = Math.max(Math.abs(dx), Math.abs(dy));
+  return {
+    x: start.x + Math.sign(dx || 1) * size,
+    y: start.y + Math.sign(dy || 1) * size,
+  };
+}
+
 export function pointsToSmoothPath(points: DrawPoint[]): string {
   if (points.length === 0) return "";
   if (points.length === 1) {

@@ -189,6 +189,16 @@ const SceneAnimatedLayers = () => (
           stroke="black"
         />
         <rect
+          className="hazardStripes"
+          width="169"
+          height="40"
+          transform="matrix(0.866025 0.5 -0.866025 0.5 168.413 271.044)"
+          fill="url(#hazardStripesPattern)"
+          pointerEvents="none"
+          style={{ opacity: 0 }}
+          aria-hidden="true"
+        />
+        <rect
           width="169"
           height="186"
           transform="matrix(0.866025 0.5 0 1 133.771 291.044)"

@@ -431,7 +431,9 @@ export function resolveEditorPathPaint(
     };
   }
 
-  const defaultPaint = state?.colors[0] ?? "currentColor";
+  const stateColor = state?.colors[0];
+  const defaultPaint =
+    stateColor && !isDefaultEditorPaint(stateColor) ? stateColor : "currentColor";
 
   return {
     stroke:
@@ -462,6 +464,42 @@ export function documentFromAsset(asset: EditorAssetSummary): EditorDocument {
     viewBox: asset.viewBox,
     defs: asset.defs,
     paths: asset.paths.map((path) => ({ ...path })),
+  };
+}
+
+export function createEmptyEditorDocument(
+  assetId: string,
+  name = "Untitled",
+  viewBox = "0 0 24 24",
+): EditorDocument {
+  return {
+    assetId,
+    name,
+    category: "user",
+    categoryLabel: "User",
+    sourceFilePath: "",
+    viewBox,
+    defs: "",
+    paths: [],
+  };
+}
+
+export function createEmptyEditorAssetSummary(
+  assetId: string,
+  name = "Untitled",
+  viewBox = "0 0 24 24",
+): EditorAssetSummary {
+  return {
+    id: assetId,
+    slug: assetId,
+    name,
+    category: "user",
+    categoryLabel: "User",
+    filePath: "",
+    viewBox,
+    defs: "",
+    paths: [],
+    variant: "normal",
   };
 }
 

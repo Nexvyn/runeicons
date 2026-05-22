@@ -8,12 +8,18 @@ import type {
   EditorRevision,
   EditorSavedAsset,
 } from "@/lib/editor/types";
-import { cloneDocument, documentFromAsset } from "@/lib/editor/svg";
+import {
+  cloneDocument,
+  createEmptyEditorAssetSummary,
+  createEmptyEditorDocument,
+  documentFromAsset,
+} from "@/lib/editor/svg";
 import { areEditorDocumentsEqual } from "@/lib/editor/document-utils";
 import { isEditableKeyboardTarget } from "@/hooks/use-history";
 import { useEditorEditsStore } from "@/stores/editor-drafts";
 import { useEditorRevisionsStore } from "@/stores/editor-revisions";
 import { useEditorSavedAssetsStore } from "@/stores/editor-saved-assets";
+import { useEditorScratchAssetsStore } from "@/stores/editor-scratch-assets";
 import {
   useEditorSelectionStore,
   updateTrayInStore,
@@ -49,10 +55,16 @@ export function useEditorDocument(assets: EditorAssetSummary[]) {
     documentRef.current = document;
   }, [document]);
 
-  const assetMap = useMemo(
-    () => new Map(assets.map((asset) => [asset.id, asset])),
-    [assets],
-  );
+  const scratchAssets = useEditorScratchAssetsStore((s) => s.scratchAssets);
+  const addScratchAsset = useEditorScratchAssetsStore((s) => s.addScratchAsset);
+
+  const assetMap = useMemo(() => {
+    const map = new Map(assets.map((asset) => [asset.id, asset]));
+    for (const scratch of scratchAssets) {
+      map.set(scratch.id, scratch);
+    }
+    return map;
+  }, [assets, scratchAssets]);
 
   const effectiveSelectedAssetId = useMemo(() => {
     if (selectedAssetId && assetMap.has(selectedAssetId)) {
@@ -102,8 +114,6 @@ export function useEditorDocument(assets: EditorAssetSummary[]) {
     [document, selectedPathId],
   );
 
-  // --- Debounced persistence ---
-
   const flushPersistence = useCallback(() => {
     if (persistTimerRef.current) {
       window.clearTimeout(persistTimerRef.current);
@@ -139,8 +149,6 @@ export function useEditorDocument(assets: EditorAssetSummary[]) {
       }
     };
   }, [upsertDocument]);
-
-  // --- History ---
 
   const pushHistorySnapshot = useCallback(
     (nextDocument: EditorDocument) => {
@@ -186,7 +194,6 @@ export function useEditorDocument(assets: EditorAssetSummary[]) {
     [flushPersistence, pushHistorySnapshot],
   );
 
-  // Hydration: load document when selected asset changes
   useEffect(() => {
     if (!hasHydrated || !effectiveSelectedAssetId) return;
 
@@ -211,13 +218,11 @@ export function useEditorDocument(assets: EditorAssetSummary[]) {
     persistedDocument,
   ]);
 
-  // Debounced persistence on document change
   useEffect(() => {
     if (!hasHydrated || !document) return;
     schedulePersistence();
   }, [document, hasHydrated, schedulePersistence]);
 
-  // Debounced revision push
   useEffect(() => {
     if (!document) return;
     if (skipNextRevision.current) {
@@ -230,8 +235,6 @@ export function useEditorDocument(assets: EditorAssetSummary[]) {
     }, 700);
     return () => window.clearTimeout(timer);
   }, [document, pushRevision]);
-
-  // --- Document mutations ---
 
   const replaceDocument = useCallback(
     (
@@ -326,7 +329,7 @@ export function useEditorDocument(assets: EditorAssetSummary[]) {
   );
 
   const addPath = useCallback(
-    (pathData: string) => {
+    (pathData: string, opts?: { fill?: string; stroke?: string }) => {
       const nextPathId = `${documentRef.current?.assetId ?? "editor"}-path-${Date.now()}`;
       updateDocument((previous) => ({
         ...previous,
@@ -335,8 +338,9 @@ export function useEditorDocument(assets: EditorAssetSummary[]) {
           {
             id: nextPathId,
             d: pathData,
-            fill: "none",
-            stroke: previous.paths[0]?.stroke ?? "#000000",
+            fill: opts?.fill ?? "none",
+            stroke:
+              opts?.stroke ?? previous.paths[0]?.stroke ?? "#000000",
             strokeWidth: previous.paths[0]?.strokeWidth ?? 1.5,
             strokeLinecap: previous.paths[0]?.strokeLinecap ?? "round",
             strokeLinejoin: previous.paths[0]?.strokeLinejoin ?? "round",
@@ -346,6 +350,24 @@ export function useEditorDocument(assets: EditorAssetSummary[]) {
         ],
       }));
       setSelectedPathId(nextPathId);
+    },
+    [updateDocument],
+  );
+
+  const setPathsFill = useCallback(
+    (pathIds: string[], fill: string) => {
+      if (pathIds.length === 0) return;
+      const idSet = new Set(pathIds);
+      updateDocument((previous) => {
+        let didChange = false;
+        const nextPaths = previous.paths.map((path) => {
+          if (!idSet.has(path.id) || path.fill === fill) return path;
+          didChange = true;
+          return { ...path, fill };
+        });
+        if (!didChange) return previous;
+        return { ...previous, paths: nextPaths };
+      });
     },
     [updateDocument],
   );
@@ -361,6 +383,20 @@ export function useEditorDocument(assets: EditorAssetSummary[]) {
     });
   }, [selectedPathId, updateDocument]);
 
+  const removePath = useCallback(
+    (pathId: string) => {
+      updateDocument((previous) => {
+        const nextPaths = previous.paths.filter((path) => path.id !== pathId);
+        if (nextPaths.length === previous.paths.length) return previous;
+        setSelectedPathId((current) =>
+          current === pathId ? nextPaths[0]?.id ?? null : current,
+        );
+        return { ...previous, paths: nextPaths };
+      });
+    },
+    [updateDocument],
+  );
+
   const commitPathDraft = useCallback(
     (pathId: string, d: string) => {
       updatePath(pathId, (path) => ({ ...path, d }), {
@@ -369,6 +405,22 @@ export function useEditorDocument(assets: EditorAssetSummary[]) {
     },
     [updatePath],
   );
+
+  const createBlankIcon = useCallback(() => {
+    flushPersistence();
+    const id = `scratch-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const summary = createEmptyEditorAssetSummary(id, "Untitled");
+    const blankDocument = createEmptyEditorDocument(id, "Untitled");
+    addScratchAsset(summary);
+    upsertDocument(blankDocument);
+    updateTrayInStore(
+      id,
+      useEditorSelectionStore.getState().trayAssetIds,
+    );
+    skipNextRevision.current = true;
+    loadDocument(blankDocument, { pushHistory: false });
+    return id;
+  }, [addScratchAsset, flushPersistence, loadDocument, upsertDocument]);
 
   const resetCurrentAsset = useCallback(() => {
     if (!selectedAsset) return;
@@ -463,11 +515,19 @@ export function useEditorDocument(assets: EditorAssetSummary[]) {
     [flushPersistence, loadDocument, upsertDocument],
   );
 
+  const removeScratchAsset = useEditorScratchAssetsStore(
+    (s) => s.removeScratchAsset,
+  );
+
   const removeAssetFromTray = useCallback(
     (assetId: string) => {
       removeFromTrayInStore(assetId, assets[0]?.id ?? null);
+      if (assetId.startsWith("scratch-")) {
+        removeScratchAsset(assetId);
+        removeDocument(assetId);
+      }
     },
-    [assets],
+    [assets, removeDocument, removeScratchAsset],
   );
 
   const isModified = useMemo(() => {
@@ -490,7 +550,10 @@ export function useEditorDocument(assets: EditorAssetSummary[]) {
     togglePathVisibility,
     movePath,
     addPath,
+    setPathsFill,
     removeSelectedPath,
+    removePath,
+    createBlankIcon,
     resetCurrentAsset,
     handleUndo,
     handleRedo,
