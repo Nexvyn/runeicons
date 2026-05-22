@@ -23,7 +23,6 @@ const TIMING = {
   panelOpacity: 0.22,
   nav: 0.2,
   navDelay: 0.1,
-  // Slightly longer so the blur fade is perceivable on card switches.
   info: 0.28,
   drawer: 0.3,
 };
@@ -85,7 +84,14 @@ const DetailView = ({
         <div className="mx-auto mt-3 mb-2 h-1 w-12 shrink-0 rounded-full bg-white/20" />
 
         <div className="flex shrink-0 items-center justify-between px-6 pt-1 pb-2">
-          <div className="flex items-center gap-1 rounded-full border border-white/10 bg-white/5 p-1">
+          <button
+            onClick={onClose}
+            aria-label="Close detail view"
+            className="cursor-pointer rounded-full p-2 text-white/50 transition-colors hover:text-white"
+          >
+            <X size={16} />
+          </button>
+          <div className="flex items-center gap-1 rounded-full p-1">
             <button
               onClick={onPrev}
               aria-label="Previous member"
@@ -101,13 +107,7 @@ const DetailView = ({
               <ChevronRight size={18} />
             </button>
           </div>
-          <button
-            onClick={onClose}
-            aria-label="Close detail view"
-            className="cursor-pointer rounded-full border border-white/5 bg-white/5 p-2 text-white/50 transition-colors hover:bg-white/10 hover:text-white"
-          >
-            <X size={20} />
-          </button>
+          <div className="w-10" />
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 pt-4 pb-8">
@@ -130,7 +130,7 @@ const DetailView = ({
               <h2 className="mb-4 font-['Syne'] text-3xl font-bold text-white">
                 {user.name}
               </h2>
-              <p className="mb-6 font-['Outfit'] text-base leading-relaxed text-[#888888]">
+              <p className="mb-6 text-base leading-relaxed text-[#888888]">
                 {user.description}
               </p>
 
@@ -161,7 +161,7 @@ const DetailView = ({
                     href={social.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="rounded-full border border-white/5 bg-white/5 p-3 text-[#888888] transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+                    className="rounded-full p-3 text-[#888888] transition-colors hover:text-white"
                   >
                     {social.type === "globe" && <Globe size={20} />}
                     {social.type === "twitter" && <XIcon size={20} />}
@@ -192,7 +192,7 @@ const DetailView = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: TIMING.panelOpacity, ease: EASE_OUT }}
-        className="fixed top-8 right-8 z-60 cursor-pointer rounded-full border border-white/5 bg-white/5 p-3 text-white/50 backdrop-blur-md transition-colors hover:bg-white/10 hover:text-white"
+        className="fixed top-8 right-8 z-60 cursor-pointer rounded-full p-2 text-white/50 transition-colors hover:text-white"
         aria-label="Close detail view"
       >
         <X size={24} />
@@ -200,7 +200,7 @@ const DetailView = ({
 
       <m.div
         data-detail-keep
-        className="fixed bottom-8 left-[35%] z-60 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/10 bg-[#0A0A0A]/80 px-2 py-2 backdrop-blur-md"
+        className="fixed bottom-4 left-[35%] z-60 flex items-center gap-2 rounded-md px-2 py-2"
         initial={{ opacity: 0, y: reduceMotion ? 0 : 8 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: reduceMotion ? 0 : 8 }}
@@ -217,7 +217,6 @@ const DetailView = ({
         >
           <ChevronLeft size={20} />
         </button>
-        <div className="h-6 w-px bg-white/10" />
         <button
           onClick={onNext}
           aria-label="Next member"
@@ -255,7 +254,7 @@ const DetailView = ({
               {user.name}
             </h2>
 
-            <p className="mb-8 font-['Outfit'] text-base leading-relaxed text-[#888888]">
+            <p className="mb-8 text-base leading-relaxed text-[#888888]">
               {user.description}
             </p>
 
@@ -286,7 +285,7 @@ const DetailView = ({
                   href={social.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-full border border-white/5 bg-white/5 p-3 text-[#888888] transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+                  className="rounded-full p-3 text-[#888888] transition-colors hover:text-white"
                 >
                   {social.type === "globe" && <Globe size={20} />}
                   {social.type === "twitter" && <XIcon size={20} />}

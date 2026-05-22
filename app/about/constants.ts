@@ -31,11 +31,11 @@ const UserDetails = [
     id: 3,
     name: "Nexvyn",
     description:
-      "Blockchain enthusiast and smart contract auditor. Securing the decentralized web one block at a time.",
-    industry: "Design",
+      "Design engineer combining creative vision with technical implementation.",
+    industry: "Design Engineer",
     status: "Active",
     socials: [
-      { type: "globe", url: "https://nexvyn.com" },
+      { type: "globe", url: "https://nexvyn.dev" },
       { type: "twitter", url: "https://x.com/nexvyn" },
     ],
     img: "/about/Nexvyn-v4.webp",
