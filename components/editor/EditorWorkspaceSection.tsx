@@ -63,6 +63,9 @@ export function EditorWorkspaceSection({
       onSaveDialogOpenChange={doc.setSaveDialogOpen}
       onSaveSnapshot={doc.saveCurrentAsset}
       onAddPath={doc.addPath}
+      onErasePath={doc.removePath}
+      onSetPathsFill={doc.setPathsFill}
+      onCreateBlankIcon={doc.createBlankIcon}
       onGlobalStateChange={onGlobalStateChange}
     />
   );

@@ -12,10 +12,15 @@ import type {
   EditorDocument,
 } from "@/lib/editor/types";
 import { createEditorSvgMarkup, cloneDocument } from "@/lib/editor/svg";
+import { cn } from "@/lib/utils";
 import { EditorPathCanvas } from "@/components/editor/canvas/EditorPathCanvas";
 import { EditorDrawCanvas } from "@/components/editor/canvas/EditorDrawCanvas";
 import { EditorMiniPreview } from "@/components/editor/preview/EditorMiniPreview";
 import { EditorModeToggle } from "@/components/editor/controls/EditorModeToggle";
+import {
+  EditorDrawToolbar,
+  type DrawTool,
+} from "@/components/editor/controls/EditorDrawToolbar";
 import { EditorIconTray } from "@/components/editor/controls/EditorIconTray";
 import { EditorSaveDialog } from "@/components/editor/dialogs/EditorSaveDialog";
 
@@ -39,7 +44,10 @@ interface EditorWorkspacePanelProps {
   saveDialogOpen: boolean;
   onSaveDialogOpenChange: (open: boolean) => void;
   onSaveSnapshot: (name: string) => void;
-  onAddPath: (d: string) => void;
+  onAddPath: (d: string, opts?: { fill?: string; stroke?: string }) => void;
+  onErasePath?: (pathId: string) => void;
+  onSetPathsFill?: (pathIds: string[], fill: string) => void;
+  onCreateBlankIcon?: () => string;
   onGlobalStateChange: (updates: Partial<CustomizationState>) => void;
 }
 
@@ -65,9 +73,54 @@ export function EditorWorkspacePanel({
   onSaveDialogOpenChange,
   onSaveSnapshot,
   onAddPath,
+  onErasePath,
+  onSetPathsFill,
+  onCreateBlankIcon,
   onGlobalStateChange,
 }: EditorWorkspacePanelProps) {
   const [editorMode, setEditorMode] = useState<EditorMode>("edit");
+  const [activeTool, setActiveTool] = useState<DrawTool>("pen");
+  const [closePath, setClosePath] = useState(false);
+  const [fillMode, setFillMode] = useState(false);
+  const [showReference, setShowReference] = useState(false);
+
+  const [referencePathIds, setReferencePathIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const [prevMode, setPrevMode] = useState<EditorMode>(editorMode);
+  const [prevAssetId, setPrevAssetId] = useState<string | null>(
+    editorDocument?.assetId ?? null,
+  );
+  const currentAssetId = editorDocument?.assetId ?? null;
+  const modeChanged = prevMode !== editorMode;
+  const assetChanged = prevAssetId !== currentAssetId;
+  if (modeChanged || assetChanged) {
+    if (modeChanged) setPrevMode(editorMode);
+    if (assetChanged) setPrevAssetId(currentAssetId);
+    if (editorMode === "draw") {
+      setReferencePathIds(
+        new Set((editorDocument?.paths ?? []).map((p) => p.id)),
+      );
+    }
+  }
+
+  const handleCreateBlank = onCreateBlankIcon
+    ? () => {
+        onCreateBlankIcon();
+        setEditorMode("draw");
+      }
+    : undefined;
+
+  const handleFillModeToggle = () => {
+    const next = !fillMode;
+    setFillMode(next);
+    if (!onSetPathsFill || !editorDocument) return;
+    const userPathIds = editorDocument.paths
+      .filter((p) => !referencePathIds.has(p.id))
+      .map((p) => p.id);
+    if (userPathIds.length === 0) return;
+    onSetPathsFill(userPathIds, next ? "currentColor" : "none");
+  };
   const [showGrid, setShowGrid] = useState(true);
   const [previewPathDraft, setPreviewPathDraft] = useState<{
     assetId: string;
@@ -105,15 +158,28 @@ export function EditorWorkspacePanel({
     return nextDocument;
   }, [activePreviewPathDraft, editorDocument]);
 
+  const miniPreviewDocument = useMemo(() => {
+    if (editorMode !== "draw" || !previewDocument) return previewDocument;
+    const next = cloneDocument(previewDocument);
+    next.paths = next.paths
+      .filter((p) => {
+        const isReference = referencePathIds.has(p.id);
+        return !isReference || showReference;
+      })
+      .map((p) =>
+        referencePathIds.has(p.id)
+          ? { ...p, opacity: (p.opacity ?? 1) * 0.15 }
+          : p,
+      );
+    return next;
+  }, [previewDocument, editorMode, showReference, referencePathIds]);
+
   const defaultSnapshotName = editorDocument
     ? `${editorDocument.name} Snapshot`
     : "Runeicons Snapshot";
 
   const exportDocument = previewDocument ?? editorDocument;
 
-  // Minimal IconData shim so we can plug WorkspaceActionBar (from /icons) directly
-  // into the editor. The bar only needs `name` (for download filename) and `id`;
-  // SVG generation is overridden via `onGetSvgContent` below.
   const iconShim = useMemo<IconData | null>(() => {
     if (!exportDocument) return null;
     return {
@@ -136,6 +202,12 @@ export function EditorWorkspacePanel({
         state={state}
         viewBox={editorDocument?.viewBox ?? "0 0 24 24"}
         onAddPath={onAddPath}
+        onErasePath={onErasePath}
+        activeTool={activeTool}
+        closePath={closePath}
+        fillMode={fillMode}
+        showReference={showReference}
+        referencePathIds={referencePathIds}
       />
     ) : (
       <EditorPathCanvas
@@ -166,16 +238,12 @@ export function EditorWorkspacePanel({
     <>
       <SvgDefinitions state={state} />
       <main className="flex-1 flex flex-col relative overflow-hidden" aria-label="Editor workspace">
-        {/* Geometric grid background — fills the full main, blends behind everything.
-            Toggled by the Grid button in the toolbar. */}
         {showGrid ? (
           <div className="absolute inset-0 z-0">
             <WorkspaceGround />
           </div>
         ) : null}
 
-        {/* Overlay SVG with the SAME viewBox/aspect/transform as WorkspaceGround,
-            so foreignObject cells align pixel-perfect with the geometric grid cells. */}
         <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center">
           <div className="w-full h-full flex items-center justify-center -translate-y-10">
             <svg
@@ -186,39 +254,35 @@ export function EditorWorkspacePanel({
               className="max-w-full max-h-full w-auto h-auto"
               xmlns="http://www.w3.org/2000/svg"
             >
-              {/* Mini-preview — exactly the top-left cell (x=50..150, y=50..150) */}
               <foreignObject x={50} y={50} width={100} height={100}>
                 <div className="w-full h-full pointer-events-auto">
                   <EditorMiniPreview
-                    document={previewDocument}
+                    document={miniPreviewDocument}
                     state={state}
                     onPathClick={onSelectPath}
                   />
                 </div>
               </foreignObject>
 
-              {/* Editor canvas — spans cells (cols 2..7, rows 1..5) of the geometric grid:
-                  x=250..850, y=150..650. Slotted between mini-preview row (ends y=150) and
-                  tray row (starts y=650), horizontally aligned with the tray. Living inside
-                  the same overlay SVG guarantees pixel-perfect alignment with the grid
-                  cells regardless of how the workspace resizes. */}
               <foreignObject x={250} y={150} width={600} height={500}>
                 <div className="w-full h-full pointer-events-auto relative">
-                  {/* Sharp boundary indicator — separate layer so it does not get
-                      softened by the canvas mask below. Square corners blend
-                      cleanly with the geometric grid cells. */}
                   <div className="pointer-events-none absolute inset-0 border border-white/15 bg-white/2.5" />
 
-                  {/* Editor canvas — soft-fades at the corners via radial mask so
-                      paths that escape the boundary do not produce a hard cut. */}
                   <div
-                    className="absolute inset-0 overflow-hidden"
-                    style={{
-                      maskImage:
-                        "radial-gradient(circle at center, black 70%, transparent 100%)",
-                      WebkitMaskImage:
-                        "radial-gradient(circle at center, black 70%, transparent 100%)",
-                    }}
+                    className={cn(
+                      "absolute inset-0",
+                      editorMode === "edit" && "overflow-hidden",
+                    )}
+                    style={
+                      editorMode === "edit"
+                        ? {
+                            maskImage:
+                              "radial-gradient(circle at center, black 70%, transparent 100%)",
+                            WebkitMaskImage:
+                              "radial-gradient(circle at center, black 70%, transparent 100%)",
+                          }
+                        : undefined
+                    }
                   >
                     <div className="absolute inset-0 z-10">
                       {editorCanvas}
@@ -227,23 +291,23 @@ export function EditorWorkspacePanel({
                 </div>
               </foreignObject>
 
-              {/* Icon tray — spans cells 2..7 (x=250..850, y=650..750), 6 cells wide,
-                  perfectly centered on grid center (x=550). grid-cols-6 inside → 1 icon = 1 cell. */}
-              <foreignObject x={250} y={650} width={600} height={100}>
-                <div className="w-full h-full pointer-events-auto">
-                  <EditorIconTray
-                    assets={trayAssets}
-                    selectedAssetId={selectedAssetId}
-                    onAssetSelect={(asset) => onSelectAssetById(asset.id)}
-                    onRemoveAsset={onRemoveAssetFromTray}
-                  />
-                </div>
-              </foreignObject>
+              {editorMode === "edit" ? (
+                <foreignObject x={250} y={650} width={600} height={100}>
+                  <div className="w-full h-full pointer-events-auto">
+                    <EditorIconTray
+                      assets={trayAssets}
+                      selectedAssetId={selectedAssetId}
+                      onAssetSelect={(asset) => onSelectAssetById(asset.id)}
+                      onRemoveAsset={onRemoveAssetFromTray}
+                      onCreateBlank={handleCreateBlank}
+                    />
+                  </div>
+                </foreignObject>
+              ) : null}
             </svg>
           </div>
         </div>
 
-        {/* Toggle — floats over the grid (transparent surroundings) */}
         <div className="absolute top-2 left-1/2 -translate-x-1/2 z-30">
           <EditorModeToggle
             mode={editorMode}
@@ -251,10 +315,21 @@ export function EditorWorkspacePanel({
           />
         </div>
 
-        {/* Floating action bar — shared /icons component (WorkspaceActionBar).
-            SVG generation routed through `onGetSvgContent` since the editor uses a
-            different document shape than IconData. Advanced exports hidden;
-            "Save as Snapshot" injected via `additionalDropdownItems`. */}
+        {editorMode === "draw" ? (
+          <div className="absolute top-1/2 left-3 -translate-y-1/2 z-30">
+            <EditorDrawToolbar
+              activeTool={activeTool}
+              onToolChange={setActiveTool}
+              closePath={closePath}
+              onClosePathToggle={() => setClosePath((v) => !v)}
+              fillMode={fillMode}
+              onFillModeToggle={handleFillModeToggle}
+              showReference={showReference}
+              onToggleReference={() => setShowReference((v) => !v)}
+            />
+          </div>
+        ) : null}
+
         <div className="absolute bottom-9.5 left-1/2 -translate-x-1/2 z-10">
           <WorkspaceActionBar
             state={state}
