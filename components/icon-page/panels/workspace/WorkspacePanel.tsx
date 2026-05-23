@@ -1,12 +1,9 @@
 "use client";
-
 import * as m from "motion/react-m";
-
 import { CustomizationState, IconData } from "@/lib/types";
 import { PreviewArea } from "./components/PreviewArea";
 import { SvgDefinitions } from "./components/SvgDefinitions";
 import { WorkspaceActionBar } from "./components/WorkspaceActionBar";
-
 export interface WorkspacePanelProps {
   state: CustomizationState;
   trayIcons: IconData[];
@@ -22,7 +19,6 @@ export interface WorkspacePanelProps {
   showGrid: boolean;
   onGridToggle: () => void;
 }
-
 export function WorkspacePanel({
   state,
   trayIcons,
@@ -53,7 +49,6 @@ export function WorkspacePanel({
           onRemoveFromTray={onRemoveFromTray}
           showGrid={showGrid}
         />
-
         <m.div
           initial={{ opacity: 0, scale: 0.9, y: 8 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}

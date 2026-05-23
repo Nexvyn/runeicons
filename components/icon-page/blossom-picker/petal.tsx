@@ -2,7 +2,6 @@ import { motion } from 'motion/react';
 import { HexColor, adjustBorderColor } from '@/lib/color-utils';
 import { Ring, BlossomLayoutConfig } from '@/lib/blossom-utils';
 import { BLOSSOM_NUMBERS } from './constants';
-
 interface PetalProps {
     index: number;
     ring: Ring;
@@ -18,13 +17,11 @@ interface PetalProps {
     onMouseEnter: () => void;
     onMouseLeave: () => void;
 }
-
 const BLOSSOM_SPRING = {
     type: 'spring',
     stiffness: 170,
     damping: 15,
 } as const;
-
 export function Petal({
     index,
     ring,
@@ -41,7 +38,6 @@ export function Petal({
     onMouseLeave,
 }: PetalProps) {
     const delay = (ring === 'inner' ? index : layout.innerPetalCount + index) * BLOSSOM_NUMBERS.bloomDelayMs / 1000;
-
     return (
         <motion.circle
             cx={center.x}

@@ -1,11 +1,9 @@
 "use client";
-
 import { motion } from "motion/react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { IconData } from "@/lib/types";
 import { cn } from "@/lib/utils";
-
 interface TrayIconItemProps {
   icon: IconData;
   index: number;
@@ -13,7 +11,6 @@ interface TrayIconItemProps {
   onSelect: (icon: IconData) => void;
   onRemove: (name: string) => void;
 }
-
 export function TrayIconItem({ 
   icon, 
   index, 

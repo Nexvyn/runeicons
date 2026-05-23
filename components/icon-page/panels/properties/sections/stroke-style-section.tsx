@@ -1,38 +1,49 @@
-import { cn } from "@/lib/utils";
 import { CustomizationState } from "@/lib/types";
-import { STROKE_STYLE_MAP, StrokeStyle } from "@/lib/stroke-style";
+import { StrokeStyle } from "@/lib/stroke-style";
+import { Scrubber } from "@/components/ui/scrubber";
+import { Section } from "../components/Section";
 
 interface StrokeStyleSectionProps {
   state: CustomizationState;
   onChange: (updates: Partial<CustomizationState>) => void;
 }
 
-const STROKE_VARIANTS: { id: StrokeStyle; name: string }[] = [
-  { id: "round", name: "Round" },
-  { id: "sharp", name: "Sharp" },
-  { id: "square", name: "Square" },
-  { id: "soft", name: "Soft" },
-  { id: "medium", name: "Medium" },
-  { id: "heavy", name: "Heavy" },
-];
-
-import { Section } from "../components/Section";
-import { Scrubber } from "@/components/ui/scrubber";
-
 const STROKE_SEQUENCE: StrokeStyle[] = ["soft", "round", "medium", "heavy", "sharp", "square"];
+
+const STYLE_ROUNDNESS: Record<StrokeStyle, number> = {
+  soft: 8,
+  round: 6,
+  medium: 4,
+  heavy: 2,
+  sharp: 0,
+  square: 0,
+};
+
+function RoundnessPreview({ styleId }: { styleId: StrokeStyle }) {
+  const r = STYLE_ROUNDNESS[styleId];
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-foreground/50">
+      <path
+        d={`M 2 18 L 2 ${2 + r} Q 2 2 ${2 + r} 2 L 18 2`}
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
 
 export function StrokeStyleSection({
   state,
   onChange,
 }: StrokeStyleSectionProps) {
   const currentIndex = STROKE_SEQUENCE.indexOf(state.strokeStyle);
-  const currentVariant = STROKE_VARIANTS.find(v => v.id === state.strokeStyle);
 
   return (
-    <Section title="Stroke Style">
+    <Section>
       <div className="space-y-4 pt-1">
         <Scrubber
-          label={currentVariant?.name || "Style"}
+          label="Roundness"
           min={0}
           max={5}
           step={1}
@@ -42,50 +53,8 @@ export function StrokeStyleSection({
             onChange({ strokeStyle: STROKE_SEQUENCE[index] });
           }}
           showInput={false}
+          rightSlot={<RoundnessPreview styleId={state.strokeStyle} />}
         />
-        
-        <div className="flex justify-between px-1">
-          {STROKE_SEQUENCE.map((id, index) => {
-            const config = STROKE_STYLE_MAP[id];
-            const isSelected = state.strokeStyle === id;
-            
-            return (
-              <button 
-                key={id}
-                onClick={() => onChange({ strokeStyle: id })}
-                className={cn(
-                  "flex flex-col items-center gap-2.5 transition-all group",
-                  isSelected ? "opacity-100" : "opacity-40 hover:opacity-70"
-                )}
-              >
-                <div className={cn(
-                  "w-10 h-10 rounded-lg border flex items-center justify-center transition-all duration-200",
-                  isSelected 
-                    ? "bg-muted/20 border-foreground/30 shadow-[0_2px_8px_rgba(0,0,0,0.1)] ring-1 ring-foreground/5" 
-                    : "bg-muted/5 border-border/40 hover:bg-muted/10"
-                )}>
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={config.strokeWidth * 1.5}
-                    strokeLinecap={config.strokeLinecap}
-                    strokeLinejoin={config.strokeLinejoin}
-                    className="transition-colors"
-                  >
-                    <path d="M7 17V7h10" />
-                  </svg>
-                </div>
-                <div className={cn(
-                  "h-[2px] rounded-full transition-all duration-300",
-                  isSelected ? "bg-foreground w-8" : "bg-border/20 w-2"
-                )} />
-              </button>
-            );
-          })}
-        </div>
       </div>
     </Section>
   );

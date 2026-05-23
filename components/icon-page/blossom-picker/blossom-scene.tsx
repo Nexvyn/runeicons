@@ -13,7 +13,6 @@ import {
 import { BLOSSOM_NUMBERS } from './constants';
 import { Petal } from './petal';
 import { BlossomPalette } from './types';
-
 interface BlossomSceneProps {
     center: Point;
     ringRadius: number;
@@ -37,19 +36,16 @@ interface BlossomSceneProps {
     onPetalHover: (index: number | null, ring: Ring | null) => void;
     svgRef: React.RefObject<SVGSVGElement | null>;
 }
-
 const BLOSSOM_SPRING = {
     type: 'spring',
     stiffness: 170,
     damping: 15,
 } as const;
-
 const THUMB_SPRING = {
     type: 'spring' as const,
     stiffness: 300,
     damping: 25,
 };
-
 export function BlossomScene({
     center,
     ringRadius,
@@ -74,18 +70,15 @@ export function BlossomScene({
     svgRef,
 }: BlossomSceneProps) {
     const instanceId = useId();
-
     const thumbAngle =
         BLOSSOM_NUMBERS.arcStartAngle +
         (1 - lightness / 100) * (BLOSSOM_NUMBERS.arcEndAngle - BLOSSOM_NUMBERS.arcStartAngle);
-
     const thumbPosition = polarToCartesian(center, sliderRadius, thumbAngle);
     const currentThumbColor = hsbToHex({
         hue,
         saturation: saturation * (1 - (lightness / 100) * 0.8),
         brightness: 20 + (lightness / 100) * 80,
     });
-
     const arcSteps = Array.from({ length: BLOSSOM_NUMBERS.arcGradientSteps - 1 }, (_, index) => {
         const totalSteps = BLOSSOM_NUMBERS.arcGradientSteps - 1;
         const startT = index / totalSteps;
@@ -96,7 +89,6 @@ export function BlossomScene({
         const endAngle =
             BLOSSOM_NUMBERS.arcStartAngle +
             startT === (totalSteps - 1) / totalSteps ? BLOSSOM_NUMBERS.arcEndAngle : endT * (BLOSSOM_NUMBERS.arcEndAngle - BLOSSOM_NUMBERS.arcStartAngle);
-
         return {
             id: `${instanceId}-arc-${index}`,
             d: describeArc(center, sliderRadius, startAngle, endAngle),
@@ -108,7 +100,6 @@ export function BlossomScene({
             delay: 0.1 + index * 0.012,
         };
     });
-
     return (
         <svg
             ref={svgRef}
@@ -121,7 +112,6 @@ export function BlossomScene({
                 filter: 'drop-shadow(0 24px 40px hsl(var(--foreground) / 0.2))',
             }}
         >
-
             <motion.circle
                 cx={center.x}
                 cy={center.y}
@@ -139,17 +129,13 @@ export function BlossomScene({
                 }}
                 style={{ transformOrigin: 'center' }}
             />
-
-
             {(['outer', 'inner'] as const).map((ring) => {
                 const count = ring === 'inner' ? layout.innerPetalCount : layout.outerPetalCount;
                 const ringPalette = ring === 'inner' ? palette.ring_1 : palette.ring_2;
-
                 return Array.from({ length: count }).map((_, index) => {
                     const color = rgbToHex(ringPalette[index % ringPalette.length]);
                     const pos = getPetalPosition(index, ring, center, layout);
                     const isHovered = hoveredRing === ring && hoveredPetalIndex === index;
-
                     return (
                         <Petal
                             key={`${ring}-${index}`}
@@ -170,8 +156,6 @@ export function BlossomScene({
                     );
                 });
             })}
-
-
             <motion.circle
                 cx={center.x}
                 cy={center.y}
@@ -190,8 +174,6 @@ export function BlossomScene({
                 style={{ cursor: 'pointer' }}
                 onClick={onCenterClick}
             />
-
-
             <g>
                 {arcSteps.map((step) => (
                     <motion.path
@@ -210,8 +192,6 @@ export function BlossomScene({
                         }}
                     />
                 ))}
-
-
                 <path
                     d={describeArc(center, sliderRadius, BLOSSOM_NUMBERS.arcStartAngle, BLOSSOM_NUMBERS.arcEndAngle)}
                     fill="none"
@@ -221,8 +201,6 @@ export function BlossomScene({
                     style={{ cursor: 'pointer' }}
                     onPointerDown={onArcPointerDown}
                 />
-
-
                 <motion.circle
                     cx={thumbPosition.x}
                     cy={thumbPosition.y}

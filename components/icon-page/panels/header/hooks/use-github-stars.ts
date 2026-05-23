@@ -1,11 +1,8 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { animate } from "motion/react";
-
 export function useGitHubStars() {
   const [displayCount, setDisplayCount] = useState<string>("0");
-
   useEffect(() => {
     let controls: any;
     const fetchStars = async () => {
@@ -14,7 +11,6 @@ export function useGitHubStars() {
         if (response.ok) {
           const data = await response.json();
           const stars = data.stargazers_count;
-
           controls = animate(0, stars, {
             duration: 2,
             ease: "easeOut",
@@ -32,15 +28,12 @@ export function useGitHubStars() {
         console.error("Error fetching stars:", error);
       }
     };
-
     fetchStars();
-
     return () => {
       if (controls) {
         controls.stop();
       }
     };
   }, []);
-
   return displayCount;
 }

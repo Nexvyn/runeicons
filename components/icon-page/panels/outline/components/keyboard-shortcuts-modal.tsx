@@ -1,16 +1,13 @@
 "use client";
-
 import { X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { KEYBOARD_SHORTCUTS } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/utils";
-
 interface KeyboardShortcutsModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
 function ShortcutKey({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
     <kbd
@@ -25,10 +22,8 @@ function ShortcutKey({ children, className }: { children: React.ReactNode; class
     </kbd>
   );
 }
-
 function ShortcutRow({ shortcut }: { shortcut: { key: string; desc: string } }) {
   const keyGroups = shortcut.key.split(" / ");
-
   return (
     <div className="flex items-center justify-between px-1 py-1.5">
       <span className="text-[11px] text-muted-foreground">{shortcut.desc}</span>
@@ -48,7 +43,6 @@ function ShortcutRow({ shortcut }: { shortcut: { key: string; desc: string } }) 
     </div>
   );
 }
-
 export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsModalProps) {
   return (
     <AnimatePresence>
@@ -62,7 +56,6 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
             className="absolute inset-0 bg-background/60 backdrop-blur-[2px]"
             onClick={onClose}
           />
-
           <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -84,7 +77,6 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
                 <X className="h-3 w-3" />
               </Button>
             </div>
-
             <div className="scrollbar-hide flex-1 overflow-y-auto p-4">
               <div className="space-y-6">
                 {KEYBOARD_SHORTCUTS.map((category, idx) => (
@@ -110,7 +102,6 @@ export function KeyboardShortcutsModal({ isOpen, onClose }: KeyboardShortcutsMod
                 ))}
               </div>
             </div>
-
             <div className="flex justify-center border-t border-border bg-muted/20 p-3">
               <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
                 <span>Press</span>

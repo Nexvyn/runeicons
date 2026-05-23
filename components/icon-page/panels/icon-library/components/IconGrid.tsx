@@ -1,24 +1,18 @@
 "use client";
-
 import { memo, useEffect, useRef } from "react";
-
 import { motion } from "motion/react";
-
 import { IconData, CustomizationState } from "@/lib/types";
 import type { IconType } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 import { STROKE_STYLE_MAP } from "@/lib/stroke-style";
-
 const iconVariants = {
   initial: { y: 0, scale: 1 },
   hover: { y: -12, scale: 0.92 },
 };
-
 const labelVariants = {
   initial: { opacity: 0, y: 4, scale: 0.94 },
   hover: { opacity: 1, y: 0, scale: 1 },
 };
-
 interface IconGridProps {
   icons: IconData[];
   selectedIconId: string | null;
@@ -27,25 +21,20 @@ interface IconGridProps {
   iconType: IconType;
   customizationState?: CustomizationState;
 }
-
 function IconGridInner({ icons, selectedIconId, onIconClick, isSearching, iconType, customizationState }: IconGridProps) {
   const invertInDark = iconType === "normal" || iconType === "pixelated";
   const containerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-
     const handleKeyDown = (e: KeyboardEvent) => {
       const active = document.activeElement;
       if (!active || !container.contains(active)) return;
-
       const buttons = Array.from(container.querySelectorAll("button"));
       const currentIndex = buttons.indexOf(active as HTMLButtonElement);
       if (currentIndex === -1) return;
-
       const cols = 5;
       let nextIndex = -1;
-
       switch (e.key) {
         case "ArrowRight":
           nextIndex = currentIndex + 1;
@@ -66,17 +55,14 @@ function IconGridInner({ icons, selectedIconId, onIconClick, isSearching, iconTy
           nextIndex = buttons.length - 1;
           break;
       }
-
       if (nextIndex >= 0 && nextIndex < buttons.length) {
         e.preventDefault();
         buttons[nextIndex].focus();
       }
     };
-
     container.addEventListener("keydown", handleKeyDown);
     return () => container.removeEventListener("keydown", handleKeyDown);
   }, []);
-
   return (
     <div
       className="grid grid-cols-5 border-b border-border outline-none"
@@ -86,7 +72,6 @@ function IconGridInner({ icons, selectedIconId, onIconClick, isSearching, iconTy
       {icons.map((icon) => {
         const Icon = icon.icon;
         const isSelected = selectedIconId === icon.id;
-
         return (
           <div key={icon.id} className="relative w-full">
             <span
@@ -96,7 +81,6 @@ function IconGridInner({ icons, selectedIconId, onIconClick, isSearching, iconTy
               <span className="absolute h-2.5 w-px bg-border" />
               <span className="absolute h-px w-2.5 bg-border" />
             </span>
-
             <motion.button
               onClick={() => onIconClick(icon)}
               initial="initial"
@@ -112,7 +96,7 @@ function IconGridInner({ icons, selectedIconId, onIconClick, isSearching, iconTy
                   : undefined
               }
               type="button"
-              aria-label={`${icon.name} icon`}
+              aria-label={`${icon.name.split(' ')[0]} icon`}
               title={icon.name}
               tabIndex={0}
             >
@@ -155,7 +139,6 @@ function IconGridInner({ icons, selectedIconId, onIconClick, isSearching, iconTy
                     );
                   }
                   return (
-                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={icon.url}
                       alt=""
@@ -166,7 +149,6 @@ function IconGridInner({ icons, selectedIconId, onIconClick, isSearching, iconTy
                   );
                 })()}
               </motion.div>
-
               <motion.div
                 className="pointer-events-none absolute right-0 bottom-1 left-0 z-10 px-1.5 text-center"
                 variants={labelVariants}
@@ -183,5 +165,4 @@ function IconGridInner({ icons, selectedIconId, onIconClick, isSearching, iconTy
     </div>
   );
 }
-
 export const IconGrid = memo(IconGridInner);

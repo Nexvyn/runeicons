@@ -73,7 +73,7 @@ export function ColorSection({ state, onChange }: ColorSectionProps) {
                         onClick={() => onChange({ iconGradient: false })}
                         className={cn(
                             "relative px-2.5 py-1 rounded-sm text-[10px] uppercase tracking-tighter transition-all duration-150 outline-none",
-                            mode === 'solid' ? "bg-background text-foreground shadow-sm border border-border/60" : "text-foreground/40 hover:text-foreground hover:bg-background/40"
+                            mode === 'solid' ? "bg-background text-foreground border border-border/60" : "text-foreground/40 hover:text-foreground hover:bg-background/40"
                         )}
                     >
                         Solid
@@ -82,7 +82,7 @@ export function ColorSection({ state, onChange }: ColorSectionProps) {
                         onClick={() => onChange({ iconGradient: true })}
                         className={cn(
                             "relative px-2.5 py-1 rounded-sm text-[10px] uppercase tracking-tighter transition-all duration-150 outline-none",
-                            mode === 'gradient' ? "bg-background text-foreground shadow-sm border border-border/60" : "text-foreground/40 hover:text-foreground hover:bg-background/40"
+                            mode === 'gradient' ? "bg-background text-foreground border border-border/60" : "text-foreground/40 hover:text-foreground hover:bg-background/40"
                         )}
                     >
                         Gradient
@@ -114,7 +114,7 @@ export function ColorSection({ state, onChange }: ColorSectionProps) {
                                         {state.gradient.stops.length > 2 && (
                                             <button
                                                 onClick={() => handleRemoveStop(i)}
-                                                className="absolute -right-1 -top-1 h-3.5 w-3.5 rounded-full bg-destructive text-[8px] text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center border border-background shadow-sm z-20"
+                                                className="absolute -right-1 -top-1 h-3.5 w-3.5 rounded-full bg-destructive text-[8px] text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center border border-background z-20"
                                             >
                                                 ×
                                             </button>
@@ -131,7 +131,7 @@ export function ColorSection({ state, onChange }: ColorSectionProps) {
                             </button>
 
                             <div className="space-y-3 pt-3 border-t border-border/60">
-                                <div className="flex h-[34px] w-full items-center justify-between rounded-sm border border-border/40 bg-muted/10 px-2 shadow-[inset_0_1.5px_4px_rgba(0,0,0,0.08)] transition-all hover:border-foreground/20">
+                                <div className="flex h-[34px] w-full items-center justify-between rounded-sm border border-border/40 bg-muted/10 px-2 transition-all hover:border-foreground/20">
                                     <span className="text-[10px] tracking-widest text-foreground/70 uppercase ml-1">Projection</span>
                                     <div className="flex items-center gap-1">
                                         {(['linear', 'radial', 'angular'] as const).map((t) => (
@@ -175,7 +175,7 @@ export function ColorSection({ state, onChange }: ColorSectionProps) {
                                 )}
 
 
-                                <div className="flex h-[34px] w-full items-center justify-between rounded-sm border border-border/40 bg-muted/10 px-2 shadow-[inset_0_1.5px_4px_rgba(0,0,0,0.08)] transition-all hover:border-foreground/20">
+                                <div className="flex h-[34px] w-full items-center justify-between rounded-sm border border-border/40 bg-muted/10 px-2 transition-all hover:border-foreground/20">
                                     <span className="text-[10px] tracking-widest text-foreground/70 uppercase ml-1">Spread</span>
                                     <div className="flex items-center gap-1">
                                         {(['pad', 'repeat', 'reflect'] as const).map((m) => (
@@ -195,7 +195,7 @@ export function ColorSection({ state, onChange }: ColorSectionProps) {
                                     </div>
                                 </div>
 
-                                <div className="flex h-[34px] w-full items-center justify-between rounded-sm border border-border/40 bg-muted/10 px-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)] transition-all hover:border-foreground/20">
+                                <div className="flex h-[34px] w-full items-center justify-between rounded-sm border border-border/40 bg-muted/10 px-2 transition-all hover:border-foreground/20">
                                     <span className="text-[10px] tracking-widest text-foreground/70 uppercase ml-1">Apply To</span>
                                     <div className="flex items-center gap-1">
                                         {(['stroke', 'fill', 'both'] as const).map((t) => (
@@ -218,7 +218,7 @@ export function ColorSection({ state, onChange }: ColorSectionProps) {
                         </div>
                     )}
                 {mode === 'gradient' && (
-                    <div className="relative flex h-[34px] w-full items-center rounded-sm border border-border/40 px-2 shadow-[inset_0_1.5px_4px_rgba(0,0,0,0.08)] transition-all hover:border-foreground/20 overflow-hidden group">
+                    <div className="relative flex h-[34px] w-full items-center rounded-sm border border-border/40 px-2 transition-all hover:border-foreground/20 overflow-hidden group">
                         <div 
                             className="absolute inset-0 opacity-100"
                             style={{ background: gradientPreviewStyle.background }}
@@ -226,7 +226,7 @@ export function ColorSection({ state, onChange }: ColorSectionProps) {
                         
                         <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background via-background/60 to-transparent pointer-events-none z-0" />
                         
-                        <span className="relative z-10 text-[10px] uppercase tracking-widest text-foreground ml-1 whitespace-nowrap font-medium drop-shadow-sm">
+                        <span className="relative z-10 text-[10px] uppercase tracking-widest text-foreground ml-1 whitespace-nowrap font-medium">
                             Surface Preview
                         </span>
                     </div>

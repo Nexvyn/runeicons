@@ -20,9 +20,13 @@ interface ScrubberProps {
   initialValue?: number;
   onChange?: (value: number) => void;
   disabled?: boolean;
+  className?: string;
   trackClassName?: string;
   fillClassName?: string;
   showInput?: boolean;
+  showCenterDivider?: boolean;
+  rightSlot?: React.ReactNode;
+  showTicks?: boolean;
 }
 
 export const Scrubber: React.FC<ScrubberProps> = ({
@@ -34,9 +38,13 @@ export const Scrubber: React.FC<ScrubberProps> = ({
   initialValue = 50,
   onChange,
   disabled = false,
+  className,
   trackClassName,
   fillClassName,
   showInput = true,
+  showCenterDivider = false,
+  rightSlot,
+  showTicks = true,
 }) => {
   const { values } = useTuning();
   const [internalValue, setInternalValue] = useState(controlledValue ?? initialValue);
@@ -77,10 +85,10 @@ export const Scrubber: React.FC<ScrubberProps> = ({
   const progressScaleX = useTransform(springX, (v) => Math.max(0, v / 100));
   const progressTransform = useMotionTemplate`scaleX(${progressScaleX})`;
 
-  const maskImage = useTransform(
+  const valueMaskImage = useTransform(
     springX,
     (v) =>
-      `linear-gradient(to right, black 0%, black calc(${v}% - 10px), transparent calc(${v}% + 10px), transparent 100%)`,
+      `linear-gradient(to right, transparent 0%, transparent calc(${v}% - 10px), black calc(${v}% + 10px), black 100%)`,
   );
 
   const rubberStretchPx = useMotionValue(0);
@@ -276,7 +284,8 @@ export const Scrubber: React.FC<ScrubberProps> = ({
       onKeyDown={handleSliderKeyDown}
       style={{ width: rubberBandWidth, x: rubberBandX }}
       className={cn(
-        "group relative h-[34px] w-full touch-none overflow-hidden rounded-sm border border-border/40 bg-muted/10 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.15)]",
+        "group relative h-[34px] w-full touch-none overflow-hidden rounded-sm border border-border/40 bg-muted/10 transition-all",
+        className,
         disabled ? "cursor-not-allowed opacity-50" : "cursor-grab active:cursor-grabbing",
         (isEditing ||
           (showInput &&
@@ -299,23 +308,25 @@ export const Scrubber: React.FC<ScrubberProps> = ({
           trackClassName,
         )}
       >
-        <div className="pointer-events-none absolute inset-0 flex items-center">
-          <div className="flex w-full justify-between px-[10px] opacity-[0.06]">
-            {(() => {
-              const discreteSteps = Math.min(20, Math.floor((max - min) / step));
-              const count = discreteSteps > 1 ? discreteSteps + 1 : 11;
-              return Array.from({ length: count }).map((_, i) => (
-                <div
-                  key={i}
-                  className="w-[1px] bg-foreground/50"
-                  style={{
-                    height: i % 5 === 0 || count <= 11 ? "5px" : "3px",
-                  }}
-                />
-              ));
-            })()}
+        {showTicks && (
+          <div className="pointer-events-none absolute inset-0 flex items-center">
+            <div className="flex w-full justify-between px-[10px] opacity-[0.06]">
+              {(() => {
+                const discreteSteps = Math.min(20, Math.floor((max - min) / step));
+                const count = discreteSteps > 1 ? discreteSteps + 1 : 11;
+                return Array.from({ length: count }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-[1px] bg-foreground/50"
+                    style={{
+                      height: i % 5 === 0 || count <= 11 ? "5px" : "3px",
+                    }}
+                  />
+                ));
+              })()}
+            </div>
           </div>
-        </div>
+        )}
         <motion.div
           style={{ transform: progressTransform, transformOrigin: "left" }}
           animate={{
@@ -325,6 +336,9 @@ export const Scrubber: React.FC<ScrubberProps> = ({
           transition={{ duration: 0.1 }}
           className={cn("absolute top-0 right-0 bottom-0 left-0 z-0", fillClassName)}
         />
+        {showCenterDivider && (
+          <div className="pointer-events-none absolute top-0 bottom-0 left-1/2 z-[5] w-px -translate-x-1/2 bg-border/50" />
+        )}
       </motion.div>
 
       <div className="pointer-events-none absolute inset-0 z-10 flex items-center px-2 text-[10px] uppercase tracking-widest text-foreground/70 select-none">
@@ -332,68 +346,69 @@ export const Scrubber: React.FC<ScrubberProps> = ({
           <span ref={labelRef} className="ml-1">
             {label}
           </span>
-          <div
-            ref={valueRef}
-            className="pointer-events-auto flex items-center gap-1"
-            onPointerDown={(e) => e.stopPropagation()}
-          >
-            <input
-              ref={inputRef}
-              type="number"
-              value={inputValue}
-              min={min}
-              max={max}
-              step={step}
-              disabled={disabled}
-              onChange={(e) => {
-                const val = e.target.value;
-                setInputValue(val);
+          {rightSlot ? (
+            <div ref={valueRef} className="flex items-center" onPointerDown={(e) => e.stopPropagation()}>
+              {rightSlot}
+            </div>
+          ) : (
+            <div
+              ref={valueRef}
+              className="pointer-events-auto flex items-center gap-1"
+              onPointerDown={(e) => e.stopPropagation()}
+            >
+              <input
+                ref={inputRef}
+                type="number"
+                value={inputValue}
+                min={min}
+                max={max}
+                step={step}
+                disabled={disabled}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setInputValue(val);
 
-                const parsed = parseFloat(val);
-                if (!isNaN(parsed)) {
-                  const clamped = Math.max(min, Math.min(max, parsed));
-                  const percentage = ((clamped - min) / (max - min)) * 100;
-                  xPercent.set(percentage);
+                  const parsed = parseFloat(val);
+                  if (!isNaN(parsed)) {
+                    const clamped = Math.max(min, Math.min(max, parsed));
+                    const percentage = ((clamped - min) / (max - min)) * 100;
+                    xPercent.set(percentage);
 
-                  if (parsed >= min && parsed <= max) {
-                    onChange?.(parsed);
+                    if (parsed >= min && parsed <= max) {
+                      onChange?.(parsed);
+                    }
                   }
-                }
-              }}
-              onBlur={(e) => {
-                handleEditCommit();
-                setIsEditing(false);
-              }}
-              onKeyDown={handleInputKeyDown}
-              onFocus={() => setIsEditing(true)}
-              className={cn(
-                "w-10 bg-transparent text-right text-[11px] font-mono tabular-nums transition-all outline-none",
-                "[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
-                "cursor-ew-resize border border-transparent px-1 py-0.5",
-                "hover:bg-muted/20",
-                "focus:cursor-text focus:bg-background/20",
-              )}
-            />
-          </div>
+                }}
+                onBlur={(e) => {
+                  handleEditCommit();
+                  setIsEditing(false);
+                }}
+                onKeyDown={handleInputKeyDown}
+                onFocus={() => setIsEditing(true)}
+                className={cn(
+                  "w-10 bg-transparent text-right text-[11px] font-mono tabular-nums transition-all outline-none",
+                  "[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
+                  "cursor-ew-resize border border-transparent px-1 py-0.5",
+                  "hover:bg-muted/20",
+                  "focus:cursor-text focus:bg-background/20",
+                )}
+              />
+            </div>
+          )}
         </div>
       </div>
 
       {!showInput && (
         <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
           <motion.div
-            style={{ maskImage: maskImage, WebkitMaskImage: maskImage }}
-            className="absolute inset-0 flex items-center"
+            style={{ maskImage: valueMaskImage, WebkitMaskImage: valueMaskImage }}
+            className="absolute inset-0 flex items-center justify-end px-2"
           >
-            <div className="flex w-full justify-between px-2 text-[10px] uppercase tracking-widest">
-              <span ref={labelRef} className="text-foreground/70 ml-1">
-                {label}
-              </span>
-              {!isEditing && (
-                <span ref={valueRef} className="font-mono ">
-                  {value}
-                </span>
-              )}
-            </div>
+            {!isEditing && (
+              <div ref={valueRef} className="flex items-center text-[10px] uppercase tracking-widest text-foreground/70">
+                {rightSlot ?? <span className="font-mono">{value}</span>}
+              </div>
+            )}
           </motion.div>
         </div>
       )}
@@ -415,24 +430,8 @@ export const Scrubber: React.FC<ScrubberProps> = ({
               stiffness: 600,
               damping: 35,
             }}
-            className="rounded-full shadow-[0_1px_2px_rgba(0,0,0,0.1)]"
+            className="rounded-full"
           />
-        </div>
-      </motion.div>
-
-      <motion.div
-        className="pointer-events-none absolute top-0 z-30 flex items-center justify-center"
-        initial={false}
-        animate={{
-          y: isDragging ? -32 : -15,
-          opacity: isDragging ? 1 : 0,
-        }}
-        transition={{ duration: 0.1 }}
-        style={{ left: thumbPos, x: "-50%" }}
-      >
-        <div className="relative rounded-sm bg-brand px-2 py-1 text-[9px] font-tight text-background tabular-nums shadow-lg">
-          {value}
-          <div className="absolute -bottom-0.5 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rotate-45 bg-brand" />
         </div>
       </motion.div>
     </motion.div>

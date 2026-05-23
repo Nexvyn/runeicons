@@ -1,10 +1,8 @@
 import { motion as m, AnimatePresence } from "motion/react";
-
 interface EmptyStateProps {
   isVisible: boolean;
   onClearSearch?: () => void;
 }
-
 export function EmptyState({ isVisible, onClearSearch }: EmptyStateProps) {
   return (
     <AnimatePresence>

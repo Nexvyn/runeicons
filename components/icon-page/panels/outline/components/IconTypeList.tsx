@@ -1,5 +1,4 @@
 "use client";
-
 import type { JSX } from "react";
 import { useRef } from "react";
 import { DuotoneIcon } from "@/components/icons/DuotoneIcon";
@@ -11,9 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { CustomizationState } from "@/lib/types";
 import { cn } from "@/lib/utils";
-
 type IconType = CustomizationState["iconType"];
-
 export const iconTypes: Array<{
   id: IconType;
   label: string;
@@ -45,14 +42,12 @@ export const iconTypes: Array<{
     icon: () => <GlassIcon className="h-4 w-4" />,
   },
 ];
-
 interface IconTypeListProps {
   activeType: IconType;
   onTypeChange?: (type: IconType) => void;
   compact?: boolean;
   supportedTypes?: readonly IconType[];
 }
-
 export function IconTypeList({
   activeType,
   onTypeChange,
@@ -60,16 +55,13 @@ export function IconTypeList({
   supportedTypes,
 }: IconTypeListProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-
   const visibleTypes = supportedTypes
     ? iconTypes.filter((type) => supportedTypes.includes(type.id))
     : iconTypes;
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     const buttons = Array.from(containerRef.current?.querySelectorAll("button") || []);
     const currentIndex = buttons.indexOf(document.activeElement as HTMLButtonElement);
     if (currentIndex === -1) return;
-
     let nextIndex = -1;
     if (compact) {
       if (e.key === "ArrowDown") nextIndex = currentIndex + 1;
@@ -80,13 +72,11 @@ export function IconTypeList({
       if (e.key === "ArrowDown") nextIndex = currentIndex + 3;
       if (e.key === "ArrowUp") nextIndex = currentIndex - 3;
     }
-
     if (nextIndex >= 0 && nextIndex < buttons.length) {
       e.preventDefault();
       buttons[nextIndex].focus();
     }
   };
-
   return (
     <TooltipProvider delayDuration={0}>
       <div
@@ -99,7 +89,6 @@ export function IconTypeList({
         {visibleTypes.map((type) => {
           const Icon = type.icon;
           const isActive = activeType === type.id;
-
           return (
             <Tooltip key={type.id}>
               <TooltipTrigger asChild>

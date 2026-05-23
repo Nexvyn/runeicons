@@ -110,7 +110,7 @@ export function UploadSection({
           onDrop={handleDrop}
           className={cn(
             "border-2 border-dashed rounded-xl p-6 text-center transition-all duration-200 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2",
-            isDragging ? "border-primary bg-primary/5 scale-[0.99] shadow-inner" : "border-border hover:border-border/80",
+            isDragging ? "border-primary bg-primary/5 scale-[0.99]" : "border-border hover:border-border/80",
             isUploading && "opacity-50 pointer-events-none",
             state.customIcons.length >= maxIcons && "opacity-50 cursor-not-allowed grayscale pointer-events-none"
           )}
@@ -200,7 +200,7 @@ export function UploadSection({
                     tags: ["custom", "upload"]
                   })}
                 >
-                  <div className="w-10 h-10 flex items-center justify-center rounded-[4px] bg-background border border-border shadow-sm p-1.5 overflow-hidden outline outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10">
+                  <div className="w-10 h-10 flex items-center justify-center rounded-[4px] bg-background border border-border p-1.5 overflow-hidden outline outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10">
                     <img
                       src={icon.url || "/placeholder.svg"}
                       alt={icon.name}

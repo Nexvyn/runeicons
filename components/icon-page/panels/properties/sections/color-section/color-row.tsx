@@ -78,13 +78,13 @@ export function ColorRow({
   };
 
   return (
-    <div className="flex items-center justify-between group h-[34px] px-2 rounded-sm border border-border/60 bg-muted/10 transition-all hover:border-foreground/20 shadow-[inset_0_1.5px_4px_rgba(0,0,0,0.08)]">
+    <div className="relative grid grid-cols-3 items-center group h-[34px] px-2 rounded-md border border-border/60 bg-muted/10 transition-colors hover:border-foreground/20">
       <span className="text-[10px] uppercase tracking-widest text-foreground/70 transition-colors ml-1">
         {label}
       </span>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-center gap-2">
         {position !== undefined && (
-          <div className="h-7 px-1.5 flex items-center bg-muted/20 border border-border/80 rounded-sm focus-within:border-foreground/30 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.15)]">
+          <div className="h-7 px-1.5 flex items-center bg-muted/20 border border-border/80 rounded-sm focus-within:border-foreground/30 transition-colors">
             <input
               type="text"
               value={posValue}
@@ -96,7 +96,17 @@ export function ColorRow({
             <span className="text-[9px] text-foreground/30 select-none mt-[1px]">%</span>
           </div>
         )}
-        <div className="h-7 px-1.5 flex items-center bg-muted/20 border border-border/80 rounded-sm focus-within:border-foreground/30 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.15)]">
+        <div className="relative flex items-center justify-center h-7 w-7 rounded-full bg-muted/10 border border-border/80 transition-transform active:scale-[0.96] cursor-pointer">
+          <div className="absolute inset-0 rounded-full" />
+          <BlossomColorPicker
+            value={value}
+            onChange={onChange}
+            disabled={disabled}
+          />
+        </div>
+      </div>
+      <div className="flex items-center justify-end">
+        <div className="h-7 px-1.5 flex items-center bg-muted/20 border border-border/80 rounded-sm focus-within:border-foreground/30 transition-colors">
           <input
             id={`color-input-${label}`}
             type="text"
@@ -107,13 +117,6 @@ export function ColorRow({
             className="w-[52px] bg-transparent text-[11px] font-mono tabular-nums uppercase focus:outline-none transition-colors mt-[0.5px]"
             spellCheck={false}
             autoComplete="off"
-          />
-        </div>
-        <div className="flex items-center justify-center h-7 w-7 rounded-full bg-muted/10 border border-border/80 shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] transition-all">
-          <BlossomColorPicker
-            value={value}
-            onChange={onChange}
-            disabled={disabled}
           />
         </div>
       </div>

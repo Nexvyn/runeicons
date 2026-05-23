@@ -7,18 +7,6 @@ import { useTheme } from "next-themes";
 
 import { Button } from "./button";
 
-/* ─────────────────────────────────────────────────────────
- * ANIMATION STORYBOARD — Sun ↔ Moon Toggle
- *
- *   0ms   user clicks toggle
- *   0ms   outgoing icon: rotate 0 → -45°, scale 1 → 0.6, fade out (200ms)
- *   0ms   incoming icon: rotate 45° → 0,  scale 0.6 → 1, fade in   (250ms)
- *         (simultaneous crossfade — no gap, no empty space)
- * 250ms   settled
- *
- * Honors prefers-reduced-motion: instant swap, no motion.
- * ───────────────────────────────────────────────────────── */
-
 const EASE_OUT_QUART = [0.165, 0.84, 0.44, 1] as const;
 const DURATION_IN = 0.25;
 const DURATION_OUT = 0.2;

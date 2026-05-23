@@ -1,12 +1,10 @@
 import { RGBColor } from "@/lib/color-utils";
 import { BlossomLayoutConfig, BlossomStyleConfig } from "@/lib/blossom-utils";
-
 export interface BlossomPalette {
     center: RGBColor[];
     ring_1: RGBColor[];
     ring_2: RGBColor[];
 }
-
 export interface BlossomColorPickerProps {
     value?: `#${string}`;
     defaultValue?: `#${string}`;
