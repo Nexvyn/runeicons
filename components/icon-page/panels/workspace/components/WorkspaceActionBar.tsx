@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useRef, useState, type ReactNode } from "react";
-
 import {
   Braces,
   Check,
@@ -18,11 +17,9 @@ import {
   Sparkles,
   Undo,
   X,
-  Zap,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
-
 import { useTuning } from "@/components/icon-page/tuning";
 import {
   DropdownMenu,
@@ -37,8 +34,6 @@ import {
 } from "@/lib/code-snippets";
 import {
   buildComponentName,
-  generateFramerComponent,
-  generateGsapComponent,
   generateJsxComponent,
   generatePng,
   generateStandaloneSvg,
@@ -46,7 +41,6 @@ import {
 } from "@/lib/svg-export-utils";
 import { CustomizationState, IconData } from "@/lib/types";
 import { cn } from "@/lib/utils";
-
 export interface WorkspaceActionBarProps {
   onDownload?: () => void;
   onReset?: () => void;
@@ -61,25 +55,10 @@ export interface WorkspaceActionBarProps {
   state?: CustomizationState;
   onChange?: (updates: Partial<CustomizationState>) => void;
   className?: string;
-  /**
-   * Optional override for SVG generation. When provided, the main download
-   * button and any "Copy SVG" / "Download as SVG" dropdown items use this
-   * instead of `generateStandaloneSvg(selectedIcon, state)`. Used by the
-   * editor, whose document shape isn't a LucideIcon-based IconData.
-   */
   onGetSvgContent?: () => Promise<string>;
-  /**
-   * Hide dropdown items that require a full IconData (PNG export, JSX/TSX
-   * component exports, Copy as React, GSAP/Framer animated exports).
-   */
   hideAdvancedExports?: boolean;
-  /**
-   * Extra dropdown items appended to the export menu — e.g. editor's
-   * "Save as Snapshot" entry.
-   */
   additionalDropdownItems?: ReactNode;
 }
-
 export function WorkspaceActionBar({
   onDownload,
   onReset,
@@ -100,7 +79,6 @@ export function WorkspaceActionBar({
 }: WorkspaceActionBarProps) {
   const [isPending, setIsPending] = useState(false);
   const isAnimated = state?.motion?.enabled === true;
-
   const withPending = async (fn: () => Promise<void>) => {
     if (isPending) return;
     setIsPending(true);
@@ -116,7 +94,6 @@ export function WorkspaceActionBar({
   const [resetTooltipOpen, setResetTooltipOpen] = useState(false);
   const resetTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
   const disarmReset = useCallback(() => {
     setIsResetArmed(false);
     setTimeLeft(5);
@@ -129,11 +106,9 @@ export function WorkspaceActionBar({
       countdownIntervalRef.current = null;
     }
   }, []);
-
   const armReset = useCallback(() => {
     setIsResetArmed(true);
     setTimeLeft(5);
-
     countdownIntervalRef.current = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -143,24 +118,20 @@ export function WorkspaceActionBar({
         return prev - 1;
       });
     }, 1000);
-
     resetTimeoutRef.current = setTimeout(() => {
       disarmReset();
     }, 5000);
   }, [disarmReset]);
-
   const handleResetClick = useCallback(() => {
     if (!isResetArmed) {
       armReset();
     }
   }, [isResetArmed, armReset]);
-
   const handleConfirmReset = useCallback(() => {
     disarmReset();
     onReset?.();
     toast.success("Customizations reset");
   }, [disarmReset, onReset]);
-
   const copyToClipboard = async (text: string, label: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -169,7 +140,6 @@ export function WorkspaceActionBar({
       toast.error("Failed to copy to clipboard");
     }
   };
-
   const getSvgContent = async (): Promise<string> => {
     if (onGetSvgContent) {
       try {
@@ -192,7 +162,6 @@ export function WorkspaceActionBar({
 </svg>`;
     }
   };
-
   const downloadSvg = async () => {
     const svg = await getSvgContent();
     if (!svg) return;
@@ -206,9 +175,11 @@ export function WorkspaceActionBar({
     document.body.removeChild(link);
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     toast.success("SVG downloaded successfully");
+    if (isAnimated) {
+      toast.info("Animations play when SVG is opened directly in browser or inlined in HTML", { duration: 5000 });
+    }
     onDownload?.();
   };
-
   const downloadFile = (content: string, filename: string, mimeType: string) => {
     const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
@@ -220,7 +191,6 @@ export function WorkspaceActionBar({
     document.body.removeChild(link);
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
-
   const downloadPng = async () => {
     if (!selectedIcon || !state) return;
     await withPending(async () => {
@@ -240,10 +210,8 @@ export function WorkspaceActionBar({
       }
     });
   };
-
   const getComponentFilename = (ext: string) =>
     selectedIcon ? `${buildComponentName(selectedIcon.name)}.${ext}` : `icon.${ext}`;
-
   return (
     <TooltipProvider delayDuration={400}>
       <div
@@ -268,7 +236,6 @@ export function WorkspaceActionBar({
               <p>Undo <span className="ml-1 opacity-50 text-[10px]">⌘Z</span></p>
             </TooltipContent>
           </Tooltip>
-
           <Tooltip>
             <TooltipTrigger asChild>
               <button
@@ -283,7 +250,6 @@ export function WorkspaceActionBar({
               <p>Redo <span className="ml-1 opacity-50 text-[10px]">⌘Y</span></p>
             </TooltipContent>
           </Tooltip>
- 
           <div className="relative">
             <Tooltip
               open={!isResetArmed && resetTooltipOpen}
@@ -304,7 +270,6 @@ export function WorkspaceActionBar({
               </TooltipTrigger>
               <TooltipContent side="top"><p>Reset</p></TooltipContent>
             </Tooltip>
-
             <AnimatePresence>
               {isResetArmed && (
                 <motion.div
@@ -333,7 +298,6 @@ export function WorkspaceActionBar({
             </AnimatePresence>
           </div>
         </div>
-
         <div className="flex items-center rounded-[10px] bg-[#1d1d1f] p-[3px] shadow-[inset_0_1px_1px_rgba(0,0,0,0.4),0_0_0_1px_rgba(0,0,0,0.5)]">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -358,7 +322,6 @@ export function WorkspaceActionBar({
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-
           <Tooltip>
             <TooltipTrigger asChild>
               <button
@@ -378,7 +341,6 @@ export function WorkspaceActionBar({
             </TooltipContent>
           </Tooltip>
         </div>
-
         <div className="flex items-center rounded-[10px] bg-[#1d1d1f] p-[3px] shadow-[inset_0_1px_1px_rgba(0,0,0,0.4),0_0_0_1px_rgba(0,0,0,0.5)]">
           <button
             disabled={isPending}
@@ -402,7 +364,6 @@ export function WorkspaceActionBar({
               {isPending ? "Exporting..." : isAnimated && !hideAdvancedExports ? "Export JSX" : "Export SVG"}
             </span>
           </button>
-
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="group flex h-full w-8 items-center justify-center rounded-[7px] bg-white text-black transition-all hover:bg-white/90 active:scale-[0.98] dark:bg-white dark:text-black">
@@ -526,55 +487,6 @@ export function WorkspaceActionBar({
                     <FileCode className="h-4 w-4 text-white/40" />
                     <span>Download as SVG (animated)</span>
                   </DropdownMenuItem>
-                  {!hideAdvancedExports && (
-                    <>
-                      <DropdownMenuSeparator className="my-0.5 bg-white/5" />
-                      <DropdownMenuItem
-                        disabled={isPending}
-                        className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-[11px] font-medium transition-colors focus:bg-white/10 focus:text-white"
-                        onClick={async () => {
-                          if (!selectedIcon || !state) return;
-                          await withPending(async () => {
-                            try {
-                              const code = await generateGsapComponent(selectedIcon, state);
-                              downloadFile(code, getComponentFilename("jsx"), "text/javascript");
-                              toast.success("GSAP component downloaded");
-                            } catch {
-                              toast.error("Failed to generate GSAP component");
-                            }
-                          });
-                        }}
-                      >
-                        <Zap className="h-4 w-4 text-amber-400/60" />
-                        <div className="flex flex-1 items-center justify-between">
-                          <span>Download as GSAP</span>
-                          <span className="font-mono text-[9px] opacity-40">JSX</span>
-                        </div>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        disabled={isPending}
-                        className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-[11px] font-medium transition-colors focus:bg-white/10 focus:text-white"
-                        onClick={async () => {
-                          if (!selectedIcon || !state) return;
-                          await withPending(async () => {
-                            try {
-                              const code = await generateFramerComponent(selectedIcon, state);
-                              downloadFile(code, getComponentFilename("jsx"), "text/javascript");
-                              toast.success("Framer Motion component downloaded");
-                            } catch {
-                              toast.error("Failed to generate Framer Motion component");
-                            }
-                          });
-                        }}
-                      >
-                        <Sparkles className="h-4 w-4 text-purple-400/60" />
-                        <div className="flex flex-1 items-center justify-between">
-                          <span>Download as Framer Motion</span>
-                          <span className="font-mono text-[9px] opacity-40">JSX</span>
-                        </div>
-                      </DropdownMenuItem>
-                    </>
-                  )}
                   {additionalDropdownItems && (
                     <>
                       <DropdownMenuSeparator className="my-0.5 bg-white/5" />

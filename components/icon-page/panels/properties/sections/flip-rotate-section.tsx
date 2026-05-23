@@ -28,7 +28,7 @@ export function FlipRotateSection({
               className={cn(
                 "h-6 px-3 text-[9px] font-medium uppercase tracking-tighter rounded-sm transition-all duration-150 active:scale-[0.98]",
                 state.flipH 
-                  ? "bg-background text-foreground shadow-sm border border-border/60" 
+                  ? "bg-background text-foreground border border-border/60" 
                   : "text-foreground/60 hover:text-foreground hover:bg-background/40"
               )}
             >
@@ -41,7 +41,7 @@ export function FlipRotateSection({
               className={cn(
                 "h-6 px-3 text-[9px] font-medium uppercase tracking-tighter rounded-sm transition-all duration-150 active:scale-[0.98]",
                 state.flipV 
-                  ? "bg-background text-foreground shadow-sm border border-border/60" 
+                  ? "bg-background text-foreground border border-border/60" 
                   : "text-foreground/60 hover:text-foreground hover:bg-background/40"
               )}
             >

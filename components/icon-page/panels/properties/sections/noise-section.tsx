@@ -31,8 +31,10 @@ export function NoiseSection({
           }
           min={0}
           max={100}
+          className="bg-transparent border-transparent"
           trackClassName="noise-track-custom"
           fillClassName="hidden"
+          showTicks={false}
         />
       </div>
     </Section>

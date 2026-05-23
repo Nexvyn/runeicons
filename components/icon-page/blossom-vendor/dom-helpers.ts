@@ -14,7 +14,6 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
   }
   return el;
 }
-
 export function createSVGElement<K extends keyof SVGElementTagNameMap>(
   tag: K,
   attrs?: Record<string, string>
@@ -27,7 +26,6 @@ export function createSVGElement<K extends keyof SVGElementTagNameMap>(
   }
   return el;
 }
-
 export function setStyles(
   el: HTMLElement | SVGElement,
   styles: Partial<CSSStyleDeclaration>
@@ -38,7 +36,6 @@ export function setStyles(
     }
   }
 }
-
 export function setAttributes(
   el: Element,
   attrs: Record<string, string>

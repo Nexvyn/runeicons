@@ -6,7 +6,6 @@ export interface BlossomColorPickerValue {
   alpha: number;
   layer: 'inner' | 'outer';
 }
-
 export interface BlossomColorPickerColor extends BlossomColorPickerValue {
   hex: string;
   hsl: string;
@@ -17,11 +16,9 @@ export interface BlossomColorPickerColor extends BlossomColorPickerValue {
   g: number;
   b: number;
 }
-
 export type ColorInput = string | {
   h: number;
   s: number;
   l: number;
 };
-
 export type SliderPosition = 'top' | 'bottom' | 'left' | 'right';

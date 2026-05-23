@@ -4,7 +4,6 @@ import type {
   ColorInput,
   SliderPosition,
 } from './types';
-
 import { computeAdaptivePosition } from './adaptive';
 import {
   DEFAULT_COLORS,
@@ -37,7 +36,6 @@ import {
   getVisualSaturation,
   parseColor,
 } from './utils';
-
 function colorsEqual(a: ColorInput[], b: ColorInput[]): boolean {
   if (a === b) return true;
   if (a.length !== b.length) return false;
@@ -46,7 +44,6 @@ function colorsEqual(a: ColorInput[], b: ColorInput[]): boolean {
   }
   return true;
 }
-
 export interface BlossomColorPickerOptions {
   value?: BlossomColorPickerValue;
   defaultValue?: BlossomColorPickerValue;
@@ -68,29 +65,23 @@ export interface BlossomColorPickerOptions {
   sliderOffset?: number;
   collapsible?: boolean;
 }
-
 const DEFAULT_VALUE: BlossomColorPickerValue = {
   hue: 330,
   saturation: 70,
   alpha: 50,
   layer: 'outer',
 };
-
 export class BlossomColorPicker {
   private container: HTMLElement;
   private rootEl!: HTMLDivElement;
   private containerEl!: HTMLDivElement;
   private mousePos: { x: number; y: number } | null = null;
   private rafId: number | null = null;
-
-  
   private opts: Required<
     Omit<BlossomColorPickerOptions, 'value' | 'defaultValue' | 'sliderPosition'>
   > & {
     sliderPosition?: SliderPosition;
   };
-
-  
   private internalValue: BlossomColorPickerValue;
   private controlledValue?: BlossomColorPickerValue;
   private isExpanded = false;
@@ -99,8 +90,6 @@ export class BlossomColorPicker {
   private prevExpanded = false;
   private shiftOffset = { x: 0, y: 0 };
   private effectivePosition: SliderPosition = 'right';
-
-  
   private normalizedColors: { h: number; s: number; l: number }[] = [];
   private layers: { h: number; s: number; l: number }[][] = [];
   private allColors: { h: number; s: number; l: number }[] = [];
@@ -109,30 +98,21 @@ export class BlossomColorPicker {
   private layerRotations: number[] = [];
   private barRadius = 0;
   private containerSize = 0;
-
-  
   private petalRenderers: PetalRenderer[] = [];
   private colorBarRenderer!: ColorBarRenderer;
   private arcSliderRenderer: ArcSliderRenderer | null = null;
   private coreButtonRenderer!: CoreButtonRenderer;
   private backgroundRenderer!: BackgroundRenderer;
-
-  
   private hoverTimeout: ReturnType<typeof setTimeout> | null = null;
   private closeTimeout: ReturnType<typeof setTimeout> | null = null;
-
-  
   private boundClickOutside: (e: MouseEvent) => void;
   private boundMouseMove: (e: MouseEvent) => void;
-
   constructor(
     container: HTMLElement,
     options?: Partial<BlossomColorPickerOptions>
   ) {
     this.container = container;
-
     const defaultValue = options?.defaultValue ?? DEFAULT_VALUE;
-
     this.opts = {
       colors: options?.colors ?? [],
       onChange: options?.onChange ?? (() => {}),
@@ -152,30 +132,23 @@ export class BlossomColorPicker {
       sliderOffset: options?.sliderOffset ?? SLIDER_OFFSET,
       collapsible: options?.collapsible ?? true,
     };
-
     this.controlledValue = options?.value;
     this.internalValue = options?.value ?? defaultValue;
     this.isExpanded = !this.opts.collapsible || this.opts.initialExpanded;
     this.prevExpanded = this.isExpanded;
     this.effectivePosition = this.opts.sliderPosition || 'right';
-
     this.boundClickOutside = this.handleClickOutside.bind(this);
     this.boundMouseMove = this.handleMouseMove.bind(this);
-
     this.computeLayout();
     this.render();
     this.update();
     this.bindEvents();
   }
-
-  
-
   setValue(value: BlossomColorPickerValue): void {
     this.controlledValue = value;
     this.internalValue = value;
     this.update();
   }
-
   getValue(): BlossomColorPickerColor {
     const val = this.currentValue;
     const sliderValue = val.saturation;
@@ -183,7 +156,6 @@ export class BlossomColorPicker {
     const selectedPetal = this.allColors.find(c => c.h === val.hue);
     const pBaseSaturation = selectedPetal?.s ?? 70;
     const visualSaturation = getVisualSaturation(sliderValue, pBaseSaturation);
-
     return createColorOutput(
       val.hue,
       sliderValue,
@@ -194,27 +166,21 @@ export class BlossomColorPicker {
       val.layer
     );
   }
-
   expand(): void {
     this.setExpanded(true);
   }
-
   collapse(): void {
     this.setExpanded(false);
   }
-
   toggle(): void {
     this.setExpanded(!this.isExpanded);
   }
-
   setOptions(options: Partial<BlossomColorPickerOptions>): void {
     let needsRerender = false;
-
     if (options.value !== undefined) {
       this.controlledValue = options.value;
       this.internalValue = options.value;
     }
-
     if (options.onChange !== undefined) this.opts.onChange = options.onChange;
     if (options.onCollapse !== undefined)
       this.opts.onCollapse = options.onCollapse;
@@ -229,15 +195,9 @@ export class BlossomColorPicker {
       this.opts.sliderPosition = options.sliderPosition;
     if (options.adaptivePositioning !== undefined)
       this.opts.adaptivePositioning = options.adaptivePositioning;
-
     if (options.initialExpanded !== undefined) {
       this.opts.initialExpanded = options.initialExpanded;
-      
-      
-      
     }
-
-    
     if (
       options.colors !== undefined &&
       !colorsEqual(options.colors, this.opts.colors)
@@ -296,16 +256,13 @@ export class BlossomColorPicker {
         this.isExpanded = true;
       }
     }
-
     if (needsRerender) {
       this.destroyInner();
       this.computeLayout();
       this.render();
     }
-
     this.update();
   }
-
   destroy(): void {
     this.unbindEvents();
     this.destroyInner();
@@ -313,13 +270,9 @@ export class BlossomColorPicker {
       this.rootEl.remove();
     }
   }
-
-  
-
   private get currentValue(): BlossomColorPickerValue {
     return this.controlledValue ?? this.internalValue;
   }
-
   private get baseSaturation(): number {
     const val = this.currentValue;
     if (val.originalSaturation !== undefined) {
@@ -328,7 +281,6 @@ export class BlossomColorPicker {
     const selectedColor = this.allColors.find(c => c.h === val.hue);
     return selectedColor?.s ?? 70;
   }
-
   private get coreColor(): string {
     const val = this.currentValue;
     if (this.isExpanded && !this.opts.showCoreColor) return '#FFFFFF';
@@ -336,29 +288,24 @@ export class BlossomColorPicker {
     const saturation = val.originalSaturation ?? this.baseSaturation;
     return hslaToString(val.hue, saturation, lightness, val.alpha);
   }
-
   private get currentLightness(): number {
     return (
       this.currentValue.lightness ??
       (this.currentValue.layer === 'inner' ? 85 : 65)
     );
   }
-
   private computeLayout(): void {
     const colors = this.opts.colors;
     this.normalizedColors =
       colors && colors.length > 0 ? colors.map(parseColor) : DEFAULT_COLORS;
-
     this.layers = organizeColorsIntoLayers(this.normalizedColors);
     this.allColors = this.layers.flat();
-
     this.layerPrefixCounts = [0];
     for (let i = 1; i < this.layers.length; i++) {
       this.layerPrefixCounts.push(
         this.layerPrefixCounts[i - 1] + this.layers[i - 1].length
       );
     }
-
     this.layerRadii = calculateLayerRadii(
       this.layers,
       this.opts.coreSize,
@@ -379,9 +326,7 @@ export class BlossomColorPicker {
       this.opts.sliderWidth
     );
   }
-
   private render(): void {
-    
     if (!this.rootEl) {
       this.rootEl = createElement('div');
       this.rootEl.className = 'bcp-root';
@@ -391,34 +336,26 @@ export class BlossomColorPicker {
         width: `${this.opts.coreSize}px`,
         height: `${this.opts.coreSize}px`,
       });
-
       this.containerEl = createElement('div');
       this.containerEl.className = 'bcp-container';
       setStyles(this.containerEl, {
         left: '50%',
         top: '50%',
       });
-
       this.rootEl.appendChild(this.containerEl);
       this.container.appendChild(this.rootEl);
     }
-
-    
     this.backgroundRenderer = new BackgroundRenderer(
       this.barRadius + this.opts.circularBarWidth / 2,
       this.opts.animationDuration
     );
     this.containerEl.appendChild(this.backgroundRenderer.el);
-
-    
     this.colorBarRenderer = new ColorBarRenderer(
       this.barRadius,
       this.opts.circularBarWidth,
       this.opts.animationDuration
     );
     this.containerEl.appendChild(this.colorBarRenderer.el);
-
-    
     this.petalRenderers = [];
     for (let layerIdx = 0; layerIdx < this.layers.length; layerIdx++) {
       const layerColors = this.layers[layerIdx];
@@ -428,16 +365,11 @@ export class BlossomColorPicker {
       const totalPetals = layerColors.length;
       const totalLayers = this.layers.length;
       const baseZ = (totalLayers - layerIdx) * 100;
-
-      
-      
       let bottomIndex = 0;
       let minDiff = Infinity;
       for (let i = 0; i < totalPetals; i++) {
         const angle = (i / totalPetals) * 360 - 90 + rotation;
-        
         const normalizedAngle = ((angle % 360) + 360) % 360;
-        
         const diff = Math.min(
           Math.abs(normalizedAngle - 90),
           360 - Math.abs(normalizedAngle - 90)
@@ -447,19 +379,11 @@ export class BlossomColorPicker {
           bottomIndex = i;
         }
       }
-
       for (let index = 0; index < layerColors.length; index++) {
         const color = layerColors[index];
         const staggerDelay =
           previousItemsCount * PETAL_STAGGER + index * PETAL_STAGGER;
-
         if (index === bottomIndex) {
-          
-          
-          
-          
-          
-
           const underlayPetal = new PetalRenderer({
             hue: color.h,
             saturation: color.s,
@@ -479,7 +403,6 @@ export class BlossomColorPicker {
           });
           this.petalRenderers.push(underlayPetal);
           this.containerEl.appendChild(underlayPetal.el);
-
           const leftPetal = new PetalRenderer({
             hue: color.h,
             saturation: color.s,
@@ -507,7 +430,6 @@ export class BlossomColorPicker {
           });
           this.petalRenderers.push(leftPetal);
           this.containerEl.appendChild(leftPetal.el);
-
           const rightPetal = new PetalRenderer({
             hue: color.h,
             saturation: color.s,
@@ -535,8 +457,6 @@ export class BlossomColorPicker {
           });
           this.petalRenderers.push(rightPetal);
           this.containerEl.appendChild(rightPetal.el);
-
-          
           const interactionPetal = new PetalRenderer(
             {
               hue: color.h,
@@ -557,7 +477,6 @@ export class BlossomColorPicker {
             () => this.handlePetalClick(color, layerIdx),
             () => {
               this.hoveredPetal = { layer: layerIdx, index };
-              
               underlayPetal.update(this.isExpanded, true, this.mousePos);
               leftPetal.update(this.isExpanded, true, this.mousePos);
               rightPetal.update(this.isExpanded, true, this.mousePos);
@@ -572,7 +491,6 @@ export class BlossomColorPicker {
           this.petalRenderers.push(interactionPetal);
           this.containerEl.appendChild(interactionPetal.el);
         } else {
-          
           const petal = new PetalRenderer(
             {
               hue: color.h,
@@ -609,8 +527,6 @@ export class BlossomColorPicker {
         }
       }
     }
-
-    
     if (this.opts.showAlphaSlider) {
       this.arcSliderRenderer = new ArcSliderRenderer(
         this.barRadius,
@@ -622,8 +538,6 @@ export class BlossomColorPicker {
       );
       this.containerEl.appendChild(this.arcSliderRenderer.el);
     }
-
-    
     this.coreButtonRenderer = new CoreButtonRenderer(
       this.opts.coreSize,
       this.opts.animationDuration,
@@ -631,13 +545,9 @@ export class BlossomColorPicker {
     );
     this.containerEl.appendChild(this.coreButtonRenderer.el);
   }
-
   private update(): void {
     const val = this.currentValue;
     const duration = this.opts.animationDuration;
-
-    
-    
     if (this.isExpanded && !this.prevExpanded && this.rootEl) {
       const rootRect = this.rootEl.getBoundingClientRect();
       const result = computeAdaptivePosition({
@@ -657,8 +567,6 @@ export class BlossomColorPicker {
       this.shiftOffset = { x: 0, y: 0 };
       this.effectivePosition = this.opts.sliderPosition || 'right';
     }
-
-    
     setStyles(this.containerEl, {
       width: `${this.isExpanded ? this.containerSize : this.opts.coreSize}px`,
       height: `${this.isExpanded ? this.containerSize : this.opts.coreSize}px`,
@@ -666,16 +574,12 @@ export class BlossomColorPicker {
       transition: `width ${duration}ms ${BLOOM_EASING}, height ${duration}ms ${BLOOM_EASING}, transform ${duration}ms ${BLOOM_EASING}`,
       zIndex: this.isExpanded ? '50' : '0',
     });
-
-    
     this.backgroundRenderer.update(
       val.hue,
       val.saturation,
       this.currentLightness,
       this.isExpanded
     );
-
-    
     this.colorBarRenderer.update(
       val.hue,
       getVisualSaturation(val.saturation, this.baseSaturation),
@@ -683,13 +587,9 @@ export class BlossomColorPicker {
       val.alpha,
       this.isExpanded
     );
-
-    
     for (const petal of this.petalRenderers) {
       petal.update(this.isExpanded, undefined, this.mousePos);
     }
-
-    
     if (this.arcSliderRenderer) {
       this.arcSliderRenderer.update(
         val.saturation,
@@ -699,22 +599,17 @@ export class BlossomColorPicker {
         this.effectivePosition
       );
     }
-
-    
     this.coreButtonRenderer.update(
       this.coreColor,
       this.isExpanded,
       this.isHovering,
       this.opts.disabled
     );
-
-    
     if (this.prevExpanded && !this.isExpanded) {
       this.fireOnCollapse();
     }
     this.prevExpanded = this.isExpanded;
   }
-
   private bindEvents(): void {
     this.containerEl.addEventListener('mouseenter', () => {
       this.handleMouseEnter();
@@ -724,19 +619,16 @@ export class BlossomColorPicker {
     });
     this.containerEl.addEventListener('mousemove', this.boundMouseMove);
   }
-
   private unbindEvents(): void {
     document.removeEventListener('mousedown', this.boundClickOutside);
     this.containerEl.removeEventListener('mousemove', this.boundMouseMove);
   }
-
   private handleMouseMove(e: MouseEvent): void {
     const rect = this.containerEl.getBoundingClientRect();
     this.mousePos = {
       x: e.clientX - (rect.left + rect.width / 2),
       y: e.clientY - (rect.top + rect.height / 2),
     };
-
     if (this.isExpanded && !this.rafId) {
       this.rafId = requestAnimationFrame(() => {
         this.updateInteractive();
@@ -744,22 +636,17 @@ export class BlossomColorPicker {
       });
     }
   }
-
   private updateInteractive(): void {
     const val = this.currentValue;
-    
     for (const petal of this.petalRenderers) {
       petal.update(this.isExpanded, undefined, this.mousePos);
     }
-
     this.backgroundRenderer.update(
       val.hue,
       val.saturation,
       this.currentLightness,
       this.isExpanded
     );
-
-    
     this.colorBarRenderer.update(
       val.hue,
       getVisualSaturation(val.saturation, this.baseSaturation),
@@ -767,7 +654,6 @@ export class BlossomColorPicker {
       val.alpha,
       this.isExpanded
     );
-
     if (this.arcSliderRenderer) {
       this.arcSliderRenderer.update(
         val.saturation,
@@ -777,7 +663,6 @@ export class BlossomColorPicker {
         this.effectivePosition
       );
     }
-
     this.coreButtonRenderer.update(
       this.coreColor,
       this.isExpanded,
@@ -785,78 +670,64 @@ export class BlossomColorPicker {
       this.opts.disabled
     );
   }
-
   private destroyInner(): void {
     for (const petal of this.petalRenderers) {
       petal.destroy();
     }
     this.petalRenderers = [];
-
     this.colorBarRenderer?.destroy();
     this.arcSliderRenderer?.destroy();
     this.arcSliderRenderer = null;
     this.coreButtonRenderer?.destroy();
     this.backgroundRenderer?.destroy();
   }
-
   private setExpanded(expanded: boolean): void {
     if (!this.opts.collapsible) {
       this.isExpanded = true;
     } else {
       this.isExpanded = expanded;
     }
-
     if (this.isExpanded) {
       document.addEventListener('mousedown', this.boundClickOutside);
     } else {
       document.removeEventListener('mousedown', this.boundClickOutside);
     }
-
     this.update();
   }
-
   private handleClickOutside(e: MouseEvent): void {
     if (!this.opts.collapsible) return;
     if (this.containerEl && !this.containerEl.contains(e.target as Node)) {
       this.setExpanded(false);
     }
   }
-
   private handleMouseEnter(): void {
     if (this.opts.disabled || !this.opts.openOnHover || !this.opts.collapsible)
       return;
-
     if (this.closeTimeout) {
       clearTimeout(this.closeTimeout);
       this.closeTimeout = null;
     }
-
     this.isHovering = true;
     this.hoverTimeout = setTimeout(() => {
       this.setExpanded(true);
     }, HOVER_DELAY);
   }
-
   private handleMouseLeave(): void {
     if (this.hoverTimeout) {
       clearTimeout(this.hoverTimeout);
       this.hoverTimeout = null;
     }
-
     this.isHovering = false;
-
     if (this.opts.openOnHover && this.opts.collapsible) {
       this.closeTimeout = setTimeout(() => {
         this.setExpanded(false);
       }, 200);
     }
   }
-
   private handleCoreClick(): void {
     if (this.opts.disabled || !this.opts.collapsible) return;
     this.setExpanded(!this.isExpanded);
   }
-
   private handlePetalClick(
     color: { h: number; s: number; l: number },
     layerIdx: number
@@ -864,7 +735,6 @@ export class BlossomColorPicker {
     const sliderValue = lightnessToSliderValue(color.l);
     const layerStr: 'inner' | 'outer' = layerIdx === 0 ? 'inner' : 'outer';
     const visualSaturation = color.s;
-
     const newValue: BlossomColorPickerValue = {
       hue: color.h,
       saturation: sliderValue,
@@ -873,11 +743,9 @@ export class BlossomColorPicker {
       layer: layerStr,
       alpha: this.currentValue.alpha, 
     };
-
     if (this.controlledValue === undefined) {
       this.internalValue = newValue;
     }
-
     this.opts.onChange(
       createColorOutput(
         color.h,
@@ -889,24 +757,20 @@ export class BlossomColorPicker {
         layerStr
       )
     );
-
     this.update();
   }
-
   private handleSliderChange(sliderValue: number): void {
     const lightness = sliderValueToLightness(sliderValue);
     const visualSaturation = getVisualSaturation(
       sliderValue,
       this.baseSaturation
     );
-
     this.internalValue = {
       ...this.currentValue,
       saturation: sliderValue,
       lightness,
       originalSaturation: this.baseSaturation,
     };
-
     this.opts.onChange(
       createColorOutput(
         this.currentValue.hue,
@@ -918,10 +782,8 @@ export class BlossomColorPicker {
         this.currentValue.layer
       )
     );
-
     this.update();
   }
-
   private fireOnCollapse(): void {
     const val = this.currentValue;
     const sliderValue = val.saturation;
@@ -929,7 +791,6 @@ export class BlossomColorPicker {
     const selectedPetal = this.allColors.find(c => c.h === val.hue);
     const pBaseSaturation = selectedPetal?.s ?? 70;
     const visualSaturation = getVisualSaturation(sliderValue, pBaseSaturation);
-
     this.opts.onCollapse(
       createColorOutput(
         val.hue,

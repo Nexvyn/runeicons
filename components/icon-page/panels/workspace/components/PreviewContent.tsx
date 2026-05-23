@@ -1,7 +1,5 @@
 import { forwardRef, memo, useEffect, useMemo, useRef, useState } from "react";
-
 import { AnimatePresence, motion } from "motion/react";
-
 import { CustomizationState, IconData } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
@@ -10,7 +8,6 @@ import {
 } from "@/lib/editor/animation-engine";
 import { fetchSvgInnerContentRaw } from "@/lib/svg-export-utils";
 import { STROKE_STYLE_MAP } from "@/lib/stroke-style";
-
 interface PreviewContentProps {
   state: CustomizationState;
   selectedIcon: IconData | null;
@@ -19,7 +16,6 @@ interface PreviewContentProps {
   noiseFilter: string;
   blurFilter: string;
 }
-
 export const PreviewContent = memo(
   forwardRef<HTMLDivElement, PreviewContentProps>(
     ({ state, selectedIcon, boxShadow, supportsFilter, noiseFilter, blurFilter }, ref) => {
@@ -36,9 +32,7 @@ export const PreviewContent = memo(
       const motionDuration = Math.max(0.2, state.motion?.duration ?? 2);
       const motionDelay = Math.max(0, state.motion?.delay ?? 0);
       const iterationCount = state.motion?.loop ?? true ? "infinite" : "1";
-
       const [svgData, setSvgData] = useState<{ content: string; viewBox: string } | null>(null);
-
       useEffect(() => {
         if (selectedIcon?.url) {
           fetchSvgInnerContentRaw(selectedIcon.url)
@@ -48,7 +42,6 @@ export const PreviewContent = memo(
           setSvgData(null);
         }
       }, [selectedIcon?.url]);
-
       const isDrawAnim = motionEnabled && (animationType === "draw" || animationType === "stroke");
       const effectiveIconType = selectedIcon?.iconType ?? state.iconType;
       const renderAsDesigned =
@@ -60,12 +53,9 @@ export const PreviewContent = memo(
         effectiveIconType === "duotone" ||
         effectiveIconType === "fill" ||
         effectiveIconType === "glass";
-
       const colorizedSvgContent = useMemo(() => {
         if (!svgData) return null;
-
         const { content: svgContent } = svgData;
-
         if (renderAsDesigned) {
           if (isDrawAnim) {
             return svgContent.replace(
@@ -75,9 +65,7 @@ export const PreviewContent = memo(
           }
           return svgContent;
         }
-
         const color = state.colors[0] || "currentColor";
-
         let baseColorized: string;
         if (state.iconGradient) {
           const gt = state.gradient.target ?? "both";
@@ -92,19 +80,16 @@ export const PreviewContent = memo(
             .replace(/\bstroke="(?!none)[^"]*"/g, `stroke="${color}"`)
             .replace(/\bfill="(?!none)[^"]*"/g, `fill="none"`);
         }
-
         let result = baseColorized
           .replace(/\s*stroke-linecap="[^"]*"/g, "")
           .replace(/\s*stroke-linejoin="[^"]*"/g, "")
           .replace(/\s*stroke-width="[^"]*"/g, "");
-
         if (isDrawAnim) {
           result = result.replace(
             /<(path|circle|rect|ellipse|line|polyline|polygon)(\s)/g,
             `<$1 pathLength="1" class="canvas-icon-draw-path"$2`,
           );
         }
-
         return result;
       }, [svgData, state.colors, state.iconGradient, state.gradient.target, effectiveIconType, state.strokeStyle, isDrawAnim, renderAsDesigned]);
       useEffect(() => {
@@ -124,26 +109,20 @@ export const PreviewContent = memo(
           });
         };
       }, [isDrawAnim, selectedIcon?.id, state.motion?.replayNonce]);
-
       useEffect(() => {
         if (!motionEnabled || state.motion?.isPaused) return;
         const container = lucideWrapRef.current;
         if (!container) return;
-
         const globalTrigger = state.motion?.trigger ?? "auto";
         const hasGlobalHover = globalTrigger === "hover";
         const hasGlobalClick = globalTrigger === "click";
-
         if (!hasGlobalHover && !hasGlobalClick) return;
-
         const allEls = () =>
           Array.from(container.querySelectorAll<SVGElement>("path, circle, rect, ellipse, line, polyline, polygon"));
-
         const play = (els: SVGElement[]) =>
           els.forEach((el) => (el.style.animationPlayState = "running"));
         const pause = (els: SVGElement[]) =>
           els.forEach((el) => (el.style.animationPlayState = "paused"));
-
         const onEnter = () => { if (hasGlobalHover) play(allEls()); };
         const onLeave = () => { if (hasGlobalHover) pause(allEls()); };
         const onClick = () => {
@@ -152,27 +131,23 @@ export const PreviewContent = memo(
           const isCurrentlyPaused = targets[0]?.style.animationPlayState !== "running";
           isCurrentlyPaused ? play(targets) : pause(targets);
         };
-
         if (hasGlobalHover) {
           container.addEventListener("mouseenter", onEnter);
           container.addEventListener("mouseleave", onLeave);
         }
         if (hasGlobalClick) container.addEventListener("click", onClick);
-
         return () => {
           container.removeEventListener("mouseenter", onEnter);
           container.removeEventListener("mouseleave", onLeave);
           container.removeEventListener("click", onClick);
         };
       }, [motionEnabled, state.motion?.trigger, state.motion?.replayNonce, state.motion?.isPaused]);
-
       const gradientCss = useMemo(() => {
         if (!state.iconGradient || !state.gradient.stops.length) return "";
         const sorted = [...state.gradient.stops].sort((a, b) => a.position - b.position);
         const stops = sorted.map((s) => `${s.color} ${s.position}%`).join(", ");
         const cx = state.gradient.cx ?? 50;
         const cy = state.gradient.cy ?? 50;
-
         if (state.gradient.type === "linear") {
           return `linear-gradient(${state.gradient.angle}deg, ${stops})`;
         } else if (state.gradient.type === "radial") {
@@ -182,17 +157,14 @@ export const PreviewContent = memo(
         }
         return "";
       }, [state.iconGradient, state.gradient]);
-
       const animationCss = useMemo(() => {
         if (animationType === "none") return "";
-
         const pauseState = state.motion?.isPaused ? "paused" : "running";
         const trimStart = (state.motion?.pathTrimStart ?? 0) / 100;
         const trimEnd = (state.motion?.pathTrimEnd ?? 100) / 100;
         const sequential = state.motion?.pathSequential ?? false;
         const stagger = sequential ? (state.motion?.pathStaggerDelay ?? 0.12) : 0;
         const reverse = state.motion?.pathReverse ?? false;
-
         if (animationType === "draw" || animationType === "stroke") {
           const strokeKeyframes = animationType === "stroke"
             ? `@keyframes canvas-svg-draw {
@@ -220,7 +192,6 @@ export const PreviewContent = memo(
             ).join("\n")}
           `;
         }
-
         return `
           .canvas-icon-anim-bounce { animation: canvas-svg-bounce ${motionDuration}s ${easingValue} ${motionDelay}s ${iterationCount} both; animation-play-state: ${pauseState}; }
           .canvas-icon-anim-shake  { animation: canvas-svg-shake  ${motionDuration}s ${easingValue} ${motionDelay}s ${iterationCount} both; animation-play-state: ${pauseState}; }
@@ -252,12 +223,10 @@ export const PreviewContent = memo(
           }
         `;
       }, [animationType, motionDuration, motionDelay, easingValue, iterationCount, state.motion?.isPaused, state.motion?.pathTrimStart, state.motion?.pathTrimEnd, state.motion?.pathSequential, state.motion?.pathStaggerDelay, state.motion?.pathReverse]);
-
       const gradientTarget = state.gradient.target ?? "both";
       const applyGradToStroke = state.iconGradient && (gradientTarget === "stroke" || gradientTarget === "both");
       const applyGradToFill = state.iconGradient && (gradientTarget === "fill" || gradientTarget === "both");
       const strokeAttrs = STROKE_STYLE_MAP[state.strokeStyle ?? "round"];
-
       return (
         <div
           ref={ref}
@@ -305,9 +274,7 @@ export const PreviewContent = memo(
                 : "Customizable preview element"
             }
           >
-
             {animationCss ? <style>{animationCss}</style> : null}
-
             <AnimatePresence mode="popLayout">
               {selectedIcon ? (
                 <motion.div
@@ -465,5 +432,4 @@ export const PreviewContent = memo(
     },
   ),
 );
-
 PreviewContent.displayName = "PreviewContent";

@@ -151,7 +151,7 @@ export function PropertiesPanel({
 
           <FlipRotateSection state={state} onChange={onChange} />
 
-          <ShadowSection state={state} onChange={onChange} />
+          {/* <ShadowSection state={state} onChange={onChange} /> */}
 
           <NoiseSection state={state} onChange={onChange} />
 

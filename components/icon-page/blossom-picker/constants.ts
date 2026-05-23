@@ -1,15 +1,12 @@
 import { HexColor, RGBColor } from "@/lib/color-utils";
 import { BlossomLayoutConfig, BlossomStyleConfig } from "@/lib/blossom-utils";
-
 export const BLOSSOM_DEFAULT_COLOR: HexColor = '#007aff';
-
 export const BLOSSOM_LAYOUT_DEFAULTS: BlossomLayoutConfig = {
     innerPetalCount: 6,
     outerPetalCount: 12,
     innerRadius: 20,
     outerRadius: 36,
 };
-
 export const BLOSSOM_STYLE_DEFAULTS: BlossomStyleConfig = {
     petalSize: 30,
     innerPetalSize: 30,
@@ -19,7 +16,6 @@ export const BLOSSOM_STYLE_DEFAULTS: BlossomStyleConfig = {
     sliderHeight: 140,
     spacing: 12,
 };
-
 export const BLOSSOM_NUMBERS = {
     borderWidth: 1,
     outerRingInset: 12,
@@ -40,7 +36,6 @@ export const BLOSSOM_NUMBERS = {
     borderBrightnessMultiplier: 0.9,
     viewportPadding: 18,
 } as const;
-
 export const DEFAULT_BLOSSOM_PALETTE: {
     center: RGBColor[];
     ring_1: RGBColor[];

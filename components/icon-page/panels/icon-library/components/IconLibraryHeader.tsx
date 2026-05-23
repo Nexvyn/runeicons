@@ -9,7 +9,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { IconCategory } from "@/lib/types";
 import { cn } from "@/lib/utils";
-
 interface HeaderProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
@@ -18,7 +17,6 @@ interface HeaderProps {
   selectedCategory: IconCategory;
   onCategoryChange: (category: IconCategory) => void;
 }
-
 export function IconLibraryHeader({
   searchQuery,
   setSearchQuery,
@@ -50,7 +48,6 @@ export function IconLibraryHeader({
     ],
     [],
   );
-
   return (
     <div className="flex items-center gap-2 border-b border-border px-3 pt-3 pb-3">
       <div className="min-w-0 flex-1">
@@ -78,7 +75,6 @@ export function IconLibraryHeader({
           </div>
         </div>
       </div>
-
       <div className="flex-none">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

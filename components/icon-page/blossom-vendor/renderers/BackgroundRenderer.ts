@@ -1,12 +1,10 @@
 import { BLOOM_EASING } from '../constants';
 import { createElement, setStyles } from '../dom-helpers';
 import { hslaToString } from '../utils';
-
 export class BackgroundRenderer {
   public el: HTMLDivElement;
   private solidBg: HTMLDivElement;
   private tintEl: HTMLDivElement;
-
   constructor(
     private radius: number,
     private animationDuration: number
@@ -21,8 +19,6 @@ export class BackgroundRenderer {
       pointerEvents: 'none',
       zIndex: '0',
     });
-
-    
     this.solidBg = createElement('div');
     this.solidBg.className = 'bcp-bg-solid';
     setStyles(this.solidBg, {
@@ -34,8 +30,6 @@ export class BackgroundRenderer {
       transition: `transform ${animationDuration}ms ${BLOOM_EASING}, opacity ${animationDuration}ms ${BLOOM_EASING}`,
     });
     this.el.appendChild(this.solidBg);
-
-    
     this.tintEl = createElement('div');
     setStyles(this.tintEl, {
       position: 'absolute',
@@ -45,7 +39,6 @@ export class BackgroundRenderer {
     });
     this.solidBg.appendChild(this.tintEl);
   }
-
   update(
     hue: number,
     saturation: number,
@@ -56,12 +49,10 @@ export class BackgroundRenderer {
       transform: isExpanded ? 'scale(0.9)' : 'scale(0.98)',
       opacity: isExpanded ? '1' : '0',
     });
-
     setStyles(this.tintEl, {
       backgroundColor: hslaToString(hue, saturation, lightness, 15),
     });
   }
-
   destroy(): void {
     this.el.remove();
   }

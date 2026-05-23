@@ -1,14 +1,11 @@
 "use client";
-
 import { AnimatePresence, motion } from "motion/react";
 import { CustomizationState, IconData } from "@/lib/types";
 import { IconTypeList } from "./components/IconTypeList";
 import { TrayIconItem } from "./components/TrayIconItem";
 export { ToolRail } from "./components/ToolRail";
 export type { ToolRailProps } from "./components/ToolRail";
-
 type IconType = CustomizationState["iconType"];
-
 export interface OutlinePanelProps {
   activeType?: IconType;
   onTypeChange?: (type: IconType) => void;
@@ -17,7 +14,6 @@ export interface OutlinePanelProps {
   onSelectIcon: (icon: IconData) => void;
   onRemoveFromTray: (iconName: string) => void;
 }
-
 export function OutlinePanel({
   activeType = "normal",
   onTypeChange,
@@ -29,8 +25,6 @@ export function OutlinePanel({
   return (
     <div className="relative flex h-full flex-col border-r border-border bg-background">
       <div className="bg-pattern-vertical-dashes pointer-events-none absolute inset-0 opacity-100" />
-
-      
       <div className="relative z-10 flex h-full flex-col">
         <div className="border-b border-border px-3 pt-3 pb-2">
           <h2 className="text-sm font-semibold text-foreground">Outline</h2>
@@ -41,7 +35,6 @@ export function OutlinePanel({
             <IconTypeList activeType={activeType} onTypeChange={onTypeChange} />
           </div>
         </div>
-
         <div className="scrollbar-hide flex-1 space-y-1 overflow-y-auto p-2">
           <AnimatePresence mode="popLayout" initial={false}>
             {trayIcons.length === 0 ? (

@@ -1,20 +1,16 @@
 "use client";
-
 import { motion } from "motion/react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useFeedback } from "../hooks/use-feedback";
-
 interface FeedbackFormProps {
   onClose: () => void;
 }
-
 export function FeedbackForm({ onClose }: FeedbackFormProps) {
   const { feedbackText, setFeedbackText, handleSubmit, isSubmitting } = useFeedback({
     onSuccess: onClose,
   });
-
   return (
     <motion.div
       initial={{ opacity: 0, x: -10, scale: 0.95 }}
@@ -61,7 +57,6 @@ export function FeedbackForm({ onClose }: FeedbackFormProps) {
           className="min-h-[100px] resize-none text-[11px] bg-muted/30 border-transparent focus:border-primary/20 focus-visible:ring-0 rounded-md p-2 placeholder:text-muted-foreground/50 leading-tight"
           autoFocus
         />
-
         <div className="flex gap-2 mt-2">
           <Button
             size="sm"

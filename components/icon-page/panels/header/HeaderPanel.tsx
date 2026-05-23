@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
@@ -11,11 +10,9 @@ import { Button } from "@/components/ui/button";
 import { LightDarkMode } from "@/components/ui/light-dark-mode";
 import { cn } from "@/lib/utils";
 import { useGitHubStars } from "./hooks/use-github-stars";
-
 interface HeaderPanelProps {
   className?: string;
 }
-
 export function HeaderPanel({ className }: HeaderPanelProps) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -23,11 +20,9 @@ export function HeaderPanel({ className }: HeaderPanelProps) {
   const pathname = usePathname();
   const displayCount = useGitHubStars();
   const isEditorPage = pathname === "/editor";
-
   useEffect(() => {
     setMounted(true);
   }, []);
-
   return (
     <header
       className={cn(
@@ -43,9 +38,7 @@ export function HeaderPanel({ className }: HeaderPanelProps) {
         >
           <HeaderLogo className="h-8 w-8 transition-transform duration-150 ease-out group-hover:scale-[1.02]" />
         </Link>
-
         <div className="hidden lg:flex h-full w-[320px] shrink-0 items-center border-r border-border px-5" />
-
         <div className="hidden sm:flex h-full flex-1 min-w-0 items-center justify-center lg:justify-end border-r border-border px-4 lg:px-6">
           <div className="relative flex h-8 items-center gap-1 rounded-md border border-border bg-[#f5f5f5] p-1 dark:bg-[#1a1a1a]">
             <Link
@@ -82,7 +75,6 @@ export function HeaderPanel({ className }: HeaderPanelProps) {
             </Link>
           </div>
         </div>
-
         <div className="flex h-full shrink-0 items-center justify-end gap-2 px-3 lg:w-85 lg:gap-2.5 lg:px-6">
           <Link
             href="https://github.com/rune-icon/runeicons"

@@ -1,12 +1,10 @@
 import { BLOOM_EASING } from '../constants';
 import { createSVGElement, setStyles } from '../dom-helpers';
 import { hslaToString } from '../utils';
-
 export class ColorBarRenderer {
   public el: SVGSVGElement;
   private bgCircle: SVGCircleElement;
   private colorCircle: SVGCircleElement;
-
   constructor(
     private radius: number,
     private barWidth: number,
@@ -25,12 +23,10 @@ export class ColorBarRenderer {
       marginTop: `${-size / 2}px`,
       zIndex: '5',
     });
-
     const cx = String(size / 2);
     const cy = String(size / 2);
     const r = String(radius);
     const sw = String(barWidth);
-
     this.bgCircle = createSVGElement('circle', {
       cx,
       cy,
@@ -39,7 +35,6 @@ export class ColorBarRenderer {
       stroke: 'rgba(0,0,0,0.06)',
       'stroke-width': sw,
     });
-
     this.colorCircle = createSVGElement('circle', {
       cx,
       cy,
@@ -47,11 +42,9 @@ export class ColorBarRenderer {
       fill: 'none',
       'stroke-width': sw,
     });
-
     this.el.appendChild(this.bgCircle);
     this.el.appendChild(this.colorCircle);
   }
-
   update(
     hue: number,
     saturation: number,
@@ -61,14 +54,12 @@ export class ColorBarRenderer {
   ): void {
     const color = hslaToString(hue, saturation, lightness, alpha);
     this.colorCircle.setAttribute('stroke', color);
-
     setStyles(this.el, {
       opacity: isExpanded ? '1' : '0',
       transform: isExpanded ? 'scale(1)' : 'scale(0.8)',
       transition: `opacity ${this.animationDuration}ms ${BLOOM_EASING}, transform ${this.animationDuration}ms ${BLOOM_EASING}`,
     });
   }
-
   destroy(): void {
     this.el.remove();
   }

@@ -7,6 +7,7 @@ import {
 } from "@/lib/editor/animation-engine";
 import { buildConicSegments } from "@/lib/gradient-utils";
 import { STROKE_STYLE_MAP } from "./stroke-style";
+import { injectPathIndices, buildPerPathAnimationCss } from "@/lib/editor/path-animation";
 
 
 
@@ -120,9 +121,9 @@ export async function generateStandaloneSvg(selectedIcon: IconData, state: Custo
             <image href="${iconUrl}" width="24" height="24" />
           </mask>
         </defs>
-        <rect 
-          width="24" 
-          height="24" 
+        <rect
+          width="24"
+          height="24"
           fill="${state.iconGradient ? "url(#icon-gradient)" : state.colors[0] || "currentColor"}"
           mask="url(#custom-icon-mask)"
         />
@@ -131,7 +132,7 @@ export async function generateStandaloneSvg(selectedIcon: IconData, state: Custo
   } else if (IconComponent) {
     const iconMarkup = renderToStaticMarkup(
       React.createElement(IconComponent, {
-        size: 24, 
+        size: 24,
         strokeWidth: 2,
         style: {
           stroke: strokeColor,
@@ -148,6 +149,28 @@ export async function generateStandaloneSvg(selectedIcon: IconData, state: Custo
   const duration = Math.max(0.2, state.motion?.duration ?? 2);
   const delay = Math.max(0, state.motion?.delay ?? 0);
   const iterationCount = state.motion?.loop ?? true ? "infinite" : "1";
+
+  const isEnabled = state.motion?.enabled ?? false;
+  const isGroupAnim = animationType === "bounce" || animationType === "shake" || animationType === "jump";
+  const isPathAnim = animationType === "draw" || animationType === "stroke";
+
+  let pathCount = 0;
+  let taggedInnerContent = innerContent;
+  if (isEnabled && isPathAnim) {
+    const { tagged, count } = injectPathIndices(innerContent);
+    taggedInnerContent = tagged;
+    pathCount = count;
+  }
+
+  if (isEnabled && isPathAnim && pathCount > 0) {
+    taggedInnerContent = taggedInnerContent.replace(
+      /<(path|circle|rect|ellipse|line|polyline|polygon)([^>]*?)(\/?>)/gi,
+      (match, tag, attrs, end) => {
+        if (attrs.includes('pathLength')) return match;
+        return `<${tag}${attrs} pathLength="1"${end}`;
+      }
+    );
+  }
 
   const vbParts = currentViewBox.split(/\s+/).map(Number);
   const vbx = vbParts[0] || 0;
@@ -257,9 +280,6 @@ export async function generateStandaloneSvg(selectedIcon: IconData, state: Custo
     </filter>`;
   }
 
-  const isEnabled = state.motion?.enabled ?? false;
-  const isGroupAnim = animationType === "bounce" || animationType === "shake" || animationType === "jump";
-
   const SVG_KEYFRAMES: Record<string, string> = {
     bounce: `@keyframes svg-bounce {
     0%   { transform: translateY(0) scale(1,1); }
@@ -299,30 +319,39 @@ export async function generateStandaloneSvg(selectedIcon: IconData, state: Custo
   }`,
   };
 
-  const animationCss = isEnabled ? `
+  let animationCss = "";
+  if (isEnabled) {
+    if (isPathAnim && pathCount > 0) {
+      animationCss = buildPerPathAnimationCss(pathCount, state, { selectorPrefix: '.icon-anim-container', forExport: true });
+    } else if (isGroupAnim) {
+      const originX = iconCenter.x.toFixed(3);
+      const originY = iconCenter.y.toFixed(3);
+      animationCss = `
     .icon-anim-group {
       transform-box: fill-box;
-      transform-origin: 50% 50%;
-      ${isGroupAnim ? `animation: svg-${animationType} ${duration}s ${easing} ${delay}s ${iterationCount} both;` : ""}
+      transform-origin: ${originX}px ${originY}px;
+      animation: svg-${animationType} ${duration}s ${easing} ${delay}s ${iterationCount} both;
     }
     ${SVG_KEYFRAMES[animationType] ?? ""}
-  ` : "";
+  `;
+    }
+  }
 
   const rx = ((state.cornerRadius / state.width) * vbw).toFixed(3);
-  
+
   const finalSvg = `<?xml version="1.0" encoding="UTF-8"?>
 <!-- Made with RuneIcon — https://runeicon.com -->
 <svg xmlns="http://www.w3.org/2000/svg" width="${state.width}" height="${state.height}" viewBox="${currentViewBox}" preserveAspectRatio="xMidYMid meet" fill="none">${defs ? `\n  <defs>${defs}</defs>` : ""}${animationCss ? `\n  <style>${animationCss}</style>` : ""}
   <rect x="${vbx}" y="${vby}" width="${vbw}" height="${vbh}" rx="${rx}" ry="${rx}" fill="transparent"/>
   <g transform="translate(${vbx + paddingVB}, ${vby + paddingVB}) scale(${iconScaleFactor})"${
     state.shadow.enabled && !state.shadow.inner ? ' filter="url(#drop-shadow)"' : ''}>
-    <g transform="${finalTransform}${state.iconType === "isometric" ? " rotateX(45) rotateZ(-45)" : ""}" class="icon-anim-group icon-anim-path"${(state.iconType === "glass" || state.iconType === "pixelated") ? "" : ` stroke="${strokeColor}"`}${(state.iconType === "glass" || state.iconType === "pixelated") ? "" : ` fill="${fillColor}"`} stroke-width="${STROKE_STYLE_MAP[state.strokeStyle ?? "round"].strokeWidth}" stroke-linecap="${STROKE_STYLE_MAP[state.strokeStyle ?? "round"].strokeLinecap}" stroke-linejoin="${STROKE_STYLE_MAP[state.strokeStyle ?? "round"].strokeLinejoin}"${
+    <g transform="${finalTransform}${state.iconType === "isometric" ? " rotateX(45) rotateZ(-45)" : ""}" class="icon-anim-container icon-anim-group"${(state.iconType === "glass" || state.iconType === "pixelated") ? "" : ` stroke="${strokeColor}"`}${(state.iconType === "glass" || state.iconType === "pixelated") ? "" : ` fill="${fillColor}"`} stroke-width="${STROKE_STYLE_MAP[state.strokeStyle ?? "round"].strokeWidth}" stroke-linecap="${STROKE_STYLE_MAP[state.strokeStyle ?? "round"].strokeLinecap}" stroke-linejoin="${STROKE_STYLE_MAP[state.strokeStyle ?? "round"].strokeLinejoin}"${
     state.shadow.enabled && state.shadow.inner ? ' filter="url(#inner-shadow)"' :
     state.blur > 0 ? ' filter="url(#icon-blur)"' :
     state.iconType === "pixelated" ? ' filter="url(#pixelate)"' :
     state.iconType === "dither" ? ' filter="url(#dither-filter)"' :
     state.noise.enabled && state.noise.intensity > 0 ? ' filter="url(#noise-filter)"' : ''}>
-      ${innerContent}
+      ${taggedInnerContent}
     </g>
   </g>
 </svg>`.trim();
@@ -359,7 +388,7 @@ export function buildComponentName(iconName: string): string {
   );
 }
 
-function buildAnimationCss(state: CustomizationState): string {
+function buildAnimationCss(state: CustomizationState, pathCount: number = 0): string {
   const isEnabled = state.motion?.enabled ?? false;
   if (!isEnabled) return "";
 
@@ -369,6 +398,11 @@ function buildAnimationCss(state: CustomizationState): string {
   const delay = Math.max(0, state.motion?.delay ?? 0);
   const iterationCount = state.motion?.loop ?? true ? "infinite" : "1";
   const isGroupAnim = animationType === "bounce" || animationType === "shake" || animationType === "jump";
+  const isPathAnim = animationType === "draw" || animationType === "stroke";
+
+  if (isPathAnim && pathCount > 0) {
+    return buildPerPathAnimationCss(pathCount, state, { selectorPrefix: '.rune-icon-anim-container', forExport: true });
+  }
 
   const RUNE_KEYFRAMES: Record<string, string> = {
     bounce: `@keyframes rune-bounce {
@@ -395,17 +429,6 @@ function buildAnimationCss(state: CustomizationState): string {
     60%  { transform: translateY(-6px) scale(1.03,0.97); }
     75%  { transform: translateY(0) scale(0.98,1.02); }
     90%  { transform: translateY(-3px) scale(1.01,0.99); }
-  }`,
-    draw: `@keyframes rune-draw {
-    0%   { stroke-dashoffset: 1200; fill-opacity: 0; }
-    70%  { stroke-dashoffset: 0; fill-opacity: 0; }
-    100% { stroke-dashoffset: 0; fill-opacity: 1; }
-  }`,
-    stroke: `@keyframes rune-stroke {
-    0%   { stroke-dashoffset: 1200; fill-opacity: 0; }
-    55%  { stroke-dashoffset: 0; fill-opacity: 0; }
-    85%  { fill-opacity: 0.5; }
-    100% { stroke-dashoffset: 0; fill-opacity: 1; }
   }`,
   };
 
@@ -556,7 +579,6 @@ async function buildComponentCode(
   const componentName = buildComponentName(selectedIcon.name);
   const color = state.colors[0] || "#000000";
   const defaultSize = 24;
-  const animCss = buildAnimationCss(state);
   const isGradient = state.iconGradient;
 
   const strokeAttr = isGradient ? `stroke="url(#icon-gradient)"` : `stroke={color}`;
@@ -578,6 +600,28 @@ async function buildComponentCode(
     innerContent = svgAttrToJsx(markup.replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, ""));
   }
 
+  const animationType = resolveAnimationType(state.motion?.animationType);
+  const isPathAnim = animationType === "draw" || animationType === "stroke";
+  let pathCount = 0;
+  let taggedInnerContent = innerContent;
+  if (state.motion?.enabled && isPathAnim) {
+    const { tagged, count } = injectPathIndices(innerContent);
+    taggedInnerContent = tagged;
+    pathCount = count;
+  }
+
+  if (state.motion?.enabled && isPathAnim && pathCount > 0) {
+    taggedInnerContent = taggedInnerContent.replace(
+      /<(path|circle|rect|ellipse|line|polyline|polygon)([^>]*?)(\/?>)/gi,
+      (match, tag, attrs, end) => {
+        if (attrs.includes('pathLength')) return match;
+        return `<${tag}${attrs} pathLength="1"${end}`;
+      }
+    );
+  }
+
+  const animCss = buildAnimationCss(state, pathCount);
+
   const colorProp = isGradient ? "" : `, color = '${color}'`;
   const colorType = isGradient ? "" : `\n  color?: string;`;
   const propsInterface = tsx
@@ -587,7 +631,7 @@ async function buildComponentCode(
   const isAnimated = !!animCss;
   const cssBlock = isAnimated ? `\nconst css = \`\n${animCss}\n\`;\n` : "";
   const svgClassName = isAnimated
-    ? `className={\`rune-icon-anim \${className}\`}`
+    ? `className={\`rune-icon-anim-container rune-icon-anim \${className}\`}`
     : `className={className}`;
   const styleTag = isAnimated ? `\n      <style>{css}</style>` : "";
   const wrapper = isAnimated ? `(\n    <>${styleTag}\n      ` : `(\n    `;
@@ -610,7 +654,7 @@ export function ${componentName}({ size = ${defaultSize}${colorProp}, className 
         strokeLinejoin="${STROKE_STYLE_MAP[state.strokeStyle ?? "round"].strokeLinejoin}"
         ${svgClassName}
       >${gradientDefs}
-        ${innerContent}
+        ${taggedInnerContent}
       </svg>${wrapperClose}
   );
 }

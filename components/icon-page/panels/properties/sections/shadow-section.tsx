@@ -34,7 +34,7 @@ export function ShadowSection({
               className={cn(
                 "h-6 px-3 text-[9px] uppercase tracking-tighter rounded-sm transition-all duration-150 active:scale-[0.98]",
                 !state.shadow.inner
-                  ? "bg-background text-foreground shadow-sm border border-border/60"
+                  ? "bg-background text-foreground border border-border/60"
                   : "text-muted-foreground hover:text-foreground hover:bg-background/40",
               )}
             >
@@ -51,7 +51,7 @@ export function ShadowSection({
               className={cn(
                 "h-6 px-3 text-[9px] uppercase tracking-tighter rounded-sm transition-all duration-150 active:scale-[0.98]",
                 state.shadow.inner
-                  ? "bg-background text-foreground shadow-sm border border-border/60"
+                  ? "bg-background text-foreground border border-border/60"
                   : "text-muted-foreground hover:text-foreground hover:bg-background/40",
               )}
             >

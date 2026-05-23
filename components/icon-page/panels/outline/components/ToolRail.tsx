@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import Link from "next/link";
 import { History, Info, Keyboard, MessageCircle, User } from "lucide-react";
@@ -15,23 +14,18 @@ import { cn } from "@/lib/utils";
 import { CustomizationState } from "@/lib/types";
 import { IconTypeList } from "./IconTypeList";
 import { FeedbackForm } from "./FeedbackForm";
-
 type IconType = CustomizationState["iconType"];
-
 export interface ToolRailProps {
   activeType?: IconType;
   onTypeChange?: (type: IconType) => void;
   onHelpClick?: () => void;
   supportedTypes?: readonly IconType[];
 }
-
 export function ToolRail({ activeType = "normal", onTypeChange, onHelpClick, supportedTypes }: ToolRailProps) {
   const [showFeedback, setShowFeedback] = useState(false);
-
   return (
     <aside className="relative z-10 flex h-full flex-col justify-between border-r border-border bg-background p-2">
       <div className="bg-pattern-vertical-dashes pointer-events-none absolute inset-0 opacity-100" />
-
       <div className="relative z-10 flex h-full flex-col">
         <IconTypeList activeType={activeType} onTypeChange={onTypeChange} compact supportedTypes={supportedTypes} />
         <div className="mt-auto flex justify-center pt-4 relative">
@@ -40,7 +34,6 @@ export function ToolRail({ activeType = "normal", onTypeChange, onHelpClick, sup
               <FeedbackForm onClose={() => setShowFeedback(false)} />
             )}
           </AnimatePresence>
-
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button

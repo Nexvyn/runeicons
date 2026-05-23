@@ -1,9 +1,7 @@
 import { BLOOM_EASING } from '../constants';
 import { createElement, setStyles } from '../dom-helpers';
-
 export class CoreButtonRenderer {
   public el: HTMLButtonElement;
-
   constructor(
     private coreSize: number,
     private animationDuration: number,
@@ -15,14 +13,12 @@ export class CoreButtonRenderer {
     });
     this.el.className = 'bcp-core';
     this.el.addEventListener('click', () => this.onClick());
-
     setStyles(this.el, {
       width: `${coreSize}px`,
       height: `${coreSize}px`,
       zIndex: '1000',
     });
   }
-
   update(
     coreColor: string,
     isExpanded: boolean,
@@ -35,7 +31,6 @@ export class CoreButtonRenderer {
       `Color picker${isExpanded ? ', expanded' : ''}`
     );
     this.el.setAttribute('aria-expanded', String(isExpanded));
-
     setStyles(this.el, {
       backgroundColor: coreColor,
       transform: isExpanded
@@ -49,7 +44,6 @@ export class CoreButtonRenderer {
       transition: `transform ${this.animationDuration}ms ${BLOOM_EASING}, box-shadow ${this.animationDuration}ms ${BLOOM_EASING}`,
     });
   }
-
   destroy(): void {
     this.el.remove();
   }

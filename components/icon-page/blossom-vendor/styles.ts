@@ -5,14 +5,12 @@ export const blossomPickerStyles = `
   align-items: center;
   justify-content: center;
 }
-
 .bcp-container {
   position: absolute;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
 .bcp-petal {
   position: absolute;
   border-radius: 50%;
@@ -21,12 +19,10 @@ export const blossomPickerStyles = `
   background: none;
   cursor: pointer;
 }
-
 .bcp-petal-visible:focus-visible {
   outline: none;
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
 }
-
 .bcp-core {
   position: relative;
   border-radius: 50%;
@@ -34,52 +30,43 @@ export const blossomPickerStyles = `
   padding: 0;
   cursor: pointer;
 }
-
 .bcp-core:focus-visible {
   outline: none;
   box-shadow: 0 0 0 2px #3b82f6, 0 0 0 4px #fff;
 }
-
 .bcp-core:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
-
 .bcp-svg {
   position: absolute;
   pointer-events: none;
 }
-
 .bcp-slider-track {
   pointer-events: auto;
   cursor: pointer;
   touch-action: none;
 }
-
 .bcp-slider-handle {
   pointer-events: auto;
   cursor: grab;
   touch-action: none;
 }
-
 .bcp-slider-handle:active {
   cursor: grabbing;
 }
-
 .bcp-bg,
 .bcp-bg-wrapper {
   position: absolute;
   border-radius: 50%;
   pointer-events: none;
 }
-
 .bcp-bg-gradient {
   position: absolute;
   border-radius: 50%;
   pointer-events: none;
   filter: blur(2px);
 }
-
 .bcp-bg-solid {
   position: absolute;
   top: 0;
@@ -89,12 +76,9 @@ export const blossomPickerStyles = `
   border-radius: 50%;
   pointer-events: none;
 }
-
 .bcp-petal-ring {
   pointer-events: none;
 }
-
-/* Chrome Picker Styles */
 .bcp-chrome-container {
   --bcp-chrome-container-bg: #fff;
   --bcp-chrome-top-bg: #fff;
@@ -117,7 +101,6 @@ export const blossomPickerStyles = `
   width: 250px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
-
 .dark .bcp-chrome-container,
 .bcp-chrome-container.bcp-dark {
   --bcp-chrome-container-bg: #0f172a;
@@ -133,7 +116,6 @@ export const blossomPickerStyles = `
   --bcp-chrome-slider-handle-border: #64748b;
   --bcp-chrome-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
 }
-
 .bcp-chrome-container.bcp-force-light {
   --bcp-chrome-container-bg: #fff;
   --bcp-chrome-top-bg: #fff;
@@ -148,7 +130,6 @@ export const blossomPickerStyles = `
   --bcp-chrome-slider-handle-border: #ddd;
   --bcp-chrome-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
-
 .bcp-chrome-top {
   display: flex;
   justify-content: center;
@@ -156,19 +137,16 @@ export const blossomPickerStyles = `
   min-height: 220px;
   background: var(--bcp-chrome-top-bg);
 }
-
 .bcp-chrome-bottom {
   padding: 16px;
   border-top: 1px solid var(--bcp-chrome-border);
   background: var(--bcp-chrome-bottom-bg);
 }
-
 .bcp-chrome-preview-row {
   display: flex;
   align-items: center;
   margin-bottom: 16px;
 }
-
 .bcp-chrome-preview-swatch {
   width: 36px;
   height: 36px;
@@ -187,34 +165,29 @@ export const blossomPickerStyles = `
   position: relative;
   overflow: hidden;
 }
-
 .bcp-chrome-preview-color {
   width: 100%;
   height: 100%;
   border-radius: 50%;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
-
 .bcp-chrome-sliders {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
-
 .bcp-chrome-slider-container {
   position: relative;
   height: 10px;
   border-radius: 5px;
 }
-
 .bcp-chrome-hue-gradient {
   width: 100%;
   height: 100%;
   border-radius: 5px;
   background: linear-gradient(to right, red, #ff0 17%, #0f0 33%, #0ff, #00f 67%, #f0f 83%, red);
 }
-
 .bcp-chrome-alpha-gradient {
   width: 100%;
   height: 100%;
@@ -222,7 +195,6 @@ export const blossomPickerStyles = `
   position: relative;
   overflow: hidden;
 }
-
 .bcp-chrome-alpha-gradient::before {
   content: '';
   position: absolute;
@@ -240,7 +212,6 @@ export const blossomPickerStyles = `
   background-color: #fff;
   z-index: -1;
 }
-
 .bcp-chrome-slider-handle {
   position: absolute;
   top: 50%;
@@ -252,13 +223,11 @@ export const blossomPickerStyles = `
   transform: translate(-50%, -50%);
   border: 1px solid var(--bcp-chrome-slider-handle-border);
 }
-
 .bcp-chrome-inputs-row {
   display: flex;
   align-items: flex-start;
   gap: 8px;
 }
-
 .bcp-chrome-inputs-hex,
 .bcp-chrome-inputs-rgba,
 .bcp-chrome-inputs-hsla {
@@ -266,14 +235,12 @@ export const blossomPickerStyles = `
   display: flex;
   gap: 4px;
 }
-
 .bcp-chrome-input-group {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-
 .bcp-chrome-input {
   width: 100%;
   border: 1px solid var(--bcp-chrome-input-border);
@@ -286,18 +253,15 @@ export const blossomPickerStyles = `
   outline: none;
   box-sizing: border-box;
 }
-
 .bcp-chrome-input:focus {
   border-color: #3b82f6;
 }
-
 .bcp-chrome-label {
   font-size: 10px;
   color: var(--bcp-chrome-label);
   margin-top: 6px;
   text-transform: uppercase;
 }
-
 .bcp-chrome-toggle {
   color: var(--bcp-chrome-toggle-color);
   background: none;
@@ -310,11 +274,9 @@ export const blossomPickerStyles = `
   opacity: 0.5;
   margin-top: 4px;
 }
-
 .bcp-chrome-toggle:hover {
   opacity: 1;
 }
-
 .bcp-chrome-native-slider {
   position: absolute;
   top: 0;
@@ -330,7 +292,6 @@ export const blossomPickerStyles = `
   appearance: none;
   -webkit-appearance: none;
 }
-
 .bcp-chrome-slider-container:has(.bcp-chrome-native-slider:focus-visible) {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;

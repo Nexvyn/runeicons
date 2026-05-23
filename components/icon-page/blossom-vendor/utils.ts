@@ -1,35 +1,28 @@
 import { BlossomColorPickerColor, ColorInput } from './types';
-
 export function lightnessToSliderValue(l: number): number {
   const minLightness = 20;
   const maxLightness = 100;
   const clampedL = Math.max(minLightness, Math.min(maxLightness, l));
   return ((maxLightness - clampedL) / (maxLightness - minLightness)) * 100;
 }
-
 export function sliderValueToLightness(sliderValue: number): number {
   const minLightness = 20;
   const maxLightness = 100;
   return maxLightness - (sliderValue / 100) * (maxLightness - minLightness);
 }
-
 export function hexToHsl(hex: string): { h: number; s: number; l: number } {
   hex = hex.replace(/^#/, '');
   const r = parseInt(hex.slice(0, 2), 16) / 255;
   const g = parseInt(hex.slice(2, 4), 16) / 255;
   const b = parseInt(hex.slice(4, 6), 16) / 255;
-
   const max = Math.max(r, g, b);
   const min = Math.min(r, g, b);
   const l = (max + min) / 2;
-
   if (max === min) {
     return { h: 0, s: 0, l: Math.round(l * 100) };
   }
-
   const d = max - min;
   const s_val = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-
   let h_val = 0;
   switch (max) {
     case r:
@@ -42,14 +35,12 @@ export function hexToHsl(hex: string): { h: number; s: number; l: number } {
       h_val = ((r - g) / d + 4) / 6;
       break;
   }
-
   return {
     h: Math.round(h_val * 360),
     s: Math.round(s_val * 100),
     l: Math.round(l * 100),
   };
 }
-
 export function rgbToHsl(
   r: number,
   g: number,
@@ -61,9 +52,7 @@ export function rgbToHsl(
   const max = Math.max(r, g, b);
   const min = Math.min(r, g, b);
   const l = (max + min) / 2;
-
   if (max === min) return { h: 0, s: 0, l: Math.round(l * 100) };
-
   const d = max - min;
   const s_val = l > 0.5 ? d / (2 - max - min) : d / (max + min);
   let h_val = 0;
@@ -84,20 +73,14 @@ export function rgbToHsl(
     l: Math.round(l * 100),
   };
 }
-
 export function parseColor(input: ColorInput): {
   h: number;
   s: number;
   l: number;
 } {
   if (typeof input === 'object') return input;
-
   const str = input.trim().toLowerCase();
-
-  
   if (str.startsWith('#')) return hexToHsl(str);
-
-  
   const hslMatch = str.match(
     /^hsla?\(\s*([\d.]+)[\s,]+([\d.]+)%?[\s,]+([\d.]+)%?/
   );
@@ -108,8 +91,6 @@ export function parseColor(input: ColorInput): {
       l: Math.round(parseFloat(hslMatch[3])),
     };
   }
-
-  
   const rgbMatch = str.match(/^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)/);
   if (rgbMatch) {
     return rgbToHsl(
@@ -118,17 +99,14 @@ export function parseColor(input: ColorInput): {
       parseFloat(rgbMatch[3])
     );
   }
-
   return { h: 0, s: 0, l: 50 };
 }
-
 export function hslToHex(h: number, s: number, l: number): string {
   const sNorm = s / 100;
   const lNorm = l / 100;
   const c = (1 - Math.abs(2 * lNorm - 1)) * sNorm;
   const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
   const m = lNorm - c / 2;
-
   let r = 0,
     g = 0,
     b = 0;
@@ -157,15 +135,12 @@ export function hslToHex(h: number, s: number, l: number): string {
     g = 0;
     b = x;
   }
-
   const toHex = (n: number) => {
     const hex = Math.round((n + m) * 255).toString(16);
     return hex.length === 1 ? '0' + hex : hex;
   };
-
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
-
 export function getVisualSaturation(
   sliderValue: number,
   baseSaturation: number
@@ -174,11 +149,9 @@ export function getVisualSaturation(
     ? (sliderValue / 10) * baseSaturation
     : baseSaturation;
 }
-
 export function hslToString(h: number, s: number, l: number): string {
   return `hsl(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(l)}%)`;
 }
-
 export function hslaToString(
   h: number,
   s: number,
@@ -187,7 +160,6 @@ export function hslaToString(
 ): string {
   return `hsla(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(l)}%, ${(a / 100).toFixed(2)})`;
 }
-
 export function hslToRgb(
   h: number,
   s: number,
@@ -199,14 +171,12 @@ export function hslToRgb(
   const a = sNorm * Math.min(lNorm, 1 - lNorm);
   const f = (n: number) =>
     lNorm - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
-
   return {
     r: Math.round(255 * f(0)),
     g: Math.round(255 * f(8)),
     b: Math.round(255 * f(4)),
   };
 }
-
 export function rgbaToString(
   r: number,
   g: number,
@@ -215,7 +185,6 @@ export function rgbaToString(
 ): string {
   return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${(a / 100).toFixed(2)})`;
 }
-
 export function createColorOutput(
   hue: number,
   sliderValue: number,
@@ -243,59 +212,41 @@ export function createColorOutput(
     rgba: rgbaToString(r, g, b, alpha),
   };
 }
-
 export function organizeColorsIntoLayers(
   colors: { h: number; s: number; l: number }[]
 ): { h: number; s: number; l: number }[][] {
   if (!colors || colors.length === 0) return [];
-
-  
   const sortedByLightness = colors.toSorted((a, b) => b.l - a.l);
   const total = sortedByLightness.length;
-
-  
-  
   let layerCounts: number[] = [];
-
   if (total <= 10) {
-    
     layerCounts = [total];
   } else if (total <= 24) {
-    
     const inner = Math.max(4, Math.floor(total * 0.35));
     layerCounts = [inner, total - inner];
   } else if (total <= 42) {
-    
     const inner = Math.max(5, Math.floor(total * 0.15));
     const middle = Math.floor(total * 0.35);
     layerCounts = [inner, middle, total - inner - middle];
   } else {
-    
     const inner = Math.max(6, Math.floor(total * 0.1));
     const mid1 = Math.floor(total * 0.2);
     const mid2 = Math.floor(total * 0.3);
     layerCounts = [inner, mid1, mid2, total - inner - mid1 - mid2];
   }
-
-  
   const layers: { h: number; s: number; l: number }[][] = [];
   let currentIndex = 0;
-
   for (let i = 0; i < layerCounts.length; i++) {
     const count = layerCounts[i];
     const itemsForThisLayer = sortedByLightness.slice(
       currentIndex,
       currentIndex + count
     );
-
-    
     itemsForThisLayer.sort((a, b) => a.h - b.h);
-
     if (itemsForThisLayer.length > 0) {
       layers.push(itemsForThisLayer);
     }
     currentIndex += count;
   }
-
   return layers;
 }
