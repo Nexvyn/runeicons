@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Save } from "lucide-react";
+import { toast } from "sonner";
 import { SvgDefinitions } from "@/components/icon-page/panels/workspace/components/SvgDefinitions";
 import { WorkspaceGround } from "@/components/icon-page/panels/workspace/components/WorkspaceGround";
 import { WorkspaceActionBar } from "@/components/icon-page/panels/workspace/components/WorkspaceActionBar";
@@ -46,7 +47,6 @@ interface EditorWorkspacePanelProps {
   onSaveSnapshot: (name: string) => void;
   onAddPath: (d: string, opts?: { fill?: string; stroke?: string }) => void;
   onErasePath?: (pathId: string) => void;
-  onSetPathsFill?: (pathIds: string[], fill: string) => void;
   onCreateBlankIcon?: () => string;
   onGlobalStateChange: (updates: Partial<CustomizationState>) => void;
 }
@@ -74,15 +74,30 @@ export function EditorWorkspacePanel({
   onSaveSnapshot,
   onAddPath,
   onErasePath,
-  onSetPathsFill,
   onCreateBlankIcon,
   onGlobalStateChange,
 }: EditorWorkspacePanelProps) {
   const [editorMode, setEditorMode] = useState<EditorMode>("edit");
   const [activeTool, setActiveTool] = useState<DrawTool>("pen");
-  const [closePath, setClosePath] = useState(false);
-  const [fillMode, setFillMode] = useState(false);
   const [showReference, setShowReference] = useState(false);
+
+  const isScratchAsset = !!editorDocument?.assetId.startsWith("scratch-");
+
+  const handleModeChange = (next: EditorMode) => {
+    if (next === "draw" && !isScratchAsset) {
+      toast.info(
+        "Click the + button in the icon tray to create a blank icon, then draw on it.",
+      );
+      return;
+    }
+    setEditorMode(next);
+  };
+
+  useEffect(() => {
+    if (editorMode === "draw" && !isScratchAsset) {
+      setEditorMode("edit");
+    }
+  }, [editorMode, isScratchAsset]);
 
   const [referencePathIds, setReferencePathIds] = useState<Set<string>>(
     () => new Set(),
@@ -111,16 +126,6 @@ export function EditorWorkspacePanel({
       }
     : undefined;
 
-  const handleFillModeToggle = () => {
-    const next = !fillMode;
-    setFillMode(next);
-    if (!onSetPathsFill || !editorDocument) return;
-    const userPathIds = editorDocument.paths
-      .filter((p) => !referencePathIds.has(p.id))
-      .map((p) => p.id);
-    if (userPathIds.length === 0) return;
-    onSetPathsFill(userPathIds, next ? "currentColor" : "none");
-  };
   const [showGrid, setShowGrid] = useState(true);
   const [previewPathDraft, setPreviewPathDraft] = useState<{
     assetId: string;
@@ -178,7 +183,14 @@ export function EditorWorkspacePanel({
     ? `${editorDocument.name} Snapshot`
     : "Runeicons Snapshot";
 
-  const exportDocument = previewDocument ?? editorDocument;
+  const exportDocument = useMemo(() => {
+    const base = previewDocument ?? editorDocument;
+    if (!base) return null;
+    if (editorMode !== "draw" || referencePathIds.size === 0) return base;
+    const next = cloneDocument(base);
+    next.paths = next.paths.filter((p) => !referencePathIds.has(p.id));
+    return next;
+  }, [previewDocument, editorDocument, editorMode, referencePathIds]);
 
   const iconShim = useMemo<IconData | null>(() => {
     if (!exportDocument) return null;
@@ -204,8 +216,6 @@ export function EditorWorkspacePanel({
         onAddPath={onAddPath}
         onErasePath={onErasePath}
         activeTool={activeTool}
-        closePath={closePath}
-        fillMode={fillMode}
         showReference={showReference}
         referencePathIds={referencePathIds}
       />
@@ -264,7 +274,12 @@ export function EditorWorkspacePanel({
                 </div>
               </foreignObject>
 
-              <foreignObject x={250} y={150} width={600} height={500}>
+              <foreignObject
+                x={250}
+                y={150}
+                width={600}
+                height={editorMode === "draw" ? 600 : 500}
+              >
                 <div className="w-full h-full pointer-events-auto relative">
                   <div className="pointer-events-none absolute inset-0 border border-white/15 bg-white/2.5" />
 
@@ -311,7 +326,7 @@ export function EditorWorkspacePanel({
         <div className="absolute top-2 left-1/2 -translate-x-1/2 z-30">
           <EditorModeToggle
             mode={editorMode}
-            onModeChange={setEditorMode}
+            onModeChange={handleModeChange}
           />
         </div>
 
@@ -320,10 +335,6 @@ export function EditorWorkspacePanel({
             <EditorDrawToolbar
               activeTool={activeTool}
               onToolChange={setActiveTool}
-              closePath={closePath}
-              onClosePathToggle={() => setClosePath((v) => !v)}
-              fillMode={fillMode}
-              onFillModeToggle={handleFillModeToggle}
               showReference={showReference}
               onToggleReference={() => setShowReference((v) => !v)}
             />

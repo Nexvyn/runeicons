@@ -341,7 +341,7 @@ export function useEditorDocument(assets: EditorAssetSummary[]) {
             fill: opts?.fill ?? "none",
             stroke:
               opts?.stroke ?? previous.paths[0]?.stroke ?? "#000000",
-            strokeWidth: previous.paths[0]?.strokeWidth ?? 1.5,
+            strokeWidth: previous.paths[0]?.strokeWidth ?? 1,
             strokeLinecap: previous.paths[0]?.strokeLinecap ?? "round",
             strokeLinejoin: previous.paths[0]?.strokeLinejoin ?? "round",
             visible: true,

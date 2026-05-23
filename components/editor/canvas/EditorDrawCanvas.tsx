@@ -13,6 +13,7 @@ import {
   constrainShapePoint,
   type DrawPoint,
 } from "@/components/editor/utils/draw-utils";
+import { floodFillToPath } from "@/components/editor/utils/flood-fill";
 import type { DrawTool } from "@/components/editor/controls/EditorDrawToolbar";
 
 interface EditorDrawCanvasProps {
@@ -21,8 +22,6 @@ interface EditorDrawCanvasProps {
   viewBox: string;
   onAddPath: (d: string, opts?: { fill?: string; stroke?: string }) => void;
   activeTool?: DrawTool;
-  closePath?: boolean;
-  fillMode?: boolean;
   onErasePath?: (pathId: string) => void;
   showReference?: boolean;
   referencePathIds?: Set<string>;
@@ -30,6 +29,7 @@ interface EditorDrawCanvasProps {
 
 const MIN_POINTS_FOR_STROKE = 3;
 const SIMPLIFY_TOLERANCE = 0.3;
+const DRAW_INSET_RATIO = 0.04;
 
 const EMPTY_REFERENCE_IDS: Set<string> = new Set();
 
@@ -39,8 +39,6 @@ export function EditorDrawCanvas({
   viewBox,
   onAddPath,
   activeTool = "pen",
-  closePath = false,
-  fillMode = false,
   onErasePath,
   showReference = false,
   referencePathIds = EMPTY_REFERENCE_IDS,
@@ -58,17 +56,14 @@ export function EditorDrawCanvas({
 
   const viewBoxParts = useMemo(() => viewBox.split(" ").map(Number), [viewBox]);
   const vbSize = Math.max(viewBoxParts[2] || 24, viewBoxParts[3] || 24);
-  const vbPad = vbSize * 0.1;
-  const paddedViewBox = `${(viewBoxParts[0] || 0) - vbPad} ${(viewBoxParts[1] || 0) - vbPad} ${(viewBoxParts[2] || 24) + vbPad * 2} ${(viewBoxParts[3] || 24) + vbPad * 2}`;
   const scaleFactor = vbSize / 250;
 
   const paths = editorDocument?.paths ?? [];
 
-  const COMMIT_FILL = "currentColor";
-
   const isShapeTool =
     activeTool === "rect" || activeTool === "ellipse" || activeTool === "line";
   const isEraserTool = activeTool === "eraser";
+  const isBucketTool = activeTool === "bucket";
 
   function clientToSvg(clientX: number, clientY: number): DrawPoint | null {
     const svg = svgRef.current;
@@ -80,14 +75,21 @@ export function EditorDrawCanvas({
     const vbY = viewBoxParts[1] || 0;
     const vbW = viewBoxParts[2] || 24;
     const vbH = viewBoxParts[3] || 24;
+    const padX = vbW * DRAW_INSET_RATIO;
+    const padY = vbH * DRAW_INSET_RATIO;
     return {
-      x: Math.max(vbX, Math.min(vbX + vbW, pt.x)),
-      y: Math.max(vbY, Math.min(vbY + vbH, pt.y)),
+      x: Math.max(vbX + padX, Math.min(vbX + vbW - padX, pt.x)),
+      y: Math.max(vbY + padY, Math.min(vbY + vbH - padY, pt.y)),
     };
   }
 
   function applyConstraint(start: DrawPoint, end: DrawPoint): DrawPoint {
-    if (!shiftPressedRef.current || activeTool === "pen" || activeTool === "eraser") {
+    if (
+      !shiftPressedRef.current ||
+      activeTool === "pen" ||
+      activeTool === "eraser" ||
+      activeTool === "bucket"
+    ) {
       return end;
     }
     return constrainShapePoint(start, end, activeTool);
@@ -99,6 +101,25 @@ export function EditorDrawCanvas({
 
     const point = clientToSvg(e.clientX, e.clientY);
     if (!point) return;
+
+    if (isBucketTool) {
+      const visibleNonReference = paths.filter((p) => {
+        if (!p.visible) return false;
+        const isReference = referencePathIds.has(p.id);
+        if (isReference && !showReference) return false;
+        return true;
+      });
+      const d = floodFillToPath({
+        paths: visibleNonReference,
+        state,
+        viewBox,
+        clickSvg: point,
+      });
+      if (d) {
+        onAddPath(d, { fill: "currentColor", stroke: "none" });
+      }
+      return;
+    }
 
     shiftPressedRef.current = e.shiftKey;
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -141,13 +162,10 @@ export function EditorDrawCanvas({
     if (raw.length < MIN_POINTS_FOR_STROKE) return;
 
     const simplified = simplifyPoints(raw, SIMPLIFY_TOLERANCE);
-    let d = pointsToSmoothPath(simplified);
+    const d = pointsToSmoothPath(simplified);
     if (!d) return;
-    if (closePath) d += " Z";
 
-    onAddPath(d, {
-      fill: fillMode ? COMMIT_FILL : "none",
-    });
+    onAddPath(d, { fill: "none" });
   }
 
   function commitShape() {
@@ -161,21 +179,17 @@ export function EditorDrawCanvas({
     const end = applyConstraint(start, endRaw);
 
     let d = "";
-    let closed = true;
     if (activeTool === "rect") {
       d = rectPath(start, end, true);
     } else if (activeTool === "ellipse") {
       d = ellipsePath(start, end);
     } else if (activeTool === "line") {
       d = linePath(start, end);
-      closed = false;
     }
 
     if (!d) return;
 
-    onAddPath(d, {
-      fill: fillMode && closed ? COMMIT_FILL : "none",
-    });
+    onAddPath(d, { fill: "none" });
   }
 
   function handlePointerUp(e: React.PointerEvent<SVGSVGElement>) {
@@ -219,7 +233,7 @@ export function EditorDrawCanvas({
       <div className="absolute inset-0">
         <svg
           ref={svgRef}
-          viewBox={paddedViewBox}
+          viewBox={viewBox}
           className="relative z-10 h-full w-full"
           style={{
             touchAction: "none",
@@ -288,14 +302,7 @@ export function EditorDrawCanvas({
             {shapePreviewD ? (
               <path
                 d={shapePreviewD}
-                fill={
-                  fillMode && activeTool !== "line"
-                    ? "currentColor"
-                    : "none"
-                }
-                fillOpacity={
-                  fillMode && activeTool !== "line" ? 0.2 : 1
-                }
+                fill="none"
                 stroke="#1890ff"
                 strokeWidth={2 * scaleFactor}
                 strokeLinecap="round"

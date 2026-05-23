@@ -48,6 +48,7 @@ export const EditorSvgPreview = memo(function EditorSvgPreview({
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={cn("h-full w-full", className)}
+      style={{ overflow: "hidden" }}
       aria-hidden="true"
     >
       {defsMarkup ? <SvgDefs markup={defsMarkup} /> : null}
