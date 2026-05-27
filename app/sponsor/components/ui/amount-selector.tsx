@@ -14,23 +14,26 @@ const HIGHLIGHT_CLASS =
 
 interface AmountSelectorProps {
   selectedAmount: number;
+  customMode: boolean;
   onAmountChange: (amount: number) => void;
+  onCustomModeChange: (customMode: boolean) => void;
 }
 
 export function AmountSelector({
   selectedAmount,
+  customMode,
   onAmountChange,
+  onCustomModeChange,
 }: AmountSelectorProps) {
-  const [customMode, setCustomMode] = useState(false);
   const [customValue, setCustomValue] = useState("");
 
   const handlePreset = (amount: number) => {
-    setCustomMode(false);
+    onCustomModeChange(false);
     onAmountChange(amount);
   };
 
   const handleCustom = () => {
-    setCustomMode(true);
+    onCustomModeChange(true);
     const num = parseInt(customValue, 10);
     onAmountChange(num > 0 ? num : 0);
   };

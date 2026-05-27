@@ -1,67 +1,41 @@
 "use client";
+import { useState } from "react";
+import type { ComponentType, SVGProps } from "react";
+
 import Image from "next/image";
+import Link from "next/link";
 
-import {
-  Bell,
-  Calendar,
-  Check,
-  Clock,
-  Copy,
-  Download,
-  Edit,
-  Eye,
-  Heart,
-  Home,
-  Lock,
-  Mail,
-  Map,
-  Menu,
-  Package,
-  Phone,
-  Search as SearchIcon,
-  Settings,
-  Share2,
-  Star,
-  Trash2,
-  Upload,
-  User,
-  X,
-  Zap,
-} from "lucide-react";
+import { Search as SearchIcon } from "lucide-react";
+import { AnimatePresence } from "motion/react";
+import * as m from "motion/react-m";
 
+import { useLandingSearch } from "../hooks/use-landing-search";
 import { Button } from "../../ui/button";
+import { DuotoneIcon } from "../../icons/DuotoneIcon";
+import { FillIcon } from "../../icons/FillIcon";
+import { GlassIcon } from "../../icons/GlassIcon";
 import { Input } from "../../ui/input";
-import TabBackgroundAnimation from "../../ui/tab-background-animation";
+import { NormalIcon } from "../../icons/NormalIcon";
+import { PixelatedIcon } from "../../icons/PixelatedIcon";
+import type { IconType } from "@/lib/icons";
 
-const ICONS = [
-  { Icon: SearchIcon, name: "Search" },
-  { Icon: Heart, name: "Heart" },
-  { Icon: Star, name: "Star" },
-  { Icon: Settings, name: "Settings" },
-  { Icon: Bell, name: "Bell" },
-  { Icon: User, name: "User" },
-  { Icon: Home, name: "Home" },
-  { Icon: Package, name: "Package" },
-  { Icon: Zap, name: "Zap" },
-  { Icon: Lock, name: "Lock" },
-  { Icon: Share2, name: "Share" },
-  { Icon: Trash2, name: "Trash" },
-  { Icon: Edit, name: "Edit" },
-  { Icon: Eye, name: "Eye" },
-  { Icon: Copy, name: "Copy" },
-  { Icon: Check, name: "Check" },
-  { Icon: X, name: "Close" },
-  { Icon: Download, name: "Download" },
-  { Icon: Upload, name: "Upload" },
-  { Icon: Menu, name: "Menu" },
-  { Icon: Calendar, name: "Calendar" },
-  { Icon: Clock, name: "Clock" },
-  { Icon: Mail, name: "Mail" },
-  { Icon: Phone, name: "Phone" },
-  { Icon: Map, name: "Map" },
+type TypeIcon = ComponentType<SVGProps<SVGSVGElement>>;
+
+const ICON_TYPES: { value: IconType; label: string; Icon: TypeIcon }[] = [
+  { value: "normal", label: "Normal", Icon: NormalIcon },
+  { value: "duotone", label: "Duotone", Icon: DuotoneIcon },
+  { value: "fill", label: "Fill", Icon: FillIcon },
+  { value: "pixelated", label: "Pixelated", Icon: PixelatedIcon },
+  { value: "glass", label: "Glass", Icon: GlassIcon },
 ];
 
+const HIGHLIGHT_CLASS =
+  "absolute inset-0 rounded-xl bg-zinc-100 shadow-[0.222px_0.222px_0.314px_-0.5px_rgba(0,0,0,0.2),0.605px_0.605px_0.856px_-1px_rgba(0,0,0,0.18),1.329px_1.329px_1.88px_-1.5px_rgba(0,0,0,0.25),2.95px_2.95px_4.172px_-2px_rgba(0,0,0,0.1),2.5px_2.5px_3px_-2.5px_rgba(0,0,0,0.15),-0.5px_-0.5px_0px_rgba(0,0,0,0.1),inset_0.5px_0.5px_1px_#FFFFFF,inset_-0.5px_-0.5px_1px_rgba(0,0,0,0.15)] dark:bg-zinc-800 dark:shadow-[0.222px_0.222px_0.314px_-0.5px_rgba(0,0,0,0.35),0.605px_0.605px_0.856px_-1px_rgba(0,0,0,0.3),1.329px_1.329px_1.88px_-1.5px_rgba(0,0,0,0.35),2.95px_2.95px_4.172px_-2px_rgba(0,0,0,0.28),2.5px_2.5px_3px_-2.5px_rgba(0,0,0,0.35),inset_0.5px_0.5px_1px_rgba(255,255,255,0.08),inset_-0.5px_-0.5px_1px_rgba(0,0,0,0.4)]";
+
 const Search = () => {
+  const [iconType, setIconType] = useState<IconType>("normal");
+  const { query, setQuery, results } = useLandingSearch(iconType, 25);
+
   return (
     <div className="flex h-full flex-col gap-5 py-6 lg:flex-row">
       <div className="min-h-[400px] lg:min-h-0 lg:w-1/2">
@@ -91,32 +65,107 @@ const Search = () => {
                   <SearchIcon className="h-4 w-4" />
                 </div>
                 <Input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search for icons..."
                   className="h-full flex-1 border-0 bg-transparent pl-2 text-foreground shadow-none placeholder:text-muted-foreground focus-visible:ring-0 dark:text-white dark:placeholder:text-white/70"
                 />
-                <Button className="h-full rounded-none bg-white px-4 text-black hover:bg-white/90 dark:bg-zinc-900 dark:text-white dark:hover:bg-zinc-800">
-                  Search
+                <Button
+                  asChild
+                  className="h-full rounded-none bg-white px-4 text-black hover:bg-white/90 dark:bg-zinc-900 dark:text-white dark:hover:bg-zinc-800"
+                >
+                  <Link href="/icons">Search</Link>
                 </Button>
               </div>
 
-              <div className="my-3 mt-4 grid grid-cols-3 justify-items-center gap-2 px-1 sm:my-4 sm:mt-6 sm:grid-cols-4 sm:gap-3 sm:px-0 md:grid-cols-5">
-                {ICONS.map(({ Icon, name }, index) => (
-                  <div
-                    key={name}
-                    className={`flex w-14 flex-col items-center gap-1 ${index >= 9 ? "hidden sm:flex" : ""}`}
-                  >
-                    <div className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg bg-muted/50 transition-colors hover:bg-muted">
-                      <Icon className="h-5 w-5 text-foreground" />
-                    </div>
-                    <span className="w-full truncate text-center text-[10px] text-white/85">
-                      {name}
-                    </span>
+              <div className="my-3 mt-4 flex min-h-[200px] flex-col sm:my-4 sm:mt-6 sm:min-h-[460px] md:min-h-[330px]">
+                {results.length > 0 ? (
+                  <div className="grid flex-1 grid-cols-3 content-start justify-items-center gap-2 px-1 sm:grid-cols-4 sm:gap-3 sm:px-0 md:grid-cols-5">
+                    <AnimatePresence mode="popLayout" initial={false}>
+                      {results.map((icon, index) => (
+                        <m.div
+                          key={icon.id}
+                          layout
+                          className={`flex w-14 flex-col items-center gap-1 ${
+                            index >= 9 ? "hidden sm:flex" : ""
+                          }`}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.9 }}
+                          transition={{
+                            duration: 0.18,
+                            ease: [0.16, 1, 0.3, 1],
+                          }}
+                        >
+                          <div className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-muted/50 transition-colors hover:bg-muted">
+                            {icon.url && (
+                              <m.img
+                                key={icon.url}
+                                src={icon.url}
+                                alt={icon.name}
+                                className="h-5 w-5"
+                                loading="lazy"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 0.16, ease: "easeOut" }}
+                              />
+                            )}
+                          </div>
+                          <span className="w-full truncate text-center text-[10px] text-white/85">
+                            {icon.name}
+                          </span>
+                        </m.div>
+                      ))}
+                    </AnimatePresence>
                   </div>
-                ))}
+                ) : (
+                  <div className="flex flex-1 items-center justify-center text-center text-[12px] text-white/80">
+                    No icons match &ldquo;{query}&rdquo;.
+                  </div>
+                )}
               </div>
 
               <div className="mt-4 border-t border-border/40 pt-4">
-                <TabBackgroundAnimation />
+                <div className="rounded-xl bg-white dark:bg-zinc-900">
+                  <div className="flex w-full gap-1 rounded-xl bg-black/10 p-1 shadow-[0px_1px_0px_rgba(255,255,255,0.25),inset_0px_1px_2px_rgba(0,0,0,0.15)] dark:bg-white/10 dark:shadow-[0px_1px_0px_rgba(0,0,0,0.25),inset_0px_1px_2px_rgba(255,255,255,0.08)]">
+                    {ICON_TYPES.map(({ value, label, Icon }) => {
+                      const isActive = iconType === value;
+                      return (
+                        <button
+                          key={value}
+                          type="button"
+                          aria-label={label}
+                          title={label}
+                          onClick={() => setIconType(value)}
+                          className="relative flex flex-1 cursor-pointer items-center justify-center py-2.5"
+                        >
+                          {isActive && (
+                            <m.div
+                              layoutId="landing-search-type"
+                              className={HIGHLIGHT_CLASS}
+                              initial={{ scale: 1 }}
+                              animate={{ scale: 1.3 }}
+                              transition={{
+                                type: "spring",
+                                stiffness: 500,
+                                damping: 40,
+                              }}
+                            />
+                          )}
+                          <span
+                            className={`relative z-10 ${
+                              isActive
+                                ? "text-black dark:text-white"
+                                : "text-muted-foreground"
+                            }`}
+                          >
+                            <Icon className="h-5 w-5" />
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

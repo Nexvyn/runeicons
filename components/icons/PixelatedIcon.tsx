@@ -1,6 +1,25 @@
-export function PixelatedIcon(props: React.SVGProps<SVGSVGElement>) {
+import { cn } from "@/lib/utils";
+
+export function PixelatedIcon({ className, style, ...props }: React.SVGProps<SVGSVGElement>) {
   return (
-    <svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg" {...props} stroke="currentColor">
+    <svg
+      viewBox="0 0 30 30"
+      xmlns="http://www.w3.org/2000/svg"
+      stroke="currentColor"
+      overflow="visible"
+      className={cn(
+        "will-change-transform group-hover/icon-type:animate-[pixelatedHammer_0.55s_cubic-bezier(0.4,0,0.2,1)_1] motion-reduce:animate-none",
+        className,
+      )}
+      style={{
+        transform: "rotate(var(--hi-r))",
+        transition: "--hi-r 0.35s cubic-bezier(0.4,0,0.2,1)",
+        transformOrigin: "bottom center",
+        transformBox: "view-box",
+        ...style,
+      }}
+      {...props}
+    >
       <g fill="none">
         <path d="M3 7H3.01" strokeWidth="4" strokeLinecap="square"></path>
         <path d="M3 11H3.01" strokeWidth="4" strokeLinecap="square"></path>
