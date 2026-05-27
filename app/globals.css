@@ -197,6 +197,92 @@
   }
 }
 
+@property --hi-r {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --hi-y {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --hi-s {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 1;
+}
+
+@keyframes iconWiggle {
+  0%,
+  100% {
+    --hi-r: 0deg;
+  }
+  25% {
+    --hi-r: -14deg;
+  }
+  75% {
+    --hi-r: 14deg;
+  }
+}
+
+@keyframes duotoneHeadToss {
+  0%,
+  100% {
+    --hi-y: 0px;
+  }
+  30% {
+    --hi-y: -3px;
+  }
+  60% {
+    --hi-y: 0px;
+  }
+}
+
+@keyframes fillFrameZoom {
+  0%,
+  100% {
+    --hi-s: 1;
+  }
+  40% {
+    --hi-s: 1.18;
+  }
+  70% {
+    --hi-s: 0.94;
+  }
+}
+
+@keyframes pixelatedHammer {
+  0%,
+  100% {
+    --hi-r: 0deg;
+  }
+  30% {
+    --hi-r: 14deg;
+  }
+  65% {
+    --hi-r: -26deg;
+  }
+}
+
+@keyframes glassFloat {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(var(--gx, 0), var(--gy, 0));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-icon-wiggle {
+    animation: none !important;
+  }
+}
+
 .animate-rainbow {
   animation: rainbow 6s linear infinite;
 }
