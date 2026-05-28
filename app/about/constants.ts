@@ -12,12 +12,13 @@ const UserDetails = [
     ],
     img: "/about/abhinav-v4.webp",
     accentColor: "#EF4444",
+    needsOutline: true,
   },
   {
     id: 2,
     name: "Vansh",
     description:
-      "Creative designer focused on UI/UX and motion graphics. Bringing static interfaces to life with fluid animations.",
+      "Full-stack / design engineer. Driven by✱crafting tomorrow's tech,✧engineering systems andꕤsparking creative communities.",
     industry: "Design",
     status: "Offline",
     socials: [
@@ -26,6 +27,7 @@ const UserDetails = [
     ],
     img: "/about/vansh-v4.webp",
     accentColor: "#3B82F6",
+    needsOutline: true,
   },
   {
     id: 3,
@@ -40,6 +42,19 @@ const UserDetails = [
     ],
     img: "/about/Nexvyn-v4.webp",
     accentColor: "#22C55E",
+    needsOutline: true,
+  },
+  {
+    id: 4,
+    name: "Mohit",
+    description:
+      "Software Developer working with web development, Figma, and creative projects. I also explore animation, illustration, and Blender. Currently learning Japanese and French.",
+    industry: "Software Development",
+    status: "Active",
+    socials: [],
+    img: "/about/mohit-v4.webp",
+    accentColor: "#F59E0B",
+    needsOutline: true,
   },
 ];
 

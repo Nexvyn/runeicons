@@ -11,7 +11,7 @@ const BackButton = () => {
       data-detail-keep
       onClick={() => router.push("/")}
       aria-label="Go to home"
-      className="group absolute top-8 left-8 z-50 flex size-9 cursor-pointer items-center justify-center rounded-md text-[#595959] transition-colors hover:text-white"
+      className="group absolute top-8 left-8 z-50 flex size-9 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground"
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.94 }}
       transition={{ duration: 0.15 }}

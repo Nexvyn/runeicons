@@ -14,7 +14,7 @@ const AudioControl = ({ isMuted, onToggle }: AudioControlProps) => {
       aria-label={isMuted ? "Unmute (M)" : "Mute (M)"}
       aria-pressed={isMuted}
       title={isMuted ? "Unmute (M)" : "Mute (M)"}
-      className="group absolute bottom-8 left-8 z-50 flex cursor-pointer items-center justify-center gap-2 text-[#595959] transition-colors hover:text-white"
+      className="group absolute bottom-8 left-8 z-50 flex cursor-pointer items-center justify-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.94 }}
       transition={{ duration: 0.15 }}
