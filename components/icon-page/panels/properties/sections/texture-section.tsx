@@ -1,13 +1,14 @@
+import { useState, useRef, useEffect } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { Scrubber } from "@/components/ui/scrubber";
 import { CustomizationState } from "@/lib/types";
 import { TEXTURES } from "@/lib/visual-effects";
 import { Section } from "../components/Section";
+import { cn } from "@/lib/utils";
 
 interface TextureSectionProps {
   state: CustomizationState;
   onChange: (updates: Partial<CustomizationState>) => void;
-  isCollapsed?: boolean;
-  onToggle?: () => void;
 }
 
 function TexturePreview({ texId }: { texId: string }) {
@@ -29,28 +30,84 @@ export function TextureSection({
   state,
   onChange,
 }: TextureSectionProps) {
-  const currentIndex = TEXTURES.findIndex(t => t.id === state.texture.selected);
-  const currentTex = TEXTURES[currentIndex];
+  const [isOpen, setIsOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const currentTex = TEXTURES.find(t => t.id === state.texture.selected);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const selectTexture = (id: string) => {
+    onChange({
+      texture: { ...state.texture, selected: id, enabled: id !== "none" },
+    });
+    setIsOpen(false);
+  };
 
   return (
     <Section>
       <div className="space-y-4 pt-1">
-        <Scrubber
-          label={currentTex?.name || "None"}
-          min={0}
-          max={TEXTURES.length - 1}
-          step={1}
-          value={currentIndex}
-          onChange={(val) => {
-            const index = Math.round(val);
-            const tex = TEXTURES[index];
-            onChange({
-              texture: { ...state.texture, selected: tex.id, enabled: tex.id !== "none" },
-            });
-          }}
-          showInput={false}
-          rightSlot={<TexturePreview texId={state.texture.selected} />}
-        />
+        <div
+          ref={wrapperRef}
+          className={cn(
+            "overflow-hidden rounded-sm border border-border/40 bg-muted/10",
+            "transition-colors",
+            isOpen && "border-border/60 bg-muted/15"
+          )}
+        >
+          <div className="flex h-[34px] w-full items-center justify-between px-2 text-[10px] uppercase tracking-widest text-foreground/70">
+            <span className="ml-1">Texture</span>
+            <button
+              type="button"
+              onClick={() => setIsOpen(!isOpen)}
+              className={cn(
+                "flex cursor-pointer items-center gap-2 rounded-sm px-1.5 py-0.5 transition-colors",
+                "hover:bg-muted/30 focus:outline-none",
+                isOpen && "bg-muted/30"
+              )}
+            >
+              <span>{currentTex?.name || "None"}</span>
+              <TexturePreview texId={state.texture.selected} />
+            </button>
+          </div>
+
+          <AnimatePresence initial={false}>
+            {isOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                className="overflow-hidden"
+              >
+                <div className="border-t border-border/20">
+                  {TEXTURES.map((tex) => (
+                    <button
+                      key={tex.id}
+                      type="button"
+                      onClick={() => selectTexture(tex.id)}
+                      className={cn(
+                        "flex w-full items-center justify-between px-3 py-2 text-[10px] uppercase tracking-widest",
+                        "text-foreground/70 transition-colors hover:bg-muted/20",
+                        state.texture.selected === tex.id && "bg-muted/30 text-foreground"
+                      )}
+                    >
+                      <span>{tex.name}</span>
+                      <TexturePreview texId={tex.id} />
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         {state.texture.selected !== "none" && (
           <Scrubber

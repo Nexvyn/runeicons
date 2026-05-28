@@ -51,7 +51,12 @@ export function StrokeStyleSection({
             onChange({ strokeStyle: STROKE_SEQUENCE[index] });
           }}
           showInput={false}
-          rightSlot={<RoundnessPreview styleId={state.strokeStyle} />}
+          rightSlot={
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground capitalize">{state.strokeStyle}</span>
+              <RoundnessPreview styleId={state.strokeStyle} />
+            </div>
+          }
         />
       </div>
     </Section>

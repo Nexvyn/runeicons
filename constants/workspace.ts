@@ -6,7 +6,7 @@ export const MAX_TRAY_ITEMS = 6;
 export const DEFAULT_STATE: CustomizationState = {
   colors: ["", ""],
   numColors: 2,
-  scale: 1,
+  scale: 3,
   blur: 0,
   motion: {
     enabled: false,

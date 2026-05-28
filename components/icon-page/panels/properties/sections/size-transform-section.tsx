@@ -14,14 +14,14 @@ export function SizeTransformSection({
   return (
     <Section>
       <div className="flex flex-col gap-2">
-        <Scrubber
+        {/* <Scrubber
           label="Scale"
           value={state.scale}
           onChange={(val: number) => onChange({ scale: val })}
           min={0.1}
           max={3}
           step={0.05}
-        />
+        /> */}
         <Scrubber
           label="Blur"
           value={state.blur}

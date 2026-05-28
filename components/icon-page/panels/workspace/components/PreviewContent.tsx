@@ -242,7 +242,7 @@ export const PreviewContent = memo(
             90% { transform: translateY(-3px) scale(1.01,0.99); }
           }
         `;
-      }, [animationType, motionDuration, motionDelay, easingValue, iterationCount, state.motion?.isPaused, state.motion?.pathTrimStart, state.motion?.pathTrimEnd, state.motion?.pathSequential, state.motion?.pathStaggerDelay, state.motion?.pathReverse]);
+      }, [animationType, motionDuration, motionDelay, easingValue, iterationCount, state.motion?.pathTrimStart, state.motion?.pathTrimEnd, state.motion?.pathSequential, state.motion?.pathStaggerDelay, state.motion?.pathReverse]);
       const gradientTarget = state.gradient.target ?? "both";
       const applyGradToStroke = state.iconGradient && (gradientTarget === "stroke" || gradientTarget === "both");
       const applyGradToFill = state.iconGradient && (gradientTarget === "fill" || gradientTarget === "both");
@@ -294,7 +294,12 @@ export const PreviewContent = memo(
                 : "Customizable preview element"
             }
           >
-            {animationCss ? <style>{animationCss}</style> : null}
+            {animationCss ? (
+              <>
+                <style>{animationCss}</style>
+                <style>{`.canvas-icon-draw-path,.canvas-icon-anim-bounce,.canvas-icon-anim-shake,.canvas-icon-anim-jump{animation-play-state:${state.motion?.isPaused ? "paused" : "running"};}`}</style>
+              </>
+            ) : null}
             <AnimatePresence mode="popLayout">
               {selectedIcon ? (
                 <motion.div
