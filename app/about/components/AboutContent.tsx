@@ -2,7 +2,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { AnimatePresence } from "motion/react";
-import { useTheme } from "next-themes";
 
 import { LightDarkMode } from "@/components/ui/light-dark-mode";
 
