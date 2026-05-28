@@ -4,7 +4,7 @@ import { memo, useRef, useEffect } from "react";
 import type { EditorDocument } from "@/lib/editor/types";
 import type { CustomizationState } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { resolveEditorPathPaint } from "@/lib/editor/svg";
+import { resolveEditorPathStyle } from "@/lib/editor/svg";
 
 function stripDefsWrapper(defs?: string) {
   if (!defs) {
@@ -55,16 +55,16 @@ export const EditorSvgPreview = memo(function EditorSvgPreview({
       {document.paths
         .filter((path) => path.visible)
         .map((path) => {
-          const paint = resolveEditorPathPaint(path, state);
+          const style = resolveEditorPathStyle(path, state);
           return (
             <path
               key={path.id}
               d={path.d}
-              fill={paint.fill ?? "none"}
-              stroke={paint.stroke ?? "none"}
-              strokeWidth={path.strokeWidth ?? 1.5}
-              strokeLinecap={path.strokeLinecap}
-              strokeLinejoin={path.strokeLinejoin}
+              fill={style.fill}
+              stroke={style.stroke}
+              strokeWidth={style.strokeWidth}
+              strokeLinecap={style.strokeLinecap}
+              strokeLinejoin={style.strokeLinejoin}
               opacity={path.opacity}
               fillOpacity={path.fillOpacity}
               strokeOpacity={path.strokeOpacity}

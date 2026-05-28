@@ -28,7 +28,7 @@ interface EditorDrawToolbarProps {
   onToggleReference: () => void;
 }
 
-const TOOLS: { id: DrawTool; label: string; Icon: typeof Pencil }[] = [
+export const DRAW_TOOLS: { id: DrawTool; label: string; Icon: typeof Pencil }[] = [
   { id: "pen", label: "Pen", Icon: Pencil },
   { id: "rect", label: "Rectangle", Icon: Square },
   { id: "ellipse", label: "Ellipse", Icon: Circle },
@@ -36,6 +36,8 @@ const TOOLS: { id: DrawTool; label: string; Icon: typeof Pencil }[] = [
   { id: "bucket", label: "Bucket fill", Icon: PaintBucket },
   { id: "eraser", label: "Eraser", Icon: Eraser },
 ];
+
+const TOOLS = DRAW_TOOLS;
 
 export const EditorDrawToolbar = memo(function EditorDrawToolbar({
   activeTool,

@@ -3,7 +3,7 @@
 import { memo } from "react";
 import * as m from "motion/react-m";
 import { AnimatePresence } from "motion/react";
-import { Plus, X } from "lucide-react";
+import { X } from "lucide-react";
 import type { EditorAssetSummary } from "@/lib/editor/types";
 import { cn } from "@/lib/utils";
 import { EditorSvgPreview } from "@/components/editor/preview/EditorSvgPreview";
@@ -30,7 +30,7 @@ export const EditorIconTray = memo(function EditorIconTray({
   onRemoveAsset,
   onCreateBlank,
 }: EditorIconTrayProps) {
-  const emptySlots = Math.max(0, 6 - assets.length - 1);
+  const emptySlots = Math.max(0, 6 - assets.length);
 
   return (
     <div className="relative z-10 grid grid-cols-6 w-full h-full">
@@ -87,26 +87,6 @@ export const EditorIconTray = memo(function EditorIconTray({
           );
         })}
       </AnimatePresence>
-
-      {assets.length < 6 ? (
-        <div className="flex items-center justify-center">
-          <button
-            type="button"
-            onClick={onCreateBlank}
-            disabled={!onCreateBlank}
-            aria-label="Create blank icon"
-            className={cn(
-              "w-11 h-11 rounded-lg border border-dashed flex items-center justify-center",
-              "transition-[colors,transform] duration-150 ease-out",
-              onCreateBlank
-                ? "border-border/40 text-muted-foreground/40 hover:border-border hover:text-foreground hover:bg-muted/20 hover:scale-105 active:scale-[0.97] cursor-pointer"
-                : "border-border/30 text-muted-foreground/20",
-            )}
-          >
-            <Plus className="w-4 h-4" />
-          </button>
-        </div>
-      ) : null}
 
       {Array.from({ length: emptySlots }).map((_, idx) => (
         <div key={`pad-${idx}`} />

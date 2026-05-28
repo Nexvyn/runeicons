@@ -20,8 +20,8 @@ const HeroDefs = () => (
       height="8"
       patternTransform="rotate(45)"
     >
-      <rect width="8" height="8" fill="#FBBF24" />
-      <rect width="4" height="8" fill="#000000" />
+      <rect width="8" height="8" className="hazardStripeYellow" />
+      <rect width="4" height="8" className="hazardStripeDark" />
     </pattern>
     <filter
       id="cloudBlur"

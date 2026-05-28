@@ -147,6 +147,7 @@ export function EditorShell({ assets }: EditorShellProps) {
           state={state}
           onGlobalStateChange={handleChange}
           resetDocumentRef={resetDocumentRef}
+          onFullReset={handleFullReset}
           onPathCountChange={setSelectedPathCount}
         />
 

@@ -333,6 +333,18 @@
   fill: #7b5d00;
 }
 
+.hazardStripeYellow {
+  fill: #fbbf24;
+}
+
+.dark .hazardStripeYellow {
+  fill: #0440db;
+}
+
+.hazardStripeDark {
+  fill: #000000;
+}
+
 .rocketPorthole {
   transition: fill 0.32s cubic-bezier(0.165, 0.84, 0.44, 1);
 }

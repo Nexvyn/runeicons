@@ -33,8 +33,6 @@ export function resolveLibraryIconType(state: StateIconType): IconType {
 
 export const EDITOR_SUPPORTED_TYPES = [
   "normal",
-  "duotone",
-  "fill",
   "pixelated",
 ] as const;
 
