@@ -219,18 +219,20 @@ export function EditorActionBar({
   };
 
   const downloadSvg = async () => {
-    const svg = await getSvgContent();
-    if (!svg) return;
-    const blob = new Blob([svg], { type: "image/svg+xml" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "icon.svg";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    toast.success("SVG downloaded successfully");
+    await withPending(async () => {
+      const svg = await getSvgContent();
+      if (!svg) return;
+      const blob = new Blob([svg], { type: "image/svg+xml" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "icon.svg";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      toast.success("SVG downloaded successfully");
+    });
   };
 
   const groupLayoutTransition = reduceMotion
@@ -533,12 +535,14 @@ export function EditorActionBar({
                 disabled={isPending}
                 className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-[11px] font-medium transition-colors focus:bg-white/10 focus:text-white"
                 onClick={async () => {
-                  const svg = await getSvgContent();
-                  if (svg) {
-                    copyToClipboard(svg, "SVG");
-                  } else {
-                    toast.error("Nothing to copy");
-                  }
+                  await withPending(async () => {
+                    const svg = await getSvgContent();
+                    if (svg) {
+                      await copyToClipboard(svg, "SVG");
+                    } else {
+                      toast.error("Nothing to copy");
+                    }
+                  });
                 }}
               >
                 <FileCode className="h-4 w-4 text-white/40" />
