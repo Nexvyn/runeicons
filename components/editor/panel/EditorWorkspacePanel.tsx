@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Save } from "lucide-react";
-import { toast } from "sonner";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { SvgDefinitions } from "@/components/icon-page/panels/workspace/components/SvgDefinitions";
 import { WorkspaceGround } from "@/components/icon-page/panels/workspace/components/WorkspaceGround";
-import { WorkspaceActionBar } from "@/components/icon-page/panels/workspace/components/WorkspaceActionBar";
+import {
+  EditorActionBar,
+  EDITOR_TRANSITION,
+} from "@/components/editor/controls/EditorActionBar";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import type { CustomizationState, IconData } from "@/lib/types";
+import type { CustomizationState } from "@/lib/types";
 import type {
   EditorAssetSummary,
   EditorDocument,
@@ -16,12 +19,10 @@ import { createEditorSvgMarkup, cloneDocument } from "@/lib/editor/svg";
 import { cn } from "@/lib/utils";
 import { EditorPathCanvas } from "@/components/editor/canvas/EditorPathCanvas";
 import { EditorDrawCanvas } from "@/components/editor/canvas/EditorDrawCanvas";
+import { EditorCanvasStage } from "@/components/editor/canvas/EditorCanvasStage";
 import { EditorMiniPreview } from "@/components/editor/preview/EditorMiniPreview";
 import { EditorModeToggle } from "@/components/editor/controls/EditorModeToggle";
-import {
-  EditorDrawToolbar,
-  type DrawTool,
-} from "@/components/editor/controls/EditorDrawToolbar";
+import { type DrawTool } from "@/components/editor/controls/EditorDrawToolbar";
 import { EditorIconTray } from "@/components/editor/controls/EditorIconTray";
 import { EditorSaveDialog } from "@/components/editor/dialogs/EditorSaveDialog";
 
@@ -80,24 +81,11 @@ export function EditorWorkspacePanel({
   const [editorMode, setEditorMode] = useState<EditorMode>("edit");
   const [activeTool, setActiveTool] = useState<DrawTool>("pen");
   const [showReference, setShowReference] = useState(false);
-
-  const isScratchAsset = !!editorDocument?.assetId.startsWith("scratch-");
+  const reduceMotion = useReducedMotion();
 
   const handleModeChange = (next: EditorMode) => {
-    if (next === "draw" && !isScratchAsset) {
-      toast.info(
-        "Click the + button in the icon tray to create a blank icon, then draw on it.",
-      );
-      return;
-    }
     setEditorMode(next);
   };
-
-  useEffect(() => {
-    if (editorMode === "draw" && !isScratchAsset) {
-      setEditorMode("edit");
-    }
-  }, [editorMode, isScratchAsset]);
 
   const [referencePathIds, setReferencePathIds] = useState<Set<string>>(
     () => new Set(),
@@ -122,7 +110,6 @@ export function EditorWorkspacePanel({
   const handleCreateBlank = onCreateBlankIcon
     ? () => {
         onCreateBlankIcon();
-        setEditorMode("draw");
       }
     : undefined;
 
@@ -192,57 +179,84 @@ export function EditorWorkspacePanel({
     return next;
   }, [previewDocument, editorDocument, editorMode, referencePathIds]);
 
-  const iconShim = useMemo<IconData | null>(() => {
-    if (!exportDocument) return null;
-    return {
-      id: exportDocument.assetId,
-      name: exportDocument.name ?? "runeicons-editor",
-      category: "all",
-      tags: [],
-    };
-  }, [exportDocument]);
-
   const getEditorSvgContent = async (): Promise<string> => {
     if (!exportDocument) return "";
     return createEditorSvgMarkup(exportDocument, state);
   };
 
-  const editorCanvas =
-    editorMode === "draw" ? (
-      <EditorDrawCanvas
-        document={editorDocument}
-        state={state}
-        viewBox={editorDocument?.viewBox ?? "0 0 24 24"}
-        onAddPath={onAddPath}
-        onErasePath={onErasePath}
-        activeTool={activeTool}
-        showReference={showReference}
-        referencePathIds={referencePathIds}
-      />
-    ) : (
-      <EditorPathCanvas
-        state={state}
-        path={selectedPath}
-        allPaths={editorDocument?.paths}
-        viewBox={editorDocument?.viewBox ?? "0 0 24 24"}
-        onSelectPath={onSelectPath}
-        onPreviewChange={(nextPath) => {
-          if (selectedPathId && editorDocument) {
-            setPreviewPathDraft({
-              assetId: editorDocument.assetId,
-              pathId: selectedPathId,
-              d: nextPath,
-            });
-          }
-        }}
-        onCommitChange={(nextPath) => {
-          if (selectedPathId) {
-            setPreviewPathDraft(null);
-            onCommitPathDraft(selectedPathId, nextPath);
-          }
-        }}
-      />
-    );
+  const isTrayEmpty = trayAssets.length === 0;
+
+  const editorCanvas = isTrayEmpty ? (
+    <div className="absolute inset-0 flex items-center justify-center p-8 text-center">
+      <p className="text-sm text-muted-foreground max-w-xs">
+        Add icons from the sidebar to start editing.
+      </p>
+    </div>
+  ) : (
+    <AnimatePresence mode="wait" initial={false}>
+      <motion.div
+        key={editorMode}
+        className="absolute inset-0"
+        initial={reduceMotion ? false : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={
+          reduceMotion
+            ? { opacity: 0, transition: { duration: 0 } }
+            : {
+                opacity: 0,
+                transition: {
+                  duration: EDITOR_TRANSITION.canvasFadeExit,
+                  ease: EDITOR_TRANSITION.easeOut,
+                },
+              }
+        }
+        transition={
+          reduceMotion
+            ? { duration: 0 }
+            : {
+                duration: EDITOR_TRANSITION.canvasFade,
+                ease: EDITOR_TRANSITION.easeOut,
+              }
+        }
+      >
+        {editorMode === "draw" ? (
+          <EditorDrawCanvas
+            document={editorDocument}
+            state={state}
+            viewBox={editorDocument?.viewBox ?? "0 0 24 24"}
+            onAddPath={onAddPath}
+            onErasePath={onErasePath}
+            activeTool={activeTool}
+            showReference={showReference}
+            referencePathIds={referencePathIds}
+          />
+        ) : (
+          <EditorPathCanvas
+            state={state}
+            path={selectedPath}
+            allPaths={editorDocument?.paths}
+            viewBox={editorDocument?.viewBox ?? "0 0 24 24"}
+            onSelectPath={onSelectPath}
+            onPreviewChange={(nextPath) => {
+              if (selectedPathId && editorDocument) {
+                setPreviewPathDraft({
+                  assetId: editorDocument.assetId,
+                  pathId: selectedPathId,
+                  d: nextPath,
+                });
+              }
+            }}
+            onCommitChange={(nextPath) => {
+              if (selectedPathId) {
+                setPreviewPathDraft(null);
+                onCommitPathDraft(selectedPathId, nextPath);
+              }
+            }}
+          />
+        )}
+      </motion.div>
+    </AnimatePresence>
+  );
 
   return (
     <>
@@ -274,11 +288,23 @@ export function EditorWorkspacePanel({
                 </div>
               </foreignObject>
 
-              <foreignObject
+              <motion.foreignObject
                 x={250}
                 y={150}
                 width={600}
-                height={editorMode === "draw" ? 600 : 500}
+                initial={false}
+                animate={{ height: editorMode === "draw" ? 600 : 500 }}
+                transition={
+                  reduceMotion
+                    ? { duration: 0 }
+                    : {
+                        duration:
+                          editorMode === "draw"
+                            ? EDITOR_TRANSITION.canvas
+                            : EDITOR_TRANSITION.canvasExit,
+                        ease: EDITOR_TRANSITION.easeInOut,
+                      }
+                }
               >
                 <div className="w-full h-full pointer-events-auto relative">
                   <div className="pointer-events-none absolute inset-0 border border-white/15 bg-white/2.5" />
@@ -299,26 +325,59 @@ export function EditorWorkspacePanel({
                         : undefined
                     }
                   >
-                    <div className="absolute inset-0 z-10">
+                    <EditorCanvasStage
+                      state={state}
+                      className="absolute inset-0 z-10"
+                    >
                       {editorCanvas}
-                    </div>
+                    </EditorCanvasStage>
                   </div>
                 </div>
-              </foreignObject>
+              </motion.foreignObject>
 
-              {editorMode === "edit" ? (
-                <foreignObject x={250} y={650} width={600} height={100}>
-                  <div className="w-full h-full pointer-events-auto">
-                    <EditorIconTray
-                      assets={trayAssets}
-                      selectedAssetId={selectedAssetId}
-                      onAssetSelect={(asset) => onSelectAssetById(asset.id)}
-                      onRemoveAsset={onRemoveAssetFromTray}
-                      onCreateBlank={handleCreateBlank}
-                    />
-                  </div>
-                </foreignObject>
-              ) : null}
+              <AnimatePresence initial={false}>
+                {editorMode === "edit" && (
+                  <motion.foreignObject
+                    key="icon-tray"
+                    x={250}
+                    y={650}
+                    width={600}
+                    height={100}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={
+                      reduceMotion
+                        ? { opacity: 0, transition: { duration: 0 } }
+                        : {
+                            opacity: 0,
+                            transition: {
+                              duration: EDITOR_TRANSITION.tray * 0.7,
+                              ease: EDITOR_TRANSITION.easeOut,
+                            },
+                          }
+                    }
+                    transition={
+                      reduceMotion
+                        ? { duration: 0 }
+                        : {
+                            duration: EDITOR_TRANSITION.tray,
+                            ease: EDITOR_TRANSITION.easeOut,
+                            delay: EDITOR_TRANSITION.trayDelay,
+                          }
+                    }
+                  >
+                    <div className="w-full h-full pointer-events-auto">
+                      <EditorIconTray
+                        assets={trayAssets}
+                        selectedAssetId={selectedAssetId}
+                        onAssetSelect={(asset) => onSelectAssetById(asset.id)}
+                        onRemoveAsset={onRemoveAssetFromTray}
+                        onCreateBlank={handleCreateBlank}
+                      />
+                    </div>
+                  </motion.foreignObject>
+                )}
+              </AnimatePresence>
             </svg>
           </div>
         </div>
@@ -330,19 +389,8 @@ export function EditorWorkspacePanel({
           />
         </div>
 
-        {editorMode === "draw" ? (
-          <div className="absolute top-1/2 left-3 -translate-y-1/2 z-30">
-            <EditorDrawToolbar
-              activeTool={activeTool}
-              onToolChange={setActiveTool}
-              showReference={showReference}
-              onToggleReference={() => setShowReference((v) => !v)}
-            />
-          </div>
-        ) : null}
-
         <div className="absolute bottom-9.5 left-1/2 -translate-x-1/2 z-10">
-          <WorkspaceActionBar
+          <EditorActionBar
             state={state}
             onChange={onGlobalStateChange}
             onUndo={onUndo}
@@ -352,9 +400,12 @@ export function EditorWorkspacePanel({
             onReset={onResetAsset}
             showGrid={showGrid}
             onGridToggle={() => setShowGrid((prev) => !prev)}
-            selectedIcon={iconShim}
             onGetSvgContent={getEditorSvgContent}
-            hideAdvancedExports
+            editorMode={editorMode}
+            activeTool={activeTool}
+            onToolChange={setActiveTool}
+            showReference={showReference}
+            onToggleReference={() => setShowReference((v) => !v)}
             additionalDropdownItems={
               <DropdownMenuItem
                 className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-[11px] font-medium transition-colors focus:bg-white/10 focus:text-white"

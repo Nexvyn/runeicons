@@ -67,9 +67,8 @@ export function useEditorDocument(assets: EditorAssetSummary[]) {
   }, [assets, scratchAssets]);
 
   const effectiveSelectedAssetId = useMemo(() => {
-    if (selectedAssetId && assetMap.has(selectedAssetId)) {
-      return selectedAssetId;
-    }
+    if (selectedAssetId === null) return null;
+    if (assetMap.has(selectedAssetId)) return selectedAssetId;
     return assets[0]?.id ?? null;
   }, [assetMap, assets, selectedAssetId]);
 
@@ -195,7 +194,16 @@ export function useEditorDocument(assets: EditorAssetSummary[]) {
   );
 
   useEffect(() => {
-    if (!hasHydrated || !effectiveSelectedAssetId) return;
+    if (!hasHydrated) return;
+
+    if (!effectiveSelectedAssetId) {
+      if (documentRef.current === null) return;
+      flushPersistence();
+      documentRef.current = null;
+      setDocument(null);
+      setSelectedPathId(null);
+      return;
+    }
 
     const nextDocument =
       persistedDocument ??
@@ -213,6 +221,7 @@ export function useEditorDocument(assets: EditorAssetSummary[]) {
   }, [
     assetMap,
     effectiveSelectedAssetId,
+    flushPersistence,
     hasHydrated,
     loadDocument,
     persistedDocument,
@@ -521,13 +530,13 @@ export function useEditorDocument(assets: EditorAssetSummary[]) {
 
   const removeAssetFromTray = useCallback(
     (assetId: string) => {
-      removeFromTrayInStore(assetId, assets[0]?.id ?? null);
+      removeFromTrayInStore(assetId, null);
       if (assetId.startsWith("scratch-")) {
         removeScratchAsset(assetId);
         removeDocument(assetId);
       }
     },
-    [assets, removeDocument, removeScratchAsset],
+    [removeDocument, removeScratchAsset],
   );
 
   const isModified = useMemo(() => {

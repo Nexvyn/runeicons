@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import type { EditorDocument } from "@/lib/editor/types";
 import type { CustomizationState } from "@/lib/types";
-import { resolveEditorPathPaint } from "@/lib/editor/svg";
+import { resolveEditorPathStyle } from "@/lib/editor/svg";
 import {
   simplifyPoints,
   pointsToSmoothPath,
@@ -256,7 +256,7 @@ export function EditorDrawCanvas({
                 return true;
               })
               .map((p) => {
-                const paint = resolveEditorPathPaint(p, state);
+                const style = resolveEditorPathStyle(p, state);
                 const isErasable = isEraserTool && !!onErasePath;
                 const isReference = referencePathIds.has(p.id);
                 const renderedOpacity = isReference
@@ -267,11 +267,11 @@ export function EditorDrawCanvas({
                   <path
                     key={p.id}
                     d={p.d}
-                    fill={paint.fill}
-                    stroke={paint.stroke}
-                    strokeWidth={p.strokeWidth ?? 1.5}
-                    strokeLinecap={p.strokeLinecap ?? "round"}
-                    strokeLinejoin={p.strokeLinejoin ?? "round"}
+                    fill={style.fill}
+                    stroke={style.stroke}
+                    strokeWidth={style.strokeWidth}
+                    strokeLinecap={style.strokeLinecap}
+                    strokeLinejoin={style.strokeLinejoin}
                     opacity={renderedOpacity}
                     pointerEvents={isErasable ? "all" : "none"}
                     style={isErasable ? { cursor: "crosshair" } : undefined}

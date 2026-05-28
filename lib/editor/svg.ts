@@ -14,6 +14,7 @@ const KNOWN_VARIANTS: readonly EditorVariant[] = [
   "pixelated",
 ];
 import type { CustomizationState } from "@/lib/types";
+import { STROKE_STYLE_MAP, type StrokeStyle } from "@/lib/stroke-style";
 import { normalizeEditorPathData } from "./path-data";
 
 type StackEntry = {
@@ -424,10 +425,30 @@ export function resolveEditorPathPaint(
   state?: CustomizationState,
 ) {
   if (state?.iconGradient) {
+    const target = state.gradient.target ?? "both";
+    const gradientPaint = "url(#icon-gradient)";
+    const applyToStroke = target === "stroke" || target === "both";
+    const applyToFill = target === "fill" || target === "both";
+
+    const stateColor = state.colors[0];
+    const fallbackPaint =
+      stateColor && !isDefaultEditorPaint(stateColor)
+        ? stateColor
+        : "currentColor";
+
     return {
       stroke:
-        path.stroke && path.stroke !== "none" ? "url(#icon-gradient)" : path.stroke,
-      fill: path.fill && path.fill !== "none" ? "url(#icon-gradient)" : path.fill,
+        path.stroke && path.stroke !== "none"
+          ? applyToStroke
+            ? gradientPaint
+            : fallbackPaint
+          : path.stroke ?? "none",
+      fill:
+        path.fill && path.fill !== "none"
+          ? applyToFill
+            ? gradientPaint
+            : fallbackPaint
+          : path.fill ?? "none",
     };
   }
 
@@ -444,6 +465,41 @@ export function resolveEditorPathPaint(
       path.fill && path.fill !== "none" && isDefaultEditorPaint(path.fill)
         ? defaultPaint
         : path.fill ?? "none",
+  };
+}
+
+export interface EditorPathStyle {
+  fill: string;
+  stroke: string;
+  strokeWidth: number;
+  strokeLinecap: "round" | "butt" | "square";
+  strokeLinejoin: "round" | "miter" | "bevel";
+}
+
+export function resolveEditorPathStyle(
+  path: Pick<
+    EditorIconPath,
+    "stroke" | "fill" | "strokeWidth" | "strokeLinecap" | "strokeLinejoin"
+  >,
+  state?: CustomizationState,
+): EditorPathStyle {
+  const paint = resolveEditorPathPaint(path, state);
+  const styleKey = (state?.strokeStyle ?? "round") as StrokeStyle;
+  const styleDefaults = STROKE_STYLE_MAP[styleKey] ?? STROKE_STYLE_MAP.round;
+  const stateDrivenStyle = Boolean(state?.strokeStyle);
+
+  return {
+    fill: paint.fill ?? "none",
+    stroke: paint.stroke ?? "none",
+    strokeWidth: stateDrivenStyle
+      ? styleDefaults.strokeWidth
+      : path.strokeWidth ?? styleDefaults.strokeWidth,
+    strokeLinecap: stateDrivenStyle
+      ? styleDefaults.strokeLinecap
+      : path.strokeLinecap ?? styleDefaults.strokeLinecap,
+    strokeLinejoin: stateDrivenStyle
+      ? styleDefaults.strokeLinejoin
+      : path.strokeLinejoin ?? styleDefaults.strokeLinejoin,
   };
 }
 

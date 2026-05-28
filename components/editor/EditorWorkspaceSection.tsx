@@ -12,6 +12,7 @@ interface EditorWorkspaceSectionProps {
   state: CustomizationState;
   onGlobalStateChange: (updates: Partial<CustomizationState>) => void;
   resetDocumentRef: MutableRefObject<() => void>;
+  onFullReset: () => void;
   onPathCountChange?: (count: number) => void;
 }
 
@@ -20,6 +21,7 @@ export function EditorWorkspaceSection({
   state,
   onGlobalStateChange,
   resetDocumentRef,
+  onFullReset,
   onPathCountChange,
 }: EditorWorkspaceSectionProps) {
   const doc = useEditorDocument(assets);
@@ -54,7 +56,7 @@ export function EditorWorkspaceSection({
       onSelectPath={doc.setSelectedPathId}
       onCommitPathDraft={doc.commitPathDraft}
       isModified={doc.isModified}
-      onResetAsset={doc.resetCurrentAsset}
+      onResetAsset={onFullReset}
       onUndo={doc.handleUndo}
       onRedo={doc.handleRedo}
       canUndo={doc.canUndo}

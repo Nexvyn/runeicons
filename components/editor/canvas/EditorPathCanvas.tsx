@@ -10,7 +10,7 @@ import {
   type ControlPoint,
 } from "@/components/editor/utils/svg-path-utils";
 import { ensureEditorPathEditable } from "@/lib/editor/path-data";
-import { resolveEditorPathPaint } from "@/lib/editor/svg";
+import { resolveEditorPathStyle } from "@/lib/editor/svg";
 
 interface EditorPathCanvasProps {
   state: CustomizationState;
@@ -260,9 +260,52 @@ export function EditorPathCanvas({
   };
 
   if (!path) {
+    const visiblePaths = (allPaths ?? []).filter((p) => p.visible);
+    if (visiblePaths.length === 0) {
+      return (
+        <div className="h-full flex items-center justify-center text-sm text-muted-foreground">
+          Click a path on the canvas to edit it.
+        </div>
+      );
+    }
     return (
-      <div className="h-full flex items-center justify-center text-sm text-muted-foreground">
-        Click a path on the canvas to edit it.
+      <div className="relative h-full w-full">
+        <div className="absolute inset-0">
+          <svg
+            viewBox={paddedViewBox}
+            className="relative z-10 h-full w-full"
+            preserveAspectRatio="xMidYMid meet"
+            style={{ touchAction: "none", overflow: "hidden" }}
+          >
+            <g>
+              {visiblePaths.map((bp) => {
+                const style = resolveEditorPathStyle(bp, state);
+                return (
+                  <path
+                    key={bp.id}
+                    d={bp.d}
+                    fill={style.fill}
+                    stroke={style.stroke}
+                    strokeWidth={style.strokeWidth}
+                    strokeLinecap={style.strokeLinecap}
+                    strokeLinejoin={style.strokeLinejoin}
+                    fillRule={bp.fillRule}
+                    clipRule={bp.clipRule}
+                    style={{ cursor: onSelectPath ? "pointer" : undefined }}
+                    onClick={
+                      onSelectPath
+                        ? (e) => {
+                            e.stopPropagation();
+                            onSelectPath(bp.id);
+                          }
+                        : undefined
+                    }
+                  />
+                );
+              })}
+            </g>
+          </svg>
+        </div>
       </div>
     );
   }
@@ -288,17 +331,17 @@ export function EditorPathCanvas({
           >
             <g>
               {backgroundPaths.map((bp) => {
-                const paint = resolveEditorPathPaint(bp, state);
+                const style = resolveEditorPathStyle(bp, state);
 
                 return (
                   <path
                     key={bp.id}
                     d={bp.d}
-                    fill={paint.fill}
-                    stroke={paint.stroke}
-                    strokeWidth={bp.strokeWidth ?? 1.5}
-                    strokeLinecap={bp.strokeLinecap ?? "round"}
-                    strokeLinejoin={bp.strokeLinejoin ?? "round"}
+                    fill={style.fill}
+                    stroke={style.stroke}
+                    strokeWidth={style.strokeWidth}
+                    strokeLinecap={style.strokeLinecap}
+                    strokeLinejoin={style.strokeLinejoin}
                     fillRule={bp.fillRule}
                     clipRule={bp.clipRule}
                     opacity={0.35}
@@ -316,16 +359,16 @@ export function EditorPathCanvas({
               })}
 
               {(() => {
-                const paint = resolveEditorPathPaint(path, state);
+                const style = resolveEditorPathStyle(path, state);
 
                 return (
                   <path
                     d={currentEditPath}
-                    fill={paint.fill}
-                    stroke={paint.stroke}
-                    strokeWidth={path.strokeWidth ?? 1.5}
-                    strokeLinecap={path.strokeLinecap ?? "round"}
-                    strokeLinejoin={path.strokeLinejoin ?? "round"}
+                    fill={style.fill}
+                    stroke={style.stroke}
+                    strokeWidth={style.strokeWidth}
+                    strokeLinecap={style.strokeLinecap}
+                    strokeLinejoin={style.strokeLinejoin}
                     fillRule={path.fillRule}
                     clipRule={path.clipRule}
                   />
