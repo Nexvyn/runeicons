@@ -13,6 +13,25 @@ const HeroDefs = () => (
     <clipPath id="rocketFlameClip" clipPathUnits="userSpaceOnUse">
       <rect x="-200" y="-1000" width="1164" height="1490" />
     </clipPath>
+    <pattern
+      id="hazardStripesPattern"
+      patternUnits="userSpaceOnUse"
+      width="8"
+      height="8"
+      patternTransform="rotate(45)"
+    >
+      <rect width="8" height="8" fill="#FBBF24" />
+      <rect width="4" height="8" fill="#000000" />
+    </pattern>
+    <filter
+      id="cloudBlur"
+      x="-50%"
+      y="-50%"
+      width="200%"
+      height="200%"
+    >
+      <feGaussianBlur stdDeviation="3" />
+    </filter>
     <linearGradient
       id="rocketCoreGradient"
       x1="0"

@@ -7,7 +7,6 @@ import Footer from "@/components/landing/components/footer";
 import HeroSection from "@/components/landing/components/herosection";
 import Navbar from "@/components/ui/navbar";
 import Search from "@/components/landing/components/search";
-import Testimonials from "@/components/landing/components/testimonials";
 
 export const metadata: Metadata = {
   title: "RuneIcons - Beautiful Icons for Your Next Project",
@@ -16,7 +15,7 @@ export const metadata: Metadata = {
 
 const Page = async () => {
   return (
-    <div className="relative grid min-h-screen w-full grid-cols-[1fr_auto_1fr] grid-rows-[auto_1px_auto_1px_auto_1px_auto_1px_auto_1px_auto_1px_auto_1px_auto] overflow-hidden bg-[#F5F5F5] font-(family-name:--font-inter-tight) dark:bg-background">
+    <div className="relative grid min-h-screen w-full grid-cols-[1fr_auto_1fr] grid-rows-[auto_1px_auto_1px_auto_1px_auto_1px_auto_1px_auto_1px_auto] overflow-hidden bg-[#F5F5F5] font-(family-name:--font-inter-tight) dark:bg-background">
       <div className="relative col-start-2 row-start-1 flex w-[95vw] max-w-[1440px] 2xl:max-w-[1800px] flex-col overflow-hidden md:w-[90vw] 2xl:w-[85vw]">
         <Navbar
           showBanner
@@ -58,30 +57,21 @@ const Page = async () => {
       <div className="pointer-events-none col-span-full col-start-1 row-start-8 border-b-2 border-dashed" />
 
       <div
-        id="testimonials"
-        className="col-start-2 row-start-9 flex w-[95vw] max-w-[1440px] 2xl:max-w-[1800px] scroll-mt-24 flex-col p-3 py-10 sm:p-6 sm:py-14 md:w-[90vw] 2xl:w-[85vw]"
-      >
-        <Testimonials />
-      </div>
-
-      <div className="pointer-events-none col-span-full col-start-1 row-start-10 border-b-2 border-dashed" />
-
-      <div
         id="faq"
-        className="col-start-2 row-start-11 flex w-[95vw] max-w-[1440px] 2xl:max-w-[1800px] scroll-mt-24 flex-col px-3 py-10 sm:px-6 sm:py-14 md:w-[90vw] 2xl:w-[85vw]"
+        className="col-start-2 row-start-9 flex w-[95vw] max-w-[1440px] 2xl:max-w-[1800px] scroll-mt-24 flex-col px-3 py-10 sm:px-6 sm:py-14 md:w-[90vw] 2xl:w-[85vw]"
       >
         <Faq />
       </div>
 
-      <div className="pointer-events-none col-span-full col-start-1 row-start-12 border-b-2 border-dashed" />
+      <div className="pointer-events-none col-span-full col-start-1 row-start-10 border-b-2 border-dashed" />
 
-      <div className="col-start-2 row-start-13 flex w-[95vw] max-w-[1440px] 2xl:max-w-[1800px] flex-col overflow-hidden p-3 py-10 sm:p-6 sm:py-14 md:w-[90vw] 2xl:w-[85vw]">
+      <div className="col-start-2 row-start-11 flex w-[95vw] max-w-[1440px] 2xl:max-w-[1800px] flex-col overflow-hidden p-3 py-10 sm:p-6 sm:py-14 md:w-[90vw] 2xl:w-[85vw]">
         <CTA />
       </div>
 
-      <div className="pointer-events-none col-span-full col-start-1 row-start-14 border-b-2 border-dashed" />
+      <div className="pointer-events-none col-span-full col-start-1 row-start-12 border-b-2 border-dashed" />
 
-      <div className="col-start-2 row-start-15 flex w-[95vw] max-w-[1440px] 2xl:max-w-[1800px] flex-col px-3 py-10 sm:px-6 sm:py-14 md:w-[90vw] 2xl:w-[85vw]">
+      <div className="col-start-2 row-start-13 flex w-[95vw] max-w-[1440px] 2xl:max-w-[1800px] flex-col px-3 py-10 sm:px-6 sm:py-14 md:w-[90vw] 2xl:w-[85vw]">
         <Footer />
       </div>
 

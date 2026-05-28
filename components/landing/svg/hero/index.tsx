@@ -4,13 +4,16 @@ import { useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
-import { toast } from "sonner";
 
 import {
+  CLOUDS,
+  CLOUDS_CFG,
   COUNTDOWN_TICKS,
   EASING,
   EMBERS,
+  LANDING_DUST,
   LAUNCH,
+  ROCKET_DETAILS,
   STATE_TRANSITION,
 } from "./constants";
 import HeroDefs from "./defs";
@@ -181,16 +184,64 @@ const HeroSvg = () => {
               let coreFlickerTl: gsap.core.Timeline | null = null;
               let plumeFlickerTl: gsap.core.Timeline | null = null;
               let haloFlickerTl: gsap.core.Timeline | null = null;
+              const cloudPuffTweens: gsap.core.Tween[] = [];
 
               const rocketTl = gsap.timeline({
                 delay: rocketLaunchDelay,
+                onStart: () => {
+                  const details =
+                    svgRef.current?.querySelector<SVGGElement>(".rocketDetails");
+                  if (details) details.classList.add("is-launching");
+                  if (fullMotion) {
+                    const shakeEls = ".rocketRivet, .rocketPorthole";
+                    const cycles = ROCKET_DETAILS.ignition.cycles;
+                    const stepDuration =
+                      ROCKET_DETAILS.ignition.duration / cycles;
+                    const shakeTl = gsap.timeline({
+                      onComplete: () => {
+                        gsap.set(shakeEls, { x: 0, y: 0 });
+                        if (details) {
+                          details.classList.remove("is-launching");
+                          details.classList.add("is-pulsing");
+                        }
+                      },
+                    });
+                    for (let i = 0; i < cycles; i++) {
+                      shakeTl.to(shakeEls, {
+                        x: gsap.utils.random(
+                          -ROCKET_DETAILS.ignition.amplitude,
+                          ROCKET_DETAILS.ignition.amplitude,
+                        ),
+                        y: gsap.utils.random(
+                          -ROCKET_DETAILS.ignition.amplitude,
+                          ROCKET_DETAILS.ignition.amplitude,
+                        ),
+                        duration: stepDuration,
+                        ease: ROCKET_DETAILS.ignition.ease,
+                      });
+                    }
+                  } else if (details) {
+                    details.classList.remove("is-launching");
+                    details.classList.add("is-pulsing");
+                  }
+                },
                 onComplete: () => {
                   rocketEl.style.willChange = "";
                   setLaunchButtonState("relaunch");
                   launchTriggered = false;
+                  const details =
+                    svgRef.current?.querySelector<SVGGElement>(".rocketDetails");
+                  if (details) {
+                    details.classList.remove("is-launching");
+                    details.classList.remove("is-pulsing");
+                  }
+                  cloudPuffTweens.forEach((tw) => tw.kill());
+                  cloudPuffTweens.length = 0;
+                  if (btnHit) {
+                    btnHit.style.cursor = "pointer";
+                    btnHit.style.pointerEvents = "auto";
+                  }
                   if (btn) {
-                    btn.style.cursor = "pointer";
-                    btn.style.pointerEvents = "auto";
                     gsap.to(btn, {
                       y: 0,
                       duration: 0.28,
@@ -380,6 +431,89 @@ const HeroSvg = () => {
                     LAUNCH.ignition,
                   );
                 }
+              }
+
+              const cloudPuffEls =
+                svgRef.current?.querySelectorAll<SVGCircleElement>(
+                  ".cloudPuff",
+                );
+              const cloudSilhouetteEls =
+                svgRef.current?.querySelectorAll<SVGPathElement>(
+                  ".cloudSilhouette",
+                );
+
+              if (cloudPuffEls && cloudPuffEls.length) {
+                gsap.killTweensOf(cloudPuffEls);
+                gsap.set(cloudPuffEls, {
+                  opacity: 0,
+                  x: 0,
+                  y: 0,
+                  scale: 0.4,
+                  transformOrigin: "50% 50%",
+                });
+              }
+              if (cloudSilhouetteEls && cloudSilhouetteEls.length) {
+                gsap.killTweensOf(cloudSilhouetteEls);
+                gsap.set(cloudSilhouetteEls, {
+                  opacity: 0,
+                  scale: 0.5,
+                  transformOrigin: "50% 50%",
+                });
+
+                rocketTl.to(
+                  cloudSilhouetteEls,
+                  {
+                    keyframes: [
+                      {
+                        opacity: 0.4,
+                        scale: 1.2,
+                        duration: 0.5,
+                        ease: "power2.out",
+                      },
+                      {
+                        opacity: 0,
+                        duration: 1.2,
+                        ease: "power2.in",
+                      },
+                    ],
+                    stagger: 0.1,
+                  },
+                  LAUNCH.ignition,
+                );
+              }
+
+              if (fullMotion && cloudPuffEls && cloudPuffEls.length) {
+                rocketTl.call(
+                  () => {
+                    CLOUDS.forEach((c, i) => {
+                      const el = cloudPuffEls[i];
+                      if (!el) return;
+                      cloudPuffTweens.push(
+                        gsap.to(el, {
+                          keyframes: [
+                            {
+                              opacity: CLOUDS_CFG.peakOpacity,
+                              scale: CLOUDS_CFG.peakScale,
+                              duration: 0.4,
+                              ease: "power2.out",
+                            },
+                            {
+                              x: c.driftX,
+                              y: c.driftY,
+                              opacity: 0,
+                              scale: CLOUDS_CFG.peakScale * 1.2,
+                              duration: c.cycle,
+                              ease: "power2.in",
+                            },
+                          ],
+                          delay: c.delay,
+                        }),
+                      );
+                    });
+                  },
+                  [],
+                  LAUNCH.ignition,
+                );
               }
 
               if (flameEls.length) {
@@ -652,23 +786,29 @@ const HeroSvg = () => {
         );
         gsap.delayedCall(introCompleteAt, () => {
           setLabelText("READY");
-          const greenSource = document.documentElement.classList.contains(
-            "dark",
-          )
-            ? "#DD3AA1"
-            : "#22C55E";
+          const isDark = document.documentElement.classList.contains("dark");
+          const greenSource = isDark ? "#DD3AA1" : "#22C55E";
           gsap.to(".buildingCubeFace", {
             fill: greenSource,
             duration: 0.45,
             ease: "power2.out",
           });
+          gsap.utils
+            .toArray<SVGPathElement>(".rocketPorthole")
+            .forEach((el, i) => {
+              gsap.delayedCall(i * ROCKET_DETAILS.ready.stagger, () =>
+                el.classList.add("is-ready"),
+              );
+            });
         });
       } else {
         setLabelText("READY");
-        const greenSource = document.documentElement.classList.contains("dark")
-          ? "#DD3AA1"
-          : "#22C55E";
+        const isDark = document.documentElement.classList.contains("dark");
+        const greenSource = isDark ? "#DD3AA1" : "#22C55E";
         gsap.set(".buildingCubeFace", { fill: greenSource });
+        gsap.utils
+          .toArray<SVGPathElement>(".rocketPorthole")
+          .forEach((el) => el.classList.add("is-ready"));
       }
 
       if (fullMotion) {
@@ -755,33 +895,34 @@ const HeroSvg = () => {
       }
 
       const btn = svgRef.current?.querySelector<SVGGElement>(".LaunchButton");
-      if (!btn) return;
+      const btnHit = svgRef.current?.querySelector<SVGGElement>(".LaunchButtonHit");
+      if (!btn || !btnHit) return;
 
       gsap.set(btn, { y: 0 });
-      btn.style.cursor = "pointer";
+      btnHit.style.cursor = "pointer";
 
-      btn.addEventListener("mouseenter", () => {
+      btnHit.addEventListener("mouseenter", () => {
         if (launchTriggered) return;
         if (fullMotion) {
           gsap.to(btn, { y: 4, duration: 0.18, ease: "power2.out" });
         }
       });
 
-      btn.addEventListener("mouseleave", () => {
+      btnHit.addEventListener("mouseleave", () => {
         if (launchTriggered) return;
         if (fullMotion) {
           gsap.to(btn, { y: 0, duration: 0.22, ease: "power2.out" });
         }
       });
 
-      btn.addEventListener("mousedown", () => {
+      btnHit.addEventListener("mousedown", () => {
         if (launchTriggered) return;
         if (fullMotion) {
           gsap.to(btn, { y: 8, duration: 0.1, ease: "power2.out" });
         }
       });
 
-      btn.addEventListener("mouseup", () => {
+      btnHit.addEventListener("mouseup", () => {
         if (launchTriggered) return;
         if (isResettingRef.current) return;
 
@@ -798,16 +939,24 @@ const HeroSvg = () => {
           const now = performance.now();
           if (now - lastBlockedToastAt > 1200) {
             lastBlockedToastAt = now;
-            toast.error("Launch sequence still syncing", {
-              description: "Coolant rings are still locking in. Give it a sec before ignition.",
+            gsap.killTweensOf(".hazardStripes");
+            gsap.to(".hazardStripes", {
+              keyframes: [
+                { opacity: 0.9, duration: 0.18, ease: "power2.out" },
+                { opacity: 0.4, duration: 0.22, ease: "sine.inOut" },
+                { opacity: 0.9, duration: 0.22, ease: "sine.inOut" },
+                { opacity: 0.4, duration: 0.22, ease: "sine.inOut" },
+                { opacity: 0.9, duration: 0.22, ease: "sine.inOut" },
+                { opacity: 0, duration: 0.2, ease: "power2.out" },
+              ],
             });
           }
           return;
         }
 
         launchTriggered = true;
-        btn.style.cursor = "not-allowed";
-        btn.style.pointerEvents = "none";
+        btnHit.style.cursor = "not-allowed";
+        btnHit.style.pointerEvents = "none";
 
         fireBeams();
       });
@@ -898,6 +1047,10 @@ const HeroSvg = () => {
 
     gsap.killTweensOf(rocketEl);
 
+    const detailsForDescent =
+      svgRef.current?.querySelector<SVGGElement>(".rocketDetails");
+    if (detailsForDescent) detailsForDescent.classList.add("is-pulsing");
+
     gsap
       .timeline({
         onComplete: () => {
@@ -907,6 +1060,29 @@ const HeroSvg = () => {
           }
           if (flameEls.length) {
             gsap.set(flameEls, { opacity: 0, scaleY: 1, scale: 1 });
+          }
+          const dustEls =
+            svgRef.current?.querySelectorAll<SVGCircleElement>(".dustPuff");
+          if (dustEls && dustEls.length) {
+            gsap.killTweensOf(dustEls);
+            gsap.set(dustEls, {
+              opacity: 0,
+              x: 0,
+              y: 0,
+              scale: 0.3,
+            });
+          }
+          gsap.set(".rocketRivet, .rocketPorthole", {
+            x: 0,
+            y: 0,
+            clearProps: "opacity",
+          });
+          const details =
+            svgRef.current?.querySelector<SVGGElement>(".rocketDetails");
+          if (details) {
+            details.classList.remove("is-launching");
+            details.classList.remove("is-pulsing");
+            details.classList.remove("is-settling");
           }
           setIsResetting(false);
           setAnimationRun((v) => v + 1);
@@ -944,6 +1120,16 @@ const HeroSvg = () => {
           opacity: 0.2,
           duration: 0.3,
           ease: "power2.out",
+          overwrite: "auto",
+        },
+        0,
+      )
+      .to(
+        ".rocketPorthole",
+        {
+          opacity: ROCKET_DETAILS.descent.dimOpacity,
+          duration: ROCKET_DETAILS.descent.duration,
+          ease: ROCKET_DETAILS.descent.ease,
           overwrite: "auto",
         },
         0,
@@ -1015,6 +1201,80 @@ const HeroSvg = () => {
           },
         },
         1.75,
+      )
+      .call(
+        () => {
+          const dustEls =
+            svgRef.current?.querySelectorAll<SVGCircleElement>(".dustPuff");
+          if (!dustEls || !dustEls.length) return;
+          gsap.killTweensOf(dustEls);
+          gsap.set(dustEls, {
+            opacity: 0,
+            x: 0,
+            y: 0,
+            scale: 0.3,
+            transformOrigin: "50% 50%",
+          });
+          if (!fullMotion) return;
+          LANDING_DUST.forEach((d, i) => {
+            const el = dustEls[i];
+            if (!el) return;
+            gsap.to(el, {
+              keyframes: [
+                {
+                  opacity: 0.4,
+                  scale: 1.0,
+                  duration: 0.18,
+                  ease: "power2.out",
+                },
+                {
+                  x: d.driftX,
+                  y: d.driftY,
+                  opacity: 0,
+                  scale: 1.3,
+                  duration: 0.35,
+                  ease: "power2.in",
+                },
+              ],
+              delay: d.delay,
+            });
+          });
+        },
+        [],
+        ROCKET_DETAILS.settle.startAt - 0.1,
+      )
+      .call(
+        () => {
+          const detailsEl =
+            svgRef.current?.querySelector<SVGGElement>(".rocketDetails");
+          if (!detailsEl) return;
+          const settleEls = gsap.utils.toArray<SVGElement>(
+            ".rocketRivet, .rocketPorthole",
+          );
+          settleEls.forEach((el) => {
+            const current = parseFloat(
+              window.getComputedStyle(el).opacity || "1",
+            );
+            el.style.opacity = String(current);
+          });
+          detailsEl.classList.remove("is-pulsing");
+          detailsEl.classList.add("is-settling");
+          gsap.utils
+            .toArray<SVGPathElement>(".rocketPorthole")
+            .forEach((el) => el.classList.remove("is-ready"));
+        },
+        [],
+        ROCKET_DETAILS.settle.startAt,
+      )
+      .to(
+        ".rocketRivet, .rocketPorthole",
+        {
+          opacity: ROCKET_DETAILS.settle.targetOpacity,
+          duration: ROCKET_DETAILS.settle.duration,
+          ease: ROCKET_DETAILS.settle.ease,
+          overwrite: "auto",
+        },
+        ROCKET_DETAILS.settle.startAt,
       )
       .to(rocketEl, {
         y: 8,

@@ -1,20 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import {
-  BlossomColorPicker,
-} from '@/components/icon-page/blossom-vendor/BlossomColorPicker';
-import { blossomPickerStyles } from '@/components/icon-page/blossom-vendor/styles';
-import type { BlossomColorPickerColor } from '@/components/icon-page/blossom-vendor/types';
-
-let stylesInjected = false;
-function injectStyles(): void {
-  if (stylesInjected || typeof document === 'undefined') return;
-  const style = document.createElement('style');
-  style.textContent = blossomPickerStyles;
-  document.head.appendChild(style);
-  stylesInjected = true;
-}
+import { useState } from 'react';
+import { BlossomColorPicker } from '@/components/icon-page/blossom-picker/blossom-picker';
+import { HexColor } from '@/lib/color-utils';
 
 function hexToRgbString(hex: string): string {
   const cleaned = hex.replace('#', '');
@@ -24,86 +12,31 @@ function hexToRgbString(hex: string): string {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-function PickerDemo({
-  id,
-  label,
-  colors,
-  sliderPosition,
-  onColorChange,
-  showAlphaSlider = true,
-  coreSize,
-  petalSize,
-}: {
-  id: string;
-  label: string;
-  colors?: string[] | { h: number; s: number; l: number }[];
-  sliderPosition?: 'top' | 'bottom' | 'left' | 'right';
-  onColorChange: (color: BlossomColorPickerColor) => void;
-  showAlphaSlider?: boolean;
-  coreSize?: number;
-  petalSize?: number;
-}) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const instanceRef = useRef<BlossomColorPicker | null>(null);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    injectStyles();
-
-    const instance = new BlossomColorPicker(container, {
-      colors,
-      onChange: onColorChange,
-      showAlphaSlider,
-      sliderPosition,
-      coreSize,
-      petalSize,
-      collapsible: true,
-    });
-
-    instanceRef.current = instance;
-
-    return () => {
-      instance.destroy();
-      instanceRef.current = null;
-    };
-  }, [id]);
-
-  return (
-    <div className="flex flex-col items-center gap-3">
-      <span className="text-sm font-medium text-muted-foreground">{label}</span>
-      <div ref={containerRef} className="inline-block" />
-    </div>
-  );
-}
-
 export default function BlossomDemoPage() {
-  const [defaultColor, setDefaultColor] = useState<BlossomColorPickerColor | null>(null);
+  const [defaultColor, setDefaultColor] = useState<HexColor>('#007aff');
 
-  const colorCard = (color: BlossomColorPickerColor | null) => {
-    if (!color) return <span className="text-muted-foreground text-sm">Pick a color...</span>;
+  const colorCard = (hex: HexColor | null) => {
+    if (!hex) {
+      return (
+        <span className="text-muted-foreground text-sm">Pick a color...</span>
+      );
+    }
+
     return (
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-3">
           <div
             className="w-10 h-10 rounded-lg border border-border shadow-sm"
-            style={{ backgroundColor: color.hex }}
+            style={{ backgroundColor: hex }}
           />
           <div className="flex flex-col gap-0.5">
             <span className="font-mono text-xs text-foreground font-semibold">
-              {color.hex.toUpperCase()}
+              {hex.toUpperCase()}
             </span>
             <span className="font-mono text-xs text-muted-foreground">
-              {hexToRgbString(color.hex)}
+              {hexToRgbString(hex)}
             </span>
           </div>
-        </div>
-        <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-          <div className="bg-muted rounded px-2 py-1">{color.hsl}</div>
-          <div className="bg-muted rounded px-2 py-1">{color.hsla}</div>
-          <div className="bg-muted rounded px-2 py-1">{color.rgb}</div>
-          <div className="bg-muted rounded px-2 py-1">{color.rgba}</div>
         </div>
       </div>
     );
@@ -117,16 +50,13 @@ export default function BlossomDemoPage() {
             Blossom Color Picker
           </h1>
           <p className="text-muted-foreground max-w-lg mx-auto">
-            A radial, petal-based color picker. Click the center to bloom, select a petal, then drag the arc slider to adjust lightness. Hover to expand when configured.
+            A radial, petal-based color picker. Click the center to bloom,
+            select a petal, then drag the arc slider to adjust lightness.
           </p>
         </div>
 
         <div className="flex justify-center mb-10">
-          <PickerDemo
-            id="default"
-            label="Default Palette"
-            onColorChange={setDefaultColor}
-          />
+          <BlossomColorPicker value={defaultColor} onChange={setDefaultColor} />
         </div>
 
         <div className="rounded-xl border border-border bg-card p-5">

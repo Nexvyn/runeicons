@@ -11,8 +11,17 @@ import Navbar from "@/components/ui/navbar";
 
 export default function SponsorContent() {
   const [selectedAmount, setSelectedAmount] = useState(5);
+  const [customMode, setCustomMode] = useState(false);
 
   const checkout = getCheckoutForAmount(selectedAmount);
+
+  const stage: 1 | 2 | 3 | 4 = customMode
+    ? 4
+    : selectedAmount === 100
+      ? 3
+      : selectedAmount === 20
+        ? 2
+        : 1;
 
   return (
     <div className="relative grid min-h-screen w-full grid-cols-[1fr_auto_1fr] grid-rows-[auto_1px_1fr] overflow-hidden bg-[#F5F5F5] font-(family-name:--font-inter-tight) dark:bg-background">
@@ -28,7 +37,7 @@ export default function SponsorContent() {
 
       <div className="pointer-events-none col-span-full col-start-1 row-start-2 border-b-2 border-dashed" />
 
-      <div className="col-start-2 row-start-3 flex w-[95vw] max-w-[1440px] flex-col items-center px-3 pt-16 pb-14 sm:px-6 sm:pt-20 sm:pb-16 md:w-[90vw] 2xl:w-[85vw]">
+      <div className="col-start-2 row-start-3 flex w-[95vw] max-w-[1440px] flex-col items-center justify-center px-3 py-14 sm:px-6 sm:py-16 md:w-[90vw] 2xl:w-[85vw]">
         <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -86,7 +95,9 @@ export default function SponsorContent() {
             <div className="px-6 pt-6 pb-5 sm:px-8 sm:pt-8 sm:pb-6">
               <AmountSelector
                 selectedAmount={selectedAmount}
+                customMode={customMode}
                 onAmountChange={setSelectedAmount}
+                onCustomModeChange={setCustomMode}
               />
             </div>
 
@@ -97,6 +108,7 @@ export default function SponsorContent() {
             <div className="w-full">
               <CertificateCard
                 amount={selectedAmount}
+                stage={stage}
                 checkout={checkout}
                 flush
               />

@@ -45,12 +45,23 @@ export const EMBERS_CFG = {
 } as const;
 
 const round3 = (v: number) => Math.round(v * 1000) / 1000;
-const emberRand = (i: number, n: number) => {
+const seededRand = (i: number, n: number) => {
   const v = Math.sin(i * 12.9898 + n * 78.233) * 43758.5453;
   return round3(((v % 1) + 1) % 1);
 };
+const emberRand = seededRand;
 
 export const NOZZLE_COLUMNS = [657, 684, 710] as const;
+
+export const ROCKET_DETAILS = {
+  idle: { breathDuration: 3.2, opacityMin: 0.88, opacityMax: 1 },
+  ready: { color: "#84A2FF", stagger: 0.11, duration: 0.32, ease: "power2.out" },
+  ignition: { amplitude: 0.6, duration: 0.32, cycles: 9, ease: "sine.inOut" },
+  descent: { dimOpacity: 0.35, duration: 0.4, ease: "power2.out" },
+  settle: { startAt: 1.8, duration: 0.4, targetOpacity: 0.88, ease: "power2.out" },
+  returned: { color: "transparent", duration: 0.32, ease: "power2.out" },
+  darkReadyColor: "#7B5D00",
+} as const;
 
 export const EMBERS = Array.from({ length: EMBERS_CFG.count }, (_, i) => {
   const isOuter = i >= EMBERS_CFG.coreCount;
@@ -79,3 +90,53 @@ export const EMBERS = Array.from({ length: EMBERS_CFG.count }, (_, i) => {
     repeatDelay: round3(0.05 + (i % 3) * 0.07),
   };
 });
+
+export const CLOUDS_CFG = {
+  count: 10,
+  spawnStagger: 0.05,
+  spawnY: 488,
+  spawnXMin: 590,
+  spawnXMax: 780,
+  radiusMin: 14,
+  radiusMax: 26,
+  cycleMin: 1.0,
+  cycleMax: 1.8,
+  driftXJitter: 60,
+  driftYMin: -28,
+  driftYMax: -8,
+  peakOpacity: 0.55,
+  peakScale: 1.6,
+} as const;
+
+export const CLOUDS = Array.from({ length: CLOUDS_CFG.count }, (_, i) => ({
+  id: `cloud-${i}`,
+  cx: round3(
+    CLOUDS_CFG.spawnXMin +
+      seededRand(i + 100, 1) * (CLOUDS_CFG.spawnXMax - CLOUDS_CFG.spawnXMin),
+  ),
+  cy: round3(CLOUDS_CFG.spawnY + (seededRand(i + 100, 2) - 0.5) * 12),
+  radius: round3(
+    CLOUDS_CFG.radiusMin +
+      seededRand(i + 100, 3) * (CLOUDS_CFG.radiusMax - CLOUDS_CFG.radiusMin),
+  ),
+  delay: round3(i * CLOUDS_CFG.spawnStagger),
+  cycle: round3(
+    CLOUDS_CFG.cycleMin +
+      seededRand(i + 100, 4) * (CLOUDS_CFG.cycleMax - CLOUDS_CFG.cycleMin),
+  ),
+  driftX: round3((seededRand(i + 100, 5) - 0.5) * 2 * CLOUDS_CFG.driftXJitter),
+  driftY: round3(
+    CLOUDS_CFG.driftYMin +
+      seededRand(i + 100, 6) * (CLOUDS_CFG.driftYMax - CLOUDS_CFG.driftYMin),
+  ),
+}));
+
+export const LANDING_DUST = Array.from({ length: 10 }, (_, i) => ({
+  id: `dust-${i}`,
+  cx: round3(600 + seededRand(i + 200, 1) * 170),
+  cy: round3(494 + (seededRand(i + 200, 2) - 0.5) * 10),
+  radius: round3(10 + seededRand(i + 200, 3) * 9),
+  delay: round3(i * 0.03),
+  driftX: round3((seededRand(i + 200, 4) - 0.5) * 50),
+  driftY: round3(-10 - seededRand(i + 200, 5) * 14),
+}));

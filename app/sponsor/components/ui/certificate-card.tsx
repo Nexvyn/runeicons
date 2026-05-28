@@ -9,12 +9,14 @@ import { Button } from "@/components/ui/button";
 
 interface CertificateCardProps {
   amount: number;
+  stage?: 1 | 2 | 3 | 4;
   flush?: boolean;
   checkout?: { productId: string; units: number } | null;
 }
 
 export function CertificateCard({
   amount,
+  stage = 1,
   flush = false,
   checkout = null,
 }: CertificateCardProps) {
@@ -45,7 +47,7 @@ export function CertificateCard({
       <div className="relative flex flex-col gap-5 overflow-hidden px-6 py-6 sm:flex-row sm:items-center sm:gap-10 sm:px-10 sm:py-10">
         <div className="relative flex h-[160px] w-full shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border bg-white sm:h-[200px] sm:w-[200px]">
           <div className="relative flex h-28 w-28 items-center justify-center sm:h-32 sm:w-32 [&>svg]:h-full [&>svg]:w-full">
-            <Mascot />
+            <Mascot stage={stage} />
           </div>
         </div>
 

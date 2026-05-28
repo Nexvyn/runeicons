@@ -20,6 +20,7 @@ interface EditorIconTrayProps {
   selectedAssetId: string | null;
   onAssetSelect: (asset: EditorAssetSummary) => void;
   onRemoveAsset: (assetId: string) => void;
+  onCreateBlank?: () => void;
 }
 
 export const EditorIconTray = memo(function EditorIconTray({
@@ -27,6 +28,7 @@ export const EditorIconTray = memo(function EditorIconTray({
   selectedAssetId,
   onAssetSelect,
   onRemoveAsset,
+  onCreateBlank,
 }: EditorIconTrayProps) {
   const emptySlots = Math.max(0, 6 - assets.length - 1);
 
@@ -88,9 +90,21 @@ export const EditorIconTray = memo(function EditorIconTray({
 
       {assets.length < 6 ? (
         <div className="flex items-center justify-center">
-          <div className="w-11 h-11 rounded-lg border border-dashed border-border/30 flex items-center justify-center text-muted-foreground/20">
+          <button
+            type="button"
+            onClick={onCreateBlank}
+            disabled={!onCreateBlank}
+            aria-label="Create blank icon"
+            className={cn(
+              "w-11 h-11 rounded-lg border border-dashed flex items-center justify-center",
+              "transition-[colors,transform] duration-150 ease-out",
+              onCreateBlank
+                ? "border-border/40 text-muted-foreground/40 hover:border-border hover:text-foreground hover:bg-muted/20 hover:scale-105 active:scale-[0.97] cursor-pointer"
+                : "border-border/30 text-muted-foreground/20",
+            )}
+          >
             <Plus className="w-4 h-4" />
-          </div>
+          </button>
         </div>
       ) : null}
 

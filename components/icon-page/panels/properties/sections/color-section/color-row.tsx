@@ -96,8 +96,7 @@ export function ColorRow({
             <span className="text-[9px] text-foreground/30 select-none mt-[1px]">%</span>
           </div>
         )}
-        <div className="relative flex items-center justify-center h-7 w-7 rounded-full bg-muted/10 border border-border/80 transition-transform active:scale-[0.96] cursor-pointer">
-          <div className="absolute inset-0 rounded-full" />
+        <div className="relative flex items-center justify-center h-7 w-7">
           <BlossomColorPicker
             value={value}
             onChange={onChange}
