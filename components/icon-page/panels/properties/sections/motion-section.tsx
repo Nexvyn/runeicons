@@ -19,7 +19,7 @@ import { Section } from "../components/Section";
 
 type EasingId = (typeof EASING_PRESETS)[number]["id"];
 
-const EASING_QUICK = EASING_PRESETS.filter((e) => e.id !== "linear" && e.id !== "ease-in" && e.id !== "back-in" && e.id !== "custom");
+const EASING_SIMPLE = EASING_PRESETS.filter((e) => e.id === "ease-in" || e.id === "ease-out" || e.id === "ease-in-out" || e.id === "custom");
 
 const INTERACTION_MODES = [
   { id: "animate", label: "Animate" },
@@ -189,12 +189,8 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
       type: "draw" as const,
       label: "Draw",
       preview: (
-        <svg viewBox="0 0 32 32" width="32" height="32" fill="none" strokeLinecap="round">
-          <path d="M4 22 C4 22 9 6 16 6 C23 6 28 22 28 22" stroke="currentColor" strokeWidth="1.5" strokeOpacity="0.12" />
-          <path d="M4 22 C4 22 9 6 16 6 C23 6 28 22 28 22" stroke="currentColor" strokeWidth="1.5"
-            style={{ strokeDasharray: 56, strokeDashoffset: 56, animation: "mta-draw 1.8s ease-in-out infinite" }} />
-          <circle cx="4" cy="22" r="2.2" fill="currentColor"
-            style={{ animation: "mta-draw-dot 1.8s ease-in-out infinite" }} />
+        <svg viewBox="0 0 100 100" width="32" height="32" className="scale-[0.6] origin-center">
+          <path fill="currentColor" d="m77.3 1.6c-2.7 0-5.3 1.9-6.2 4.9h-41.7v-3.7c0-0.7-0.6-1.3-1.3-1.3h-10.5c-0.7 0-1.5 0.6-1.5 1.4v10c0 0.7 0.6 1.4 1.4 1.4h3.7v71.4h-3.7c-0.7 0-1.4 0.7-1.4 1.4v10.4c0 0.8 0.6 1.4 1.4 1.4h10.5c0.8 0 1.4-0.6 1.4-1.4v-10.3c0-0.8-0.6-1.5-1.4-1.5h-3.8v-71.4h3.8c0.8 0 1.4-0.7 1.4-1.4v-3.7h9.9c14.3 0 29.9 3.7 31.6 20.1 0.7 7.6-2 20.6-17.2 23.7-2.2 0.5-4.4 0.7-6.8 0.7-0.6-2.8-3-5.3-6.3-5.3-3.2 0-6.4 2.8-6.4 6.5 0.1 3.7 2.8 6.3 6.4 6.3 1 0 2-0.2 3.1-0.7l21.3 26.2c-0.1 0.2-0.1 0.3-0.1 0.5v10.1c0 0.8 0.6 1.5 1.4 1.5h10.5c0.8 0 1.4-0.6 1.4-1.4v-10.2c0-0.8-0.6-1.5-1.4-1.5h-9.1l-22.1-27c0.6-0.7 1-1.5 1.2-2.3 2.5 0.1 4.8-0.1 7.3-0.6 12.8-2.2 19.7-12 19.6-24.4-0.1-8.8-5.5-17.8-16.8-22.2h14.1c0.6 2.6 3 4.9 6.2 4.9 3.1 0.1 6.6-2.4 6.6-6.3 0-3.2-2.5-6.2-6.5-6.2zm-50.7 94.5h-7.8v-7.6h7.8v7.6zm0-84.5h-7.8v-7.6h7.8v7.6zm14 46.9c-2.1 0-3.7-1.6-3.7-3.6 0-1.8 1.6-3.8 3.7-3.8 2 0 3.7 1.5 3.7 3.8 0 2-1.6 3.6-3.7 3.6zm34.9 30v7.5h-7.9v-7.5h7.9zm1.8-77.1c-2 0-3.7-1.7-3.7-3.6s1.7-3.7 3.7-3.7c1.9 0 3.6 1.6 3.6 3.6-0.1 2-1.6 3.7-3.6 3.7z" />
         </svg>
       ),
     },
@@ -202,10 +198,15 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
       type: "stroke" as const,
       label: "Stroke",
       preview: (
-        <svg viewBox="0 0 32 32" width="32" height="32" fill="none" strokeLinecap="round">
-          <path d="M4 22 C8 22 10 10 16 10 C22 10 24 22 28 22" stroke="currentColor" strokeWidth="1.5" strokeOpacity="0.12" />
-          <path d="M4 22 C8 22 10 10 16 10 C22 10 24 22 28 22" stroke="currentColor"
-            style={{ animation: "mta-stroke 1.4s ease-in-out infinite" }} />
+        <svg viewBox="0 0 150 124.2" width="40" height="40">
+          <path fill="currentColor" d="m88.2 65.1c-1.1-0.1-2.1 0.5-2.5 1.3-1.7 21.2-20.7 45.2-49.5 45.2h-18.2c-0.9-3.5-4-6.6-8-6.6-4.5 0-7.8 3.5-8 8.1 0 4.5 3.5 8.7 8 8.7 3.8 0.1 7.2-2.2 8.1-6.4h18.1c27.5 0 49.2-19.6 52.8-48.4 0.1-0.9-0.2-1.7-0.8-1.9zm-78.2 53.4c-2.6 0-4.6-2.1-4.6-4.7s2-5.3 4.6-5.3 4.7 2.1 4.7 4.7c-0.1 2.6-2.1 5.3-4.7 5.3z" />
+          <path fill="currentColor" d="m77.5 99.8c-0.4 0.2-0.7 0.6-0.6 0.9l2.8 10.8c0.2 0.7 1 0.9 1.4 0.4l8-7.8c0.4-0.4 0.2-1.3-0.5-1.3l-11.1-3z" />
+          <path fill="currentColor" d="m140.2 2c-4.2 0-7.8 3.2-8 7.6s3.2 9.5 8 9.7c4.4 0.2 7.7-3.2 7.9-8 0.2-4.4-3.5-9.1-7.9-9.3zm-0.1 13.5c-2.6 0-4.7-2-4.7-4.6s2.1-5.3 4.7-5.3 4.6 2.1 4.6 4.7c0 2.5-2 5.2-4.6 5.2z" />
+          <path fill="currentColor" d="m118.6 15c2.1-0.6 4.7-1.2 6.8-1.4 0.8-0.1 1.7-1 1.6-1.9-0.1-0.8-0.9-1.7-1.7-1.7-2.5 0.3-5 0.8-7.6 1.5-0.8 0.4-1.4 1.3-1 2.3 0.3 0.8 1 1.3 1.9 1.2z" />
+          <path fill="currentColor" d="m104.1 22.1c0.6 0.3 1 0.3 1.2 0 1.5-1.1 3.7-2.5 5.8-3.6 0.8-0.3 1.2-1.3 0.8-2.4-0.3-0.8-1.3-1.5-2.3-1-2.2 1-4.1 2.3-6.6 4-0.9 1.3-0.6 2.7 1.1 3z" />
+          <path fill="currentColor" d="m93.6 32.7c0.6 0 1.4-0.3 1.7-1 1-1.7 2.3-3.5 3.6-4.6 0.7-0.7 0.7-1.6 0-2.3-0.6-0.7-1.8-0.7-2.5 0-1.4 1.7-2.8 3.4-4.2 5.6-0.6 1.1 0.2 2.3 1.4 2.3z" />
+          <path fill="currentColor" d="m88.4 46.9c0.8 0 1.5-0.5 1.8-1.3 0.4-2.2 0.9-4.3 1.7-6.7 0-0.8-0.5-2.1-1.7-2.3-0.8 0-1.4 0.4-1.6 1-0.8 2.2-1.4 4.5-1.9 7.4 0 1.1 0.9 1.9 1.7 1.9z" />
+          <path fill="currentColor" d="m87.6 61.3c1 0 1.7-0.8 1.7-1.5 0-2.2 0-4.3 0.1-6.8 0-0.8-0.6-1.7-1.8-1.7-0.9 0-1.7 0.8-1.7 1.7-0.1 2.5-0.2 4.6-0.2 6.8 0 0.7 0.9 1.5 1.9 1.5z" />
         </svg>
       ),
     },
@@ -213,12 +214,9 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
       type: "bounce" as const,
       label: "Bounce",
       preview: (
-        <svg viewBox="0 0 32 32" width="32" height="32" fill="none" strokeLinecap="round">
-          <line x1="4" y1="26" x2="28" y2="26" stroke="currentColor" strokeWidth="1" strokeOpacity="0.15" />
-          <circle cx="16" cy="16" r="3.5" fill="currentColor"
-            style={{ animation: "mta-bounce 1s ease-in-out infinite", transformOrigin: "16px 22.5px" }} />
-          <ellipse cx="16" cy="26.5" rx="3.5" ry="1" fill="currentColor" fillOpacity="0.2"
-            style={{ animation: "mta-bounce-shadow 1s ease-in-out infinite" }} />
+        <svg viewBox="0 0 140 99" width="32" height="32">
+          <path fill="currentColor" d="m106.4 16.9c-6.2 0.9-11.4 5.6-15.1 9.9-4.3 5.1-7.4 10.9-9.8 16.9-4.1 10.3-6.9 22.4-8.4 35.3-2.3-7.6-5.8-15.1-10.7-21.1-5.7-6.8-13.6-12.6-22.8-12.5-9.4-0.1-17 4.6-22.5 11.3-4 4.9-7.5 10-9.6 15.9-1.9 5.4-2.9 11.8-2.8 19.6 0.2 2.1 3.3 2.2 3.4 0 0.1-5.1 0.3-10.1 1.8-15.1 1.6-5.1 4.2-9.9 7.2-14.2 4.5-6.4 11.6-12.2 19.3-13.6 4.7-0.7 8.7-0.3 13 1.7 8.2 3.6 14 11.2 17.6 18.9 2.8 6 4.7 13 5.4 19.5 0.1 1 0.1 3.9 2.5 3.7 1.5-0.1 1.1-1.4 1-1.6 0.2-11.9 4.6-35.9 9.6-47.6 3.3-7.7 10.4-20.9 21.1-24 0.8 0.1 1.9-0.3 1.7-0.4 0.9-1.1 0.1-3-1.9-2.6z" />
+          <path fill="currentColor" d="m123.8 5.2c-6.1-0.3-12.1 4.3-12.3 11.3-0.2 7.1 5.4 12.4 12.3 12.6 6.2 0.1 11.8-5 11.7-11.8 0-6.6-5.1-11.9-11.7-12.1z" />
         </svg>
       ),
     },
@@ -226,13 +224,8 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
       type: "shake" as const,
       label: "Shake",
       preview: (
-        <svg viewBox="0 0 32 32" width="32" height="32" fill="none" strokeLinecap="round">
-          <rect x="13" y="13" width="6" height="6" rx="1.5" fill="currentColor"
-            style={{ animation: "mta-shake 0.55s ease-in-out infinite", transformOrigin: "16px 16px" }} />
-          <line x1="5" y1="16" x2="9" y2="16" stroke="currentColor" strokeWidth="1" strokeOpacity="0.2"
-            style={{ animation: "mta-shake-trail-l 0.55s ease-in-out infinite" }} />
-          <line x1="23" y1="16" x2="27" y2="16" stroke="currentColor" strokeWidth="1" strokeOpacity="0.2"
-            style={{ animation: "mta-shake-trail-r 0.55s ease-in-out infinite" }} />
+        <svg viewBox="0 0 427.183 427.183" width="32" height="32" className="scale-[0.6] origin-center">
+          <path fill="currentColor" d="M366.214,129.976h-21.621V57.313c0-24.708-20.102-44.809-44.81-44.809c-13.976,0-26.475,6.435-34.698,16.493 C258.68,12.07,242.31,0,223.167,0c-19.277,0-35.747,12.236-42.058,29.348c-8.225-9.96-20.664-16.318-34.56-16.318 c-24.708,0-44.809,20.101-44.809,44.809v0.563c-8.125-8.198-19.383-13.285-31.81-13.285c-24.708,0-44.809,20.101-44.809,44.809 v139.655c0,55.446,18.966,109.714,53.454,153.087v38.013c0,3.59,2.91,6.5,6.5,6.5s6.5-2.91,6.5-6.5v-40.3 c0-1.491-0.513-2.936-1.451-4.094c-33.534-41.359-52.003-93.46-52.003-146.707v-33.708c8.125,8.198,19.382,13.285,31.809,13.285 c16.71,0,31.303-9.2,39.006-22.795c7.992,12.324,21.861,20.5,37.612,20.5c16.212,0,30.44-8.654,38.308-21.585 c7.869,12.929,22.096,21.581,38.307,21.581c4.686,0,9.243-0.723,13.62-2.124c8.616,12.478,23.009,20.676,39.287,20.676h13.992v2.058 h-13c-47.421,0-86,38.58-86,86c0,3.59,2.91,6.5,6.5,6.5s6.5-2.91,6.5-6.5c0-40.252,32.748-73,73-73h19.5c3.59,0,6.5-2.91,6.5-6.5 v-8.558h39.326c3.59,0,6.5-2.91,6.5-6.5s-2.91-6.5-6.5-6.5h-66.318c-19.144,0-34.719-15.575-34.719-34.718 s15.575-34.718,34.719-34.718h90.143c12.598,0,22.846,10.249,22.846,22.846v90.861c0,36.452-17.734,70.829-47.439,91.958 l-0.291,0.207c-21.61,15.372-34.512,40.38-34.512,66.899c0,3.59,2.91,6.5,6.5,6.5s6.5-2.91,6.5-6.5 c0-22.319,10.858-43.368,29.047-56.306l0.291-0.207c33.127-23.563,52.904-61.899,52.904-102.551v-90.861 C402.06,146.056,385.98,129.976,366.214,129.976z M101.741,164.35c0,17.54-14.27,31.809-31.81,31.809 c-17.539,0-31.809-14.27-31.809-31.809V89.927c0-17.54,14.27-31.809,31.809-31.809c17.54,0,31.81,14.269,31.81,31.809V164.35z M146.549,193.864c-17.539,0-31.809-14.269-31.809-31.809V57.84c0-17.54,14.27-31.809,31.809-31.809S178.358,40.3,178.358,57.84 v0.001h-0.004v104.21c0,0.027,0.002,0.053,0.002,0.079C178.315,179.635,164.063,193.864,146.549,193.864z M228.353,177.694 c0,5.322,0.889,10.438,2.504,15.222c-2.494,0.62-5.064,0.945-7.693,0.945c-17.513,0-31.765-14.227-31.809-31.731 c0-0.025,0.002-0.05,0.002-0.075V44.809c0-17.54,14.27-31.809,31.809-31.809s31.809,14.269,31.809,31.809v90.098 C239.218,142.708,228.353,158.953,228.353,177.694z M267.975,130.677V57.313c0-17.54,14.27-31.809,31.81-31.809 c17.539,0,31.809,14.269,31.809,31.809v72.663h-55.521C273.311,129.976,270.609,130.224,267.975,130.677z" />
         </svg>
       ),
     },
@@ -240,11 +233,18 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
       type: "jump" as const,
       label: "Jump",
       preview: (
-        <svg viewBox="0 0 32 32" width="32" height="32" fill="none" strokeLinecap="round">
-          <line x1="4" y1="26" x2="28" y2="26" stroke="currentColor" strokeWidth="1" strokeOpacity="0.15" />
-          <path d="M10 25 Q16 5 22 25" stroke="currentColor" strokeWidth="1" strokeOpacity="0.15" strokeDasharray="2 2" />
-          <rect x="13" y="21" width="6" height="4" rx="1.5" fill="currentColor"
-            style={{ animation: "mta-jump 1.1s cubic-bezier(.4,0,.6,1) infinite", transformOrigin: "16px 23px" }} />
+        <svg viewBox="0 0 120 105" width="40" height="40">
+          <path fill="currentColor" d="m106.8 24.3h-0.6l-0.1-0.3c-0.5-2-3.1-2-2.6 1-3.5 1.3-6.5 4.8-6.5 9.5 0 5.3 4 11 10.6 11 5.3 0 9.8-4.3 9.8-10.7 0-5.3-4.3-10.5-10.6-10.5zm0.7 16.9c-3.4 0-6-2.4-6-6.4 0.3-3.2 2.6-6.3 6.5-6.3 2.6 0.3 5.4 2.5 5.4 6 0 3.3-2.8 6.3-5.9 6.7z" />
+          <path fill="currentColor" d="m107.6 50.7c-4.6 0-11.4 0.5-11.4 2.2 0 1.8 6.9 2.2 11.4 2.2 4.3 0 10.3-0.6 10.4-2.1 0.4-1.5-4.4-2.3-10.4-2.3z" />
+          <path fill="currentColor" d="m18.5 98.2c-8.4 0-16.5 0.6-16.5 2.3s8.5 2.4 16.5 2.4 17.3-0.5 17.3-2.3c0-1.6-6.3-2.4-17.3-2.4z" />
+          <path fill="currentColor" d="m23.1 76.3c0.4 0 0.9-0.3 1-0.7l3.1-7c0.4-1.1-0.8-3-2.6-2l-3.2 7.2c-0.3 0.7 0.2 1.8 0.2 1.8-0.7-0.3-1.7-0.5-3.1-0.5-5.5 0-10.3 4.4-10.3 10.5 0 5 3.8 10.7 10.3 10.7 6.4 0 10.5-4.5 10.5-10.7 0-3.6-2.1-7.4-5.9-9.3zm-4.6 15.4c-3.5 0-6.1-2.5-6.1-6.1 0.1-3.1 2.5-5.8 6.1-5.9 2.6 0 6 2.1 6 5.9 0 3.4-2.7 6.1-6 6.1z" />
+          <path fill="currentColor" d="m29 61.3c0.9 0.4 2 0 2.2-1l3.3-6.3c0.6-1.2-1.1-3-2.5-1.5l-3.8 7c-0.2 0.6 0.2 1.6 0.8 1.8z" />
+          <path fill="currentColor" d="m36.6 46.7c0.6 0.6 1.9 0.8 2.4-0.2l3.5-6.2c1-1.5-0.9-3.7-2.5-2.1l-4.1 6.8c-0.4 0.7 0 1.5 0.7 1.7z" />
+          <path fill="currentColor" d="m45.1 32.3c0.5 0.5 1.8 0.7 2.4-0.3l4-5.8c0.5-1.4-1.1-3.2-2.5-1.7l-4.5 6.1c-0.4 0.6 0 1.5 0.6 1.7z" />
+          <path fill="currentColor" d="m54.5 19.7c0.6 0.6 1.9 0.8 2.4-0.1 1.6-1.8 4.6-5.1 4.6-5.1 1.1-1-0.5-3.7-2.3-2.2-1.7 1.7-4.7 5.2-4.7 5.2-0.7 0.7-0.4 1.7 0 2.2z" />
+          <path fill="currentColor" d="m67.5 9.3c0.4 0 0.6 0 1-0.2 1.6-1.1 3.6-2.3 6-3.1 1.7-0.5 1.1-3.4-1-3.2-2.9 0.9-4.6 1.8-7 3.3-1.1 0.9-0.6 2.7 1 3v0.2z" />
+          <path fill="currentColor" d="m82.6 5c2 0.1 4.3 0.5 6.5 1.6 2 1 3.4-1.6 1.5-2.8-2-0.8-3.6-1.6-7.6-2-1.9 0-2.1 2.7-0.4 3.2z" />
+          <path fill="currentColor" d="m95.5 11.7c2.1 2.1 4 5 4.1 5.3 1 1.5 4 0.5 2.9-1.7-1-1.6-2.9-4.1-4.6-5.8-1.4-1.3-3.3 0.3-2.4 2.2z" />
         </svg>
       ),
     },
@@ -254,16 +254,47 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
     <Section
       title="Motion"
       headerAction={
-        <Switch
-          checked={isEnabled}
-          onCheckedChange={(v) =>
-            handleGlobalChange(
-              v
-                ? { enabled: true, isPaused: false, scrubProgress: null }
-                : { enabled: false }
-            )
-          }
-        />
+        <div className="flex items-center gap-1.5">
+          {isEnabled && (
+            <>
+              <button
+                type="button"
+                aria-label={isPaused ? "Push and play animation" : "Pause animation"}
+                title={isPaused ? "Push & Play" : "Pause"}
+                onClick={() => handleGlobalChange({ isPaused: !isPaused, scrubProgress: null })}
+                className={cn(
+                  "h-6 w-6 rounded-md flex items-center justify-center transition-all active:scale-90",
+                  isPaused ? "bg-foreground/8 text-foreground hover:bg-foreground/15" : "text-foreground/40 hover:text-foreground hover:bg-muted/15"
+                )}
+              >
+                {isPaused ? (
+                  <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                ) : (
+                  <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                )}
+              </button>
+              <button
+                type="button"
+                aria-label="Reset animation"
+                title="Reset"
+                onClick={() => handleGlobalChange({ replayNonce: (motionState?.replayNonce ?? 0) + 1, isPaused: false, scrubProgress: null, selectedPathIndex: -1 })}
+                className="h-6 w-6 rounded-md flex items-center justify-center text-foreground/40 hover:text-foreground hover:bg-muted/15 transition-all"
+              >
+                <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+              </button>
+            </>
+          )}
+          <Switch
+            checked={isEnabled}
+            onCheckedChange={(v) =>
+              handleGlobalChange(
+                v
+                  ? { enabled: true, isPaused: false, scrubProgress: null }
+                  : { enabled: false }
+              )
+            }
+          />
+        </div>
       }
     >
       <style>{`
@@ -361,102 +392,6 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
                 </div>
               )}
 
-              <div className="flex items-center gap-1.5 px-1">
-                <button
-                  type="button"
-                  aria-label="Play animation"
-                  title="Play"
-                  onClick={() => handleGlobalChange({ replayNonce: (motionState?.replayNonce ?? 0) + 1, isPaused: false, scrubProgress: null })}
-                  className="h-7 w-7 rounded-md flex items-center justify-center text-foreground/40 hover:text-foreground hover:bg-muted/15 transition-all"
-                >
-                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-                </button>
-                <button
-                  type="button"
-                  aria-label={isPaused ? "Resume animation" : "Pause animation"}
-                  title={isPaused ? "Resume" : "Pause"}
-                  onClick={() => handleGlobalChange({ isPaused: !isPaused, scrubProgress: null })}
-                  className={cn(
-                    "h-7 w-7 rounded-md flex items-center justify-center transition-all",
-                    isPaused ? "bg-foreground/8 text-foreground" : "text-foreground/40 hover:text-foreground hover:bg-muted/15"
-                  )}
-                >
-                  {isPaused ? (
-                    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-                  ) : (
-                    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-                  )}
-                </button>
-                <button
-                  type="button"
-                  aria-label="Reset animation"
-                  title="Reset"
-                  onClick={() => handleGlobalChange({ replayNonce: (motionState?.replayNonce ?? 0) + 1, isPaused: false, scrubProgress: null, selectedPathIndex: -1 })}
-                  className="h-7 w-7 rounded-md flex items-center justify-center text-foreground/40 hover:text-foreground hover:bg-muted/15 transition-all"
-                >
-                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
-                </button>
-
-                <div className="flex-1" />
-
-                <button
-                  type="button"
-                  aria-label={`Auto reverse ${motionState?.autoReverse ? "on" : "off"}`}
-                  aria-pressed={motionState?.autoReverse ?? false}
-                  onClick={() => handleGlobalChange({ autoReverse: !(motionState?.autoReverse ?? false) })}
-                  className={cn(
-                    "h-6 px-2 rounded text-[9px] uppercase tracking-widest transition-colors",
-                    motionState?.autoReverse ? "text-foreground" : "text-foreground/30 hover:text-foreground/55"
-                  )}
-                >
-                  Auto
-                </button>
-
-                <button
-                  type="button"
-                  aria-label={`Loop ${motionState?.loop ? "on" : "off"}`}
-                  aria-pressed={motionState?.loop ?? false}
-                  onClick={() => handleGlobalChange({ loop: !motionState?.loop })}
-                  className={cn(
-                    "h-6 px-2 rounded text-[9px] uppercase tracking-widest transition-colors flex items-center gap-1",
-                    motionState?.loop ? "text-foreground" : "text-foreground/30 hover:text-foreground/55"
-                  )}
-                >
-                  <span className={cn("h-1 w-1 rounded-full", motionState?.loop ? "bg-foreground" : "bg-foreground/20")} aria-hidden="true" />
-                  Loop
-                </button>
-              </div>
-
-              {selectedPathIdx === -1 && (
-                <div className="space-y-1.5">
-                  <Scrubber label="Duration" value={motionState?.duration ?? 2} onChange={(v) => handleGlobalChange({ duration: v, presetId: null })} min={0.1} max={5} step={0.05} />
-                  <Scrubber label="Delay" value={motionState?.delay ?? 0} onChange={(v) => handleGlobalChange({ delay: v, presetId: null })} min={0} max={3} step={0.05} />
-                </div>
-              )}
-
-              {isPathAnim && (
-                <div className="space-y-1.5 px-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] uppercase tracking-widest text-foreground/35">Timeline</span>
-                    <span className="text-[10px] text-foreground/25 tabular-nums">
-                      {((scrubProgress ?? 0) / 100 * totalDuration).toFixed(1)}s / {totalDuration.toFixed(1)}s
-                    </span>
-                  </div>
-                  <Scrubber
-                    label=""
-                    value={scrubProgress ?? 0}
-                    min={0} max={100} step={0.5}
-                    onChange={(v) => handleGlobalChange({ scrubProgress: v === 0 ? null : v, isPaused: v > 0 ? true : isPaused })}
-                  />
-                  {scrubProgress !== null && (
-                    <button type="button" className="text-[9px] uppercase tracking-widest text-foreground/30 hover:text-foreground/60 transition-colors"
-                      onClick={() => handleGlobalChange({ scrubProgress: null, isPaused: false })}>
-                      Resume live
-                    </button>
-                  )}
-                </div>
-              )}
-
               {isPathAnim && pathCount > 0 && (
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-foreground/35 px-1">
@@ -518,9 +453,24 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
               {selectedPathIdx === -1 ? (
                 <div className="space-y-3">
                   <div className="space-y-1.5">
-                    <div className="text-[10px] uppercase tracking-widest text-foreground/35 px-1">Easing</div>
-                    <div className="grid grid-cols-3 gap-1 px-1">
-                      {EASING_QUICK.map((e) => {
+                    <div className="flex items-center justify-between px-1">
+                      <span className="text-[10px] uppercase tracking-widest text-foreground/35">Easing</span>
+                      <button
+                        type="button"
+                        aria-label={`Loop ${motionState?.loop ? "on" : "off"}`}
+                        aria-pressed={motionState?.loop ?? false}
+                        onClick={() => handleGlobalChange({ loop: !motionState?.loop })}
+                        className={cn(
+                          "h-5 px-1.5 rounded text-[9px] uppercase tracking-widest transition-colors flex items-center gap-1",
+                          motionState?.loop ? "text-foreground" : "text-foreground/30 hover:text-foreground/55"
+                        )}
+                      >
+                        <span className={cn("h-1 w-1 rounded-full", motionState?.loop ? "bg-foreground" : "bg-foreground/20")} aria-hidden="true" />
+                        Loop
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-4 gap-1 px-1">
+                      {EASING_SIMPLE.map((e) => {
                         const isActive = currentEasingId === e.id;
                         return (
                           <button key={e.id} type="button"
@@ -533,14 +483,6 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
                           </button>
                         );
                       })}
-                      <button type="button"
-                        onClick={() => handleGlobalChange({ easingId: "custom", presetId: null })}
-                        className={cn(
-                          "h-7 rounded-sm text-[9px] uppercase tracking-tighter transition-all",
-                          isCustomEasing ? "bg-foreground text-background" : "text-foreground/35 hover:text-foreground/70 hover:bg-muted/10"
-                        )}>
-                        Custom
-                      </button>
                     </div>
                     {isCustomEasing && (
                       <BezierEditor
@@ -550,23 +492,6 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
                     )}
                   </div>
 
-                  {isPathAnim && (
-                    <div className="space-y-1.5 pt-2 border-t border-border/20">
-                      <Scrubber label="Start" value={motionState?.pathTrimStart ?? 0} onChange={(v) => handleGlobalChange({ pathTrimStart: v })} min={0} max={100} />
-                      <Scrubber label="End" value={motionState?.pathTrimEnd ?? 100} onChange={(v) => handleGlobalChange({ pathTrimEnd: v })} min={0} max={100} />
-                      <div className="flex items-center justify-between h-8 px-1">
-                        <span className="text-[10px] uppercase tracking-widest text-foreground/50">Sequential</span>
-                        <Switch checked={motionState?.pathSequential ?? false} onCheckedChange={(v) => handleGlobalChange({ pathSequential: v })} />
-                      </div>
-                      {motionState?.pathSequential && (
-                        <Scrubber label="Stagger" value={motionState?.pathStaggerDelay ?? 0.12} onChange={(v) => handleGlobalChange({ pathStaggerDelay: v })} min={0.01} max={0.5} step={0.01} />
-                      )}
-                      <div className="flex items-center justify-between h-8 px-1">
-                        <span className="text-[10px] uppercase tracking-widest text-foreground/50">Reverse</span>
-                        <Switch checked={motionState?.pathReverse ?? false} onCheckedChange={(v) => handleGlobalChange({ pathReverse: v })} />
-                      </div>
-                    </div>
-                  )}
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -591,8 +516,8 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
                         )}
                       </div>
 
-                      <div className="grid grid-cols-3 gap-1 px-1">
-                        {EASING_QUICK.map((e) => {
+                      <div className="grid grid-cols-4 gap-1 px-1">
+                        {EASING_SIMPLE.map((e) => {
                           const isActive = (activeOverride.easingId ?? motionState?.easingId) === e.id;
                           return (
                             <button key={e.id} type="button"
@@ -603,12 +528,6 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
                             </button>
                           );
                         })}
-                        <button type="button"
-                          onClick={() => handlePathOverrideUpdate(selectedPathIdx, { easingId: "custom" })}
-                          className={cn("h-7 rounded-sm text-[9px] uppercase tracking-tighter transition-all",
-                            activeOverride.easingId === "custom" ? "bg-foreground text-background" : "text-foreground/35 hover:text-foreground/70 hover:bg-muted/10")}>
-                          Custom
-                        </button>
                       </div>
                       {activeOverride.easingId === "custom" && (
                         <BezierEditor
@@ -617,16 +536,8 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
                         />
                       )}
 
-                      {isPathAnim && (
-                        <div className="space-y-1.5 pt-2 border-t border-border/20">
-                          <Scrubber label="Start" value={activeOverride.pathTrimStart ?? (motionState?.pathTrimStart ?? 0)} onChange={(v) => handlePathOverrideUpdate(selectedPathIdx, { pathTrimStart: v })} min={0} max={100} />
-                          <Scrubber label="End" value={activeOverride.pathTrimEnd ?? (motionState?.pathTrimEnd ?? 100)} onChange={(v) => handlePathOverrideUpdate(selectedPathIdx, { pathTrimEnd: v })} min={0} max={100} />
-                        </div>
-                      )}
-
                       <div className="space-y-0 pt-1 border-t border-border/20">
                         {([
-                          { key: "pathReverse", label: "Reverse (erase)" },
                           { key: "loop", label: "Loop" },
                           { key: "fillTransition", label: "Fill after draw" },
                         ] as const).map(({ key, label }) => {
@@ -668,13 +579,6 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
                 </div>
               )}
 
-              <div className="flex items-center justify-end pt-2 border-t border-border/20">
-                <button type="button"
-                  className="text-[9px] uppercase tracking-widest text-foreground/25 hover:text-foreground/55 transition-colors"
-                  onClick={() => handleGlobalChange({ perPathAnimations: {}, selectedPathIndex: -1, presetId: null })}>
-                  Clear overrides
-                </button>
-              </div>
             </div>
           </motion.div>
         )}

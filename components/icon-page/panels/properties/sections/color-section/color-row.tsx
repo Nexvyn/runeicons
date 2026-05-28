@@ -78,10 +78,11 @@ export function ColorRow({
   };
 
   return (
-    <div className="relative grid grid-cols-3 items-center group h-[34px] px-2 rounded-md border border-border/60 bg-muted/10 transition-colors hover:border-foreground/20">
-      <span className="text-[10px] uppercase tracking-widest text-foreground/70 transition-colors ml-1">
+    <div className="relative grid grid-cols-[1fr_auto_1fr] items-center group h-[34px] pl-2 pr-0 rounded-sm border border-border/40 bg-muted/10 transition-colors hover:border-foreground/20">
+      <span className="flex items-center text-[10px] uppercase tracking-widest text-foreground/70 transition-colors ml-1">
         {label}
       </span>
+
       <div className="flex items-center justify-center gap-2">
         {position !== undefined && (
           <div className="h-7 px-1.5 flex items-center bg-muted/20 border border-border/80 rounded-sm focus-within:border-foreground/30 transition-colors">
@@ -104,8 +105,9 @@ export function ColorRow({
           />
         </div>
       </div>
-      <div className="flex items-center justify-end">
-        <div className="h-7 px-1.5 flex items-center bg-muted/20 border border-border/80 rounded-sm focus-within:border-foreground/30 transition-colors">
+
+      <div className="flex items-center justify-end mr-0.5">
+        <div className="h-7 px-1.5 flex items-center bg-muted/20 rounded-sm transition-colors">
           <input
             id={`color-input-${label}`}
             type="text"
@@ -113,7 +115,7 @@ export function ColorRow({
             onChange={handleInputChange}
             onBlur={handleBlur}
             disabled={disabled}
-            className="w-[52px] bg-transparent text-[11px] font-mono tabular-nums uppercase focus:outline-none transition-colors mt-[0.5px]"
+            className="w-[52px] bg-transparent text-[11px] font-mono tabular-nums uppercase text-right focus:outline-none transition-colors mt-[0.5px]"
             spellCheck={false}
             autoComplete="off"
           />

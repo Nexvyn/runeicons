@@ -48,10 +48,10 @@ export const BlossomColorPicker = ({
 
     const rect = anchor.getBoundingClientRect();
     portal.style.position = 'fixed';
-    portal.style.left = `${rect.left + rect.width / 2}px`;
-    portal.style.top = `${rect.top + rect.height / 2}px`;
-    portal.style.width = '0';
-    portal.style.height = '0';
+    portal.style.left = `${rect.left}px`;
+    portal.style.top = `${rect.top}px`;
+    portal.style.width = `${rect.width}px`;
+    portal.style.height = `${rect.height}px`;
     portal.style.zIndex = '9999';
     portal.style.pointerEvents = 'auto';
   }, []);
@@ -89,6 +89,14 @@ export const BlossomColorPicker = ({
       disabled,
     });
 
+    const originalSetExpanded = (instance as any).setExpanded.bind(instance);
+    (instance as any).setExpanded = function (expanded: boolean) {
+      originalSetExpanded(expanded);
+      if (expanded && portal.parentNode && portal.parentNode.lastChild !== portal) {
+        portal.parentNode.appendChild(portal);
+      }
+    };
+
     instanceRef.current = instance;
     syncPortalPosition();
 
@@ -124,6 +132,20 @@ export const BlossomColorPicker = ({
       window.removeEventListener('scroll', syncPortalPosition, true);
     };
   }, [syncPortalPosition]);
+
+  useEffect(() => {
+    const portal = portalHostRef.current;
+    if (!portal) return;
+
+    const bringToFront = () => {
+      if (portal.parentNode && portal.parentNode.lastChild !== portal) {
+        portal.parentNode.appendChild(portal);
+      }
+    };
+
+    portal.addEventListener('mousedown', bringToFront);
+    return () => portal.removeEventListener('mousedown', bringToFront);
+  }, []);
 
   const portalNode =
     portalTarget &&
