@@ -60,7 +60,7 @@ const DetailView = ({
     return (
       <m.div
         data-detail-keep
-        className="fixed right-0 bottom-0 left-0 z-50 flex h-[60vh] flex-col rounded-t-3xl border-t border-white/10 bg-[#0A0A0A]/95 backdrop-blur-xl"
+        className="fixed right-0 bottom-0 left-0 z-50 flex h-[60vh] flex-col rounded-t-3xl border-t border-border bg-background/95 backdrop-blur-xl"
         initial={{ y: reduceMotion ? 0 : "100%" }}
         animate={{ y: 0 }}
         exit={{ y: reduceMotion ? 0 : "100%" }}
@@ -81,13 +81,13 @@ const DetailView = ({
           }
         }}
       >
-        <div className="mx-auto mt-3 mb-2 h-1 w-12 shrink-0 rounded-full bg-white/20" />
+        <div className="mx-auto mt-3 mb-2 h-1 w-12 shrink-0 rounded-full bg-muted-foreground/20" />
 
         <div className="flex shrink-0 items-center justify-between px-6 pt-1 pb-2">
           <button
             onClick={onClose}
             aria-label="Close detail view"
-            className="cursor-pointer rounded-full p-2 text-white/50 transition-colors hover:text-white"
+            className="cursor-pointer rounded-full p-2 text-muted-foreground transition-colors hover:text-foreground"
           >
             <X size={16} />
           </button>
@@ -95,14 +95,14 @@ const DetailView = ({
             <button
               onClick={onPrev}
               aria-label="Previous member"
-              className="cursor-pointer rounded-full p-2 text-white/70 transition-all hover:bg-white/10 hover:text-white active:scale-95"
+              className="cursor-pointer rounded-full p-2 text-muted-foreground transition-all hover:bg-muted hover:text-foreground active:scale-95"
             >
               <ChevronLeft size={18} />
             </button>
             <button
               onClick={onNext}
               aria-label="Next member"
-              className="cursor-pointer rounded-full p-2 text-white/70 transition-all hover:bg-white/10 hover:text-white active:scale-95"
+              className="cursor-pointer rounded-full p-2 text-muted-foreground transition-all hover:bg-muted hover:text-foreground active:scale-95"
             >
               <ChevronRight size={18} />
             </button>
@@ -127,29 +127,29 @@ const DetailView = ({
               }}
               transition={{ duration: TIMING.info, ease: EASE_OUT }}
             >
-              <h2 className="mb-4 font-['Syne'] text-3xl font-bold text-white">
+              <h2 className="mb-4 font-['Syne'] text-3xl font-bold text-foreground">
                 {user.name}
               </h2>
-              <p className="mb-6 text-base leading-relaxed text-[#888888]">
+              <p className="mb-6 text-base leading-relaxed text-muted-foreground">
                 {user.description}
               </p>
 
               <div className="mb-6 grid grid-cols-2 gap-4 text-sm">
                 <div className="flex flex-col gap-1">
-                  <span className="text-xs font-medium tracking-wider text-[#444444] uppercase">
+                  <span className="text-xs font-medium tracking-wider text-muted-foreground/70 uppercase">
                     Industry
                   </span>
-                  <span className="text-[#EEEEEE]">{user.industry}</span>
+                  <span className="text-foreground">{user.industry}</span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-xs font-medium tracking-wider text-[#444444] uppercase">
+                  <span className="text-xs font-medium tracking-wider text-muted-foreground/70 uppercase">
                     Status
                   </span>
                   <div className="flex items-center gap-2">
                     <span
                       className={`size-2 rounded-full ${user.status === "Active" ? "bg-[#D4FF00]" : "bg-gray-500"}`}
                     ></span>
-                    <span className="text-[#EEEEEE]">{user.status}</span>
+                    <span className="text-foreground">{user.status}</span>
                   </div>
                 </div>
               </div>
@@ -161,7 +161,7 @@ const DetailView = ({
                     href={social.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="rounded-full p-3 text-[#888888] transition-colors hover:text-white"
+                    className="rounded-full p-3 text-muted-foreground transition-colors hover:text-foreground"
                   >
                     {social.type === "globe" && <Globe size={20} />}
                     {social.type === "twitter" && <XIcon size={20} />}
@@ -192,7 +192,7 @@ const DetailView = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: TIMING.panelOpacity, ease: EASE_OUT }}
-        className="fixed top-8 right-8 z-60 cursor-pointer rounded-full p-2 text-white/50 transition-colors hover:text-white"
+        className="fixed top-8 right-8 z-60 cursor-pointer rounded-full p-2 text-muted-foreground transition-colors hover:text-foreground"
         aria-label="Close detail view"
       >
         <X size={24} />
@@ -213,14 +213,14 @@ const DetailView = ({
         <button
           onClick={onPrev}
           aria-label="Previous member"
-          className="group cursor-pointer rounded-full p-3 text-white/70 transition-all hover:bg-white/10 hover:text-white active:scale-95"
+          className="group cursor-pointer rounded-full p-3 text-muted-foreground transition-all hover:bg-muted hover:text-foreground active:scale-95"
         >
           <ChevronLeft size={20} />
         </button>
         <button
           onClick={onNext}
           aria-label="Next member"
-          className="cursor-pointer rounded-full p-3 text-white/70 transition-all hover:bg-white/10 hover:text-white active:scale-95"
+          className="cursor-pointer rounded-full p-3 text-muted-foreground transition-all hover:bg-muted hover:text-foreground active:scale-95"
         >
           <ChevronRight size={20} />
         </button>
@@ -232,7 +232,7 @@ const DetailView = ({
         animate={{ x: 0, opacity: 1 }}
         exit={{ x: reduceMotion ? 0 : 24, opacity: 0 }}
         transition={rightPanelTransition}
-        className="fixed top-0 right-0 bottom-0 z-50 flex w-[30%] flex-col justify-center border-l border-white/10 bg-[#0A0A0A]/55 p-12 backdrop-blur-xl"
+        className="fixed top-0 right-0 bottom-0 z-50 flex w-[30%] flex-col justify-center border-l border-border bg-background/55 p-12 backdrop-blur-xl"
       >
         <AnimatePresence mode="wait" initial={false}>
           <m.div
@@ -250,30 +250,30 @@ const DetailView = ({
             }}
             transition={{ duration: TIMING.info, ease: EASE_OUT }}
           >
-            <h2 className="mb-6 font-['Syne'] text-4xl font-bold text-white">
+            <h2 className="mb-6 font-['Syne'] text-4xl font-bold text-foreground">
               {user.name}
             </h2>
 
-            <p className="mb-8 text-base leading-relaxed text-[#888888]">
+            <p className="mb-8 text-base leading-relaxed text-muted-foreground">
               {user.description}
             </p>
 
             <div className="mb-10 grid grid-cols-1 gap-y-6 text-sm">
               <div className="flex flex-col gap-1">
-                <span className="text-xs font-medium tracking-wider text-[#444444] uppercase">
+                <span className="text-xs font-medium tracking-wider text-muted-foreground/70 uppercase">
                   Industry
                 </span>
-                <span className="text-[#EEEEEE]">{user.industry}</span>
+                <span className="text-foreground">{user.industry}</span>
               </div>
               <div className="flex flex-col gap-1">
-                <span className="text-xs font-medium tracking-wider text-[#444444] uppercase">
+                <span className="text-xs font-medium tracking-wider text-muted-foreground/70 uppercase">
                   Status
                 </span>
                 <div className="flex items-center gap-2">
                   <span
                     className={`size-2 rounded-full ${user.status === "Active" ? "bg-[#D4FF00]" : "bg-gray-500"}`}
                   ></span>
-                  <span className="text-[#EEEEEE]">{user.status}</span>
+                  <span className="text-foreground">{user.status}</span>
                 </div>
               </div>
             </div>
@@ -285,7 +285,7 @@ const DetailView = ({
                   href={social.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-full p-3 text-[#888888] transition-colors hover:text-white"
+                  className="rounded-full p-3 text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {social.type === "globe" && <Globe size={20} />}
                   {social.type === "twitter" && <XIcon size={20} />}

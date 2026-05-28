@@ -128,6 +128,7 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
         duration: motionState?.duration ?? 2,
         delay: staggeredDelay,
         easingId: motionState?.easingId ?? "ease-in-out",
+        customCubic: motionState?.customCubic,
         pathTrimStart: motionState?.pathTrimStart ?? 0,
         pathTrimEnd: motionState?.pathTrimEnd ?? 100,
         pathReverse: motionState?.pathReverse ?? false,

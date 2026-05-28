@@ -6,7 +6,7 @@ import {
   resolveAnimationType,
   resolveEasingValue,
 } from "@/lib/editor/animation-engine";
-import { fetchSvgInnerContentRaw } from "@/lib/svg-export-utils";
+import { fetchSvgInnerContentRaw, colorizeSvgContent } from "@/lib/svg-export-utils";
 import { STROKE_STYLE_MAP } from "@/lib/stroke-style";
 interface PreviewContentProps {
   state: CustomizationState;
@@ -53,32 +53,52 @@ export const PreviewContent = memo(
         effectiveIconType === "duotone" ||
         effectiveIconType === "fill" ||
         effectiveIconType === "glass";
+      const isTextureActive = state.texture.enabled && state.texture.selected !== "none";
       const colorizedSvgContent = useMemo(() => {
         if (!svgData) return null;
         const { content: svgContent } = svgData;
+        const injectNoise = (html: string) =>
+          state.noise.enabled
+            ? html.replace(
+                /<(path|circle|rect|ellipse|line|polyline|polygon)([^>]*?)(\/?>)/g,
+                (match, tag, attrs, end) =>
+                  attrs.includes('filter="') ? match : `<${tag}${attrs} filter="url(#noise-filter)"${end}`,
+              )
+            : html;
+
         if (renderAsDesigned) {
+          let result = colorizeSvgContent(svgContent, effectiveIconType, state.colors, state.iconGradient);
+          if (isTextureActive) {
+            result = result.replace(/\bstroke="(?!none)[^"]*"/g, 'stroke="url(#texture-pattern)"');
+          }
           if (isDrawAnim) {
-            return svgContent.replace(
+            result = result.replace(
               /<(path|circle|rect|ellipse|line|polyline|polygon)(\s)/g,
               `<$1 pathLength="1" class="canvas-icon-draw-path"$2`,
             );
           }
-          return svgContent;
+          return injectNoise(result);
         }
-        const color = state.colors[0] || "currentColor";
+        const color = state.colors[0];
         let baseColorized: string;
-        if (state.iconGradient) {
+        if (isTextureActive) {
+          baseColorized = svgContent
+            .replace(/\bstroke="(?!none)[^"]*"/g, 'stroke="url(#texture-pattern)"')
+            .replace(/\bfill="(?!none)[^"]*"/g, 'fill="none"');
+        } else if (state.iconGradient) {
           const gt = state.gradient.target ?? "both";
-          const strokeVal = gt === "stroke" || gt === "both" ? "url(#icon-gradient)" : color;
+          const strokeVal = gt === "stroke" || gt === "both" ? "url(#icon-gradient)" : color || "currentColor";
           const fillVal =
             gt === "fill" || gt === "both" ? "url(#icon-gradient)" : "none";
           baseColorized = svgContent
             .replace(/\bstroke="(?!none)[^"]*"/g, `stroke="${strokeVal}"`)
             .replace(/\bfill="(?!none)[^"]*"/g, `fill="${fillVal}"`);
-        } else {
+        } else if (color) {
           baseColorized = svgContent
             .replace(/\bstroke="(?!none)[^"]*"/g, `stroke="${color}"`)
             .replace(/\bfill="(?!none)[^"]*"/g, `fill="none"`);
+        } else {
+          baseColorized = svgContent;
         }
         let result = baseColorized
           .replace(/\s*stroke-linecap="[^"]*"/g, "")
@@ -90,8 +110,8 @@ export const PreviewContent = memo(
             `<$1 pathLength="1" class="canvas-icon-draw-path"$2`,
           );
         }
-        return result;
-      }, [svgData, state.colors, state.iconGradient, state.gradient.target, effectiveIconType, state.strokeStyle, isDrawAnim, renderAsDesigned]);
+        return injectNoise(result);
+      }, [svgData, state.colors, state.iconGradient, state.gradient.target, effectiveIconType, state.strokeStyle, isDrawAnim, renderAsDesigned, isTextureActive, state.noise.enabled]);
       useEffect(() => {
         const container = lucideWrapRef.current;
         if (!container || !isDrawAnim) return;
@@ -244,7 +264,7 @@ export const PreviewContent = memo(
               scaleX: state.flipH ? -1 : 1,
               scaleY: state.flipV ? -1 : 1,
               boxShadow: state.shadow.enabled && state.shadow.inner ? "none" : boxShadow,
-              filter: [blurFilter, noiseFilter].filter(Boolean).join(" "),
+              filter: [blurFilter].filter(Boolean).join(" "),
             }}
             transition={{
               type: "spring",
@@ -289,11 +309,8 @@ export const PreviewContent = memo(
                   }}
                   className={cn(
                     "flex h-full w-full items-center justify-center",
-                    effectiveIconType === "isometric" &&
-                      "[transform:rotateX(45deg)_rotateZ(-45deg)] transform",
                     effectiveIconType === "pixelated" &&
                       "[filter:url(#pixelate)] [image-rendering:pixelated]",
-                    effectiveIconType === "dither" && "[filter:url(#dither-filter)]",
                   )}
                 >
                   <div
@@ -335,8 +352,6 @@ export const PreviewContent = memo(
                             [
                               state.shadow.inner ? "url(#inner-shadow)" : null,
                               state.blur > 0 ? "url(#inner-blur)" : null,
-                              state.noise.enabled ? "url(#noise-filter)" : null,
-                              state.texture.enabled && state.texture.selected !== "none" ? "url(#texture-filter)" : null,
                             ]
                               .filter(Boolean)
                               .join(" ") || undefined,
@@ -354,7 +369,7 @@ export const PreviewContent = memo(
                             strokeWidth={strokeAttrs.strokeWidth}
                             strokeLinecap={strokeAttrs.strokeLinecap}
                             strokeLinejoin={strokeAttrs.strokeLinejoin}
-                            stroke={applyGradToStroke ? "url(#icon-gradient)" : state.colors[0] || "currentColor"}
+                            stroke={isTextureActive ? "url(#texture-pattern)" : applyGradToStroke ? "url(#icon-gradient)" : state.colors[0] || "currentColor"}
                             fill={
                               effectiveIconType === "fill"
                                 ? (applyGradToFill ? "url(#icon-gradient)" : state.colors[0] || "currentColor")
@@ -371,8 +386,7 @@ export const PreviewContent = memo(
                                   state.shadow.inner ? "url(#inner-shadow)" : null,
                                   state.blur > 0 ? "url(#inner-blur)" : null,
                                   state.noise.enabled ? "url(#noise-filter)" : null,
-                                  state.texture.enabled && state.texture.selected !== "none" ? "url(#texture-filter)" : null,
-                                ]
+                                    ]
                                   .filter(Boolean)
                                   .join(" ") || undefined,
                             }}
@@ -403,8 +417,6 @@ export const PreviewContent = memo(
                             [
                               state.shadow.inner ? "url(#inner-shadow)" : null,
                               state.blur > 0 ? "url(#inner-blur)" : null,
-                              state.noise.enabled ? "url(#noise-filter)" : null,
-                              state.texture.enabled && state.texture.selected !== "none" ? "url(#texture-filter)" : null,
                             ]
                               .filter(Boolean)
                               .join(" ") || undefined,

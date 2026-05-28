@@ -149,7 +149,7 @@ const Card = ({
         {showTooltip && (
           <m.span
             key="tip"
-            className="pointer-events-none absolute left-1/2 z-10 rounded-full border border-white/10 bg-[#0d0d0d] px-3 py-1.5 text-sm font-medium whitespace-nowrap text-white/90"
+            className="pointer-events-none absolute left-1/2 z-10 rounded-full border border-border bg-background px-3 py-1.5 text-sm font-medium whitespace-nowrap text-foreground"
             style={{
               bottom: "calc(100% + 8px)",
               translateX: "-50%",
@@ -216,13 +216,6 @@ const Card = ({
             width={size}
             height={size}
             className="pointer-events-none block size-full object-cover"
-            style={
-              user.needsOutline && user.accentColor
-                ? {
-                    filter: `drop-shadow(0 0 3px ${user.accentColor}) drop-shadow(0 0 8px ${user.accentColor})`,
-                  }
-                : undefined
-            }
             draggable={false}
             priority
           />

@@ -15,9 +15,7 @@ export type StateIconType =
   | "duotone"
   | "fill"
   | "pixelated"
-  | "glass"
-  | "isometric"
-  | "dither";
+  | "glass";
 
 const FILE_BACKED_TYPES = new Set<StateIconType>([
   "normal",
@@ -62,6 +60,7 @@ function toIconData(e: NormalIconEntry, iconType: Exclude<IconType, "glass">): I
     url: `/${iconType}/${e.folder}/${e.basename}.svg`,
     category: e.category,
     tags: e.tags,
+    iconType,
   };
 }
 
@@ -72,6 +71,7 @@ function glassToIconData(e: GlassIconEntry): IconData {
     url: `/glass-icons/${e.filename}`,
     category: e.category,
     tags: e.tags,
+    iconType: "glass",
   };
 }
 

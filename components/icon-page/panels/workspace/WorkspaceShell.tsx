@@ -103,13 +103,13 @@ export function WorkspaceShell() {
       setActiveCategory(categories[prevIndex]);
     },
     onNextType: () => {
-      const types: any[] = ["normal", "duotone", "fill", "pixelated", "glass", "isometric", "dither"];
+      const types: any[] = ["normal", "duotone", "fill", "pixelated", "glass"];
       const currentIndex = types.indexOf(state.iconType);
       const nextIndex = (currentIndex + 1) % types.length;
       handleChange({ iconType: types[nextIndex] });
     },
     onPrevType: () => {
-      const types: any[] = ["normal", "duotone", "fill", "pixelated", "glass", "isometric", "dither"];
+      const types: any[] = ["normal", "duotone", "fill", "pixelated", "glass"];
       const currentIndex = types.indexOf(state.iconType);
       const prevIndex = (currentIndex - 1 + types.length) % types.length;
       handleChange({ iconType: types[prevIndex] });

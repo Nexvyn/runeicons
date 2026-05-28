@@ -45,7 +45,7 @@ export function TextureSection({
             const index = Math.round(val);
             const tex = TEXTURES[index];
             onChange({
-              texture: { ...state.texture, selected: tex.id },
+              texture: { ...state.texture, selected: tex.id, enabled: tex.id !== "none" },
             });
           }}
           showInput={false}

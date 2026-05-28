@@ -3,6 +3,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { AnimatePresence } from "motion/react";
 
+import { LightDarkMode } from "@/components/ui/light-dark-mode";
+
 import AudioControl from "./AudioControl";
 import BackButton from "./BackButton";
 import Card from "./Card";
@@ -22,7 +24,7 @@ const CENTROID_Y =
 
 const BASE_X = RAW_BASE_X.map((x) => x - CENTROID_X);
 const BASE_Y = RAW_BASE_Y.map((y) => y - CENTROID_Y);
-const NAT_W = [270, 230, 255, 285];
+const NAT_W = [270, 230, 255, 215];
 const Z_IDX = [4, 3, 2, 1];
 const GRID_X_PCT = [-25, 25, -25, 25];
 const GRID_Y_PCT = [-20, -20, 20, 20];
@@ -240,9 +242,10 @@ export default function AboutContent() {
   };
 
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-[#050505] text-[#EEEEEE] font-(family-name:--font-inter-tight)">
+    <section className="relative h-screen w-full overflow-hidden bg-background text-foreground font-(family-name:--font-inter-tight)">
       <BackButton />
       <AudioControl isMuted={isMuted} onToggle={() => setIsMuted(!isMuted)} />
+      <LightDarkMode className="fixed top-6 right-6 z-50 border border-border bg-background/80 backdrop-blur-sm" />
 
       <div
         className="fixed inset-0"
@@ -292,18 +295,18 @@ export default function AboutContent() {
       </div>
 
       <div
-        className={`absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 rounded-md px-6 py-3 transition-opacity duration-400 ease-out ${
+        className={`absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex w-full max-w-[calc(100%-7rem)] flex-col items-center gap-1 px-4 py-2 transition-opacity duration-400 ease-out sm:bottom-8 sm:gap-2 sm:px-6 sm:py-3 ${
           isOpen ? "pointer-events-none opacity-0" : "opacity-100"
         }`}
       >
-        <h1 className="font-sans text-2xl font-bold tracking-wider text-white md:text-4xl">
+        <h1 className="text-center font-sans text-xl font-bold tracking-wider text-foreground sm:text-2xl md:text-4xl">
           RUNE ICON
         </h1>
         <div className="flex items-center justify-center gap-2 md:gap-4">
           <a
             href="https://x.com/RuneIcon"
             target="_blank"
-            className="text-sm font-semibold text-[#595959]"
+            className="text-sm font-semibold text-muted-foreground"
           >
             X
           </a>

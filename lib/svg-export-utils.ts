@@ -9,16 +9,94 @@ import { buildConicSegments } from "@/lib/gradient-utils";
 import { STROKE_STYLE_MAP } from "./stroke-style";
 import { injectPathIndices, buildPerPathAnimationCss } from "@/lib/editor/path-animation";
 
+export function colorizeSvgContent(
+  content: string,
+  iconType: string,
+  colors: string[],
+  useGradient: boolean,
+): string {
+  let result = content;
+  const primaryColor = colors[0];
+  const shouldColorize = !!primaryColor || useGradient;
 
+  if (!shouldColorize) {
+    return result;
+  }
+
+  const effectivePrimaryColor = primaryColor || "#000000";
+
+  if (iconType === "duotone") {
+    const lightColor = effectivePrimaryColor;
+    const darkColor = colors[1] || effectivePrimaryColor;
+    result = result
+      .replace(/stroke="#DDDDDD"/gi, `stroke="${lightColor}"`)
+      .replace(/stroke="#A4A5A6"/gi, `stroke="${darkColor}"`)
+      .replace(/fill="#DDDDDD"/gi, `fill="${lightColor}"`)
+      .replace(/fill="#A4A5A6"/gi, `fill="${darkColor}"`);
+  } else if (iconType === "fill") {
+    const fillColor = effectivePrimaryColor;
+    const strokeColor = colors[1] || `${effectivePrimaryColor}cc`;
+    result = result
+      .replace(/fill="#DDDDDD"/gi, `fill="${fillColor}"`)
+      .replace(/fill="#1C1F21"/gi, `fill="${strokeColor}"`)
+      .replace(/stroke="#1C1F21"/gi, `stroke="${strokeColor}"`)
+      .replace(/stroke="#DDDDDD"/gi, `stroke="${fillColor}"`);
+  } else if (iconType === "pixelated") {
+    result = result
+      .replace(/\bfill="(?!none)[^"]*"/gi, `fill="${effectivePrimaryColor}"`)
+      .replace(/\bstroke="(?!none)[^"]*"/gi, `stroke="${effectivePrimaryColor}"`);
+  } else if (iconType === "glass") {
+    const accentGradientIds: string[] = [];
+    const gradRegex = /<(?:linearGradient|radialGradient)\s+id="([^"]+)"[^>]*>([\s\S]*?)<\/(?:linearGradient|radialGradient)>/gi;
+    let match;
+    while ((match = gradRegex.exec(content)) !== null) {
+      const id = match[1];
+      const inner = match[2];
+      if (/#575757|#151515/i.test(inner)) {
+        accentGradientIds.push(id);
+      }
+    }
+
+    if (useGradient) {
+      accentGradientIds.forEach((id) => {
+        const escapedId = id.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        const refRegex = new RegExp(`url\\(#${escapedId}\\)`, 'gi');
+        result = result.replace(refRegex, 'url(#icon-gradient)');
+      });
+      result = result
+        .replace(/fill="#575757"/gi, 'fill="url(#icon-gradient)"')
+        .replace(/fill="#151515"/gi, 'fill="url(#icon-gradient)"')
+        .replace(/stroke="#575757"/gi, 'stroke="url(#icon-gradient)"')
+        .replace(/stroke="#151515"/gi, 'stroke="url(#icon-gradient)"');
+    } else {
+      result = result
+        .replace(/stop-color="#575757"/gi, `stop-color="${effectivePrimaryColor}"`)
+        .replace(/stop-color="#151515"/gi, `stop-color="${effectivePrimaryColor}" stop-opacity="0.85"`)
+        .replace(/fill="#575757"/gi, `fill="${effectivePrimaryColor}"`)
+        .replace(/fill="#151515"/gi, `fill="${effectivePrimaryColor}d9"`)
+        .replace(/stroke="#575757"/gi, `stroke="${effectivePrimaryColor}"`)
+        .replace(/stroke="#151515"/gi, `stroke="${effectivePrimaryColor}d9"`);
+    }
+  }
+
+  if (useGradient && iconType !== "glass") {
+    result = result
+      .replace(/\bstroke="(?!none)[^"]*"/g, `stroke="url(#icon-gradient)"`)
+      .replace(/\bfill="(?!none)[^"]*"/g, `fill="url(#icon-gradient)"`);
+  }
+
+  return result;
+}
 
 export async function generateStandaloneSvg(selectedIcon: IconData, state: CustomizationState): Promise<string> {
   const IconComponent = selectedIcon.icon;
   const iconUrl = selectedIcon.url;
 
+  const isTextureActive = state.texture.enabled && state.texture.selected !== "none";
   const gradientTarget = state.gradient.target ?? "both";
-  const applyGradToStroke = state.iconGradient && (gradientTarget === "stroke" || gradientTarget === "both");
-  const applyGradToFill = state.iconGradient && (gradientTarget === "fill" || gradientTarget === "both");
-  const strokeColor = applyGradToStroke ? "url(#icon-gradient)" : state.colors[0] || "currentColor";
+  const applyGradToStroke = !isTextureActive && state.iconGradient && (gradientTarget === "stroke" || gradientTarget === "both");
+  const applyGradToFill = !isTextureActive && state.iconGradient && (gradientTarget === "fill" || gradientTarget === "both");
+  const strokeColor = isTextureActive ? "url(#texture-pattern)" : applyGradToStroke ? "url(#icon-gradient)" : state.colors[0] || "currentColor";
   const fillColor = applyGradToFill && (state.iconType === "fill" || state.iconType === "duotone" || state.iconType === "normal")
     ? "url(#icon-gradient)"
     : state.iconType === "fill"
@@ -49,69 +127,17 @@ export async function generateStandaloneSvg(selectedIcon: IconData, state: Custo
 
       let colorized: string;
       if (renderAsDesigned) {
-        const color = state.colors[0] || "#000000";
-        let result = content;
-        if (state.iconType === "duotone") {
-          result = result
-            .replace(/stroke="#DDDDDD"/gi, `stroke="${color}"`)
-            .replace(/stroke="#A4A5A6"/gi, `stroke="${color}80"`)
-            .replace(/fill="#DDDDDD"/gi, `fill="${color}"`)
-            .replace(/fill="#A4A5A6"/gi, `fill="${color}80"`);
-        } else if (state.iconType === "fill") {
-          result = result
-            .replace(/fill="#DDDDDD"/gi, `fill="${color}"`)
-            .replace(/fill="#1C1F21"/gi, `fill="${color}cc"`)
-            .replace(/stroke="#1C1F21"/gi, `stroke="${color}cc"`)
-            .replace(/stroke="#DDDDDD"/gi, `stroke="${color}"`);
-        } else if (state.iconType === "pixelated") {
-          result = result
-            .replace(/fill="black"/gi, `fill="${color}"`)
-            .replace(/fill="#000000"/gi, `fill="${color}"`)
-            .replace(/fill="#000"/gi, `fill="${color}"`);
-        } else if (state.iconType === "glass") {
-          const accentGradientIds: string[] = [];
-          const gradRegex = /<(?:linearGradient|radialGradient)\s+id="([^"]+)"[^>]*>([\s\S]*?)<\/(?:linearGradient|radialGradient)>/gi;
-          let match;
-          while ((match = gradRegex.exec(content)) !== null) {
-            const id = match[1];
-            const inner = match[2];
-            if (/#575757|#151515/i.test(inner)) {
-              accentGradientIds.push(id);
-            }
-          }
-
-          if (state.iconGradient) {
-            accentGradientIds.forEach((id) => {
-              const escapedId = id.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-              const refRegex = new RegExp(`url\\(#${escapedId}\\)`, 'gi');
-              result = result.replace(refRegex, 'url(#icon-gradient)');
-            });
-            result = result
-              .replace(/fill="#575757"/gi, 'fill="url(#icon-gradient)"')
-              .replace(/fill="#151515"/gi, 'fill="url(#icon-gradient)"')
-              .replace(/stroke="#575757"/gi, 'stroke="url(#icon-gradient)"')
-              .replace(/stroke="#151515"/gi, 'stroke="url(#icon-gradient)"');
-          } else {
-            result = result
-              .replace(/stop-color="#575757"/gi, `stop-color="${color}"`)
-              .replace(/stop-color="#151515"/gi, `stop-color="${color}" stop-opacity="0.85"`)
-              .replace(/fill="#575757"/gi, `fill="${color}"`)
-              .replace(/fill="#151515"/gi, `fill="${color}d9"`)
-              .replace(/stroke="#575757"/gi, `stroke="${color}"`)
-              .replace(/stroke="#151515"/gi, `stroke="${color}d9"`);
-          }
+        colorized = colorizeSvgContent(content, state.iconType, state.colors, state.iconGradient);
+        if (isTextureActive) {
+          colorized = colorized.replace(/\bstroke="(?!none)[^"]*"/g, 'stroke="url(#texture-pattern)"');
         }
-        if (state.iconGradient && state.iconType !== "glass") {
-          result = result
-            .replace(/\bstroke="(?!none)[^"]*"/g, `stroke="url(#icon-gradient)"`)
-            .replace(/\bfill="(?!none)[^"]*"/g, `fill="url(#icon-gradient)"`);
-        }
-        colorized = result;
-      } else {
+      } else if (state.colors[0] || isTextureActive || state.iconGradient) {
         const effectiveFillColor = fillColor === "none" ? strokeColor : fillColor;
         colorized = content
           .replace(/\bstroke="(?!none)[^"]*"/g, `stroke="${strokeColor}"`)
           .replace(/\bfill="(?!none)[^"]*"/g, `fill="${effectiveFillColor}"`);
+      } else {
+        colorized = content;
       }
       innerContent = colorized;
     } catch {
@@ -272,12 +298,10 @@ export async function generateStandaloneSvg(selectedIcon: IconData, state: Custo
     </filter>`;
   }
 
-  if (state.iconType === "dither") {
-    defs += `<filter id="dither-filter">
-      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="1" result="noise"/>
-      <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="alpha"/>
-      <feComposite operator="in" in="SourceGraphic" in2="alpha"/>
-    </filter>`;
+  if (isTextureActive) {
+    defs += `<pattern id="texture-pattern" width="256" height="256" patternUnits="userSpaceOnUse">
+      <image href="/textures/${state.texture.selected}.png" width="256" height="256" opacity="${state.texture.opacity / 100}" preserveAspectRatio="none"/>
+    </pattern>`;
   }
 
   const SVG_KEYFRAMES: Record<string, string> = {
@@ -339,19 +363,26 @@ export async function generateStandaloneSvg(selectedIcon: IconData, state: Custo
 
   const rx = ((state.cornerRadius / state.width) * vbw).toFixed(3);
 
+  let finalTaggedContent = taggedInnerContent;
+  if (state.noise.enabled && state.noise.intensity > 0) {
+    finalTaggedContent = taggedInnerContent.replace(
+      /<(path|circle|rect|ellipse|line|polyline|polygon)([^>]*?)(\/?>)/g,
+      (match, tag, attrs, end) =>
+        attrs.includes('filter="') ? match : `<${tag}${attrs} filter="url(#noise-filter)"${end}`,
+    );
+  }
+
   const finalSvg = `<?xml version="1.0" encoding="UTF-8"?>
 <!-- Made with RuneIcon — https://runeicon.com -->
 <svg xmlns="http://www.w3.org/2000/svg" width="${state.width}" height="${state.height}" viewBox="${currentViewBox}" preserveAspectRatio="xMidYMid meet" fill="none">${defs ? `\n  <defs>${defs}</defs>` : ""}${animationCss ? `\n  <style>${animationCss}</style>` : ""}
   <rect x="${vbx}" y="${vby}" width="${vbw}" height="${vbh}" rx="${rx}" ry="${rx}" fill="transparent"/>
   <g transform="translate(${vbx + paddingVB}, ${vby + paddingVB}) scale(${iconScaleFactor})"${
     state.shadow.enabled && !state.shadow.inner ? ' filter="url(#drop-shadow)"' : ''}>
-    <g transform="${finalTransform}${state.iconType === "isometric" ? " rotateX(45) rotateZ(-45)" : ""}" class="icon-anim-container icon-anim-group"${(state.iconType === "glass" || state.iconType === "pixelated") ? "" : ` stroke="${strokeColor}"`}${(state.iconType === "glass" || state.iconType === "pixelated") ? "" : ` fill="${fillColor}"`} stroke-width="${STROKE_STYLE_MAP[state.strokeStyle ?? "round"].strokeWidth}" stroke-linecap="${STROKE_STYLE_MAP[state.strokeStyle ?? "round"].strokeLinecap}" stroke-linejoin="${STROKE_STYLE_MAP[state.strokeStyle ?? "round"].strokeLinejoin}"${
+    <g transform="${finalTransform}" class="icon-anim-container icon-anim-group"${(state.iconType === "glass" || state.iconType === "pixelated") ? "" : ` stroke="${strokeColor}"`}${(state.iconType === "glass" || state.iconType === "pixelated") ? "" : ` fill="${fillColor}"`} stroke-width="${STROKE_STYLE_MAP[state.strokeStyle ?? "round"].strokeWidth}" stroke-linecap="${STROKE_STYLE_MAP[state.strokeStyle ?? "round"].strokeLinecap}" stroke-linejoin="${STROKE_STYLE_MAP[state.strokeStyle ?? "round"].strokeLinejoin}"${
     state.shadow.enabled && state.shadow.inner ? ' filter="url(#inner-shadow)"' :
     state.blur > 0 ? ' filter="url(#icon-blur)"' :
-    state.iconType === "pixelated" ? ' filter="url(#pixelate)"' :
-    state.iconType === "dither" ? ' filter="url(#dither-filter)"' :
-    state.noise.enabled && state.noise.intensity > 0 ? ' filter="url(#noise-filter)"' : ''}>
-      ${taggedInnerContent}
+    state.iconType === "pixelated" ? ' filter="url(#pixelate)"' : ''}>
+      ${finalTaggedContent}
     </g>
   </g>
 </svg>`.trim();

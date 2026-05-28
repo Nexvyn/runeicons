@@ -4,8 +4,8 @@ import { getIconDataById } from "@/lib/icons";
 export const MAX_TRAY_ITEMS = 6;
 
 export const DEFAULT_STATE: CustomizationState = {
-  colors: ["#000000"],
-  numColors: 1,
+  colors: ["", ""],
+  numColors: 2,
   scale: 1,
   blur: 0,
   motion: {

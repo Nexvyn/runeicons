@@ -118,33 +118,21 @@ export const SvgDefinitions = memo(function SvgDefinitions({ state }: SvgDefinit
           </filter>
         )}
 
-        {state.iconType === "dither" && (
-          <filter id="dither-filter">
-            <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="1" result="noise" />
-            <feColorMatrix
-              in="noise"
-              type="matrix"
-              values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"
-              result="alpha"
-            />
-            <feComposite operator="in" in="SourceGraphic" in2="alpha" />
-          </filter>
-        )}
-
         {state.texture.enabled && state.texture.selected !== "none" && (
-          <filter id="texture-filter" x="-50%" y="-50%" width="200%" height="200%" colorInterpolationFilters="sRGB">
-            <feImage 
-              href={`/textures/${state.texture.selected}.png`} 
-              result="tex" 
-              width="256" 
+          <pattern
+            id="texture-pattern"
+            width="256"
+            height="256"
+            patternUnits="userSpaceOnUse"
+          >
+            <image
+              href={`/textures/${state.texture.selected}.png`}
+              width="256"
               height="256"
-              preserveAspectRatio="xMidYMid slice"
+              opacity={state.texture.opacity / 100}
+              preserveAspectRatio="none"
             />
-            <feTile in="tex" result="tiledTex" />
-            <feComposite operator="in" in="tiledTex" in2="SourceAlpha" result="maskedTex" />
-            <feBlend in="maskedTex" in2="SourceGraphic" mode="multiply" result="blended" />
-            <feComposite operator="arithmetic" k1="0" k2={state.texture.opacity / 100} k3={1 - state.texture.opacity / 200} k4="0" in="blended" in2="SourceGraphic" />
-          </filter>
+          </pattern>
         )}
       </defs>
     </svg>

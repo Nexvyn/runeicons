@@ -8,15 +8,13 @@ interface StrokeStyleSectionProps {
   onChange: (updates: Partial<CustomizationState>) => void;
 }
 
-const STROKE_SEQUENCE: StrokeStyle[] = ["soft", "round", "medium", "heavy", "sharp", "square"];
+const STROKE_SEQUENCE: StrokeStyle[] = ["soft", "round", "medium", "sharp"];
 
 const STYLE_ROUNDNESS: Record<StrokeStyle, number> = {
   soft: 8,
   round: 6,
   medium: 4,
-  heavy: 2,
   sharp: 0,
-  square: 0,
 };
 
 function RoundnessPreview({ styleId }: { styleId: StrokeStyle }) {
@@ -45,7 +43,7 @@ export function StrokeStyleSection({
         <Scrubber
           label="Roundness"
           min={0}
-          max={5}
+          max={3}
           step={1}
           value={currentIndex}
           onChange={(val) => {

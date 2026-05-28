@@ -47,10 +47,7 @@ export function useCanvasStyles(state: CustomizationState) {
     [state.blur],
   );
 
-  const noiseFilter = useMemo(
-    () => (state.noise.enabled && state.noise.intensity > 0 ? "url(#noise-filter)" : ""),
-    [state.noise.enabled, state.noise.intensity],
-  );
+  const noiseFilter = "";
 
   return {
     transform,
