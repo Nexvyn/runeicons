@@ -30,5 +30,6 @@ export function resolveAnimationType(type?: string): string {
 export function resolveEasingValue(easingId?: string, customCubic?: string): string {
   if (easingId === "custom" && customCubic) return customCubic;
   const found = EASING_PRESETS.find((e) => e.id === (easingId || "ease-in-out"));
-  return found ? found.value : "ease-in-out";
+  if (found && found.value !== "custom") return found.value;
+  return "cubic-bezier(0.34, 1.56, 0.64, 1)";
 }

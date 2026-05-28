@@ -9,18 +9,15 @@ interface UseWorkspaceStateOptions {
 }
 
 function createAdaptiveState(theme?: string): CustomizationState {
-  const isDark = theme === "dark";
-  const adaptiveColor = isDark ? "#ffffff" : "#000000";
-  const adaptiveStop = isDark ? "#cccccc" : "#333333";
-
   return {
     ...DEFAULT_STATE,
-    colors: [adaptiveColor],
+    colors: ["", ""],
     gradient: {
       ...DEFAULT_STATE.gradient,
       stops: [
-        { color: adaptiveColor, position: 0 },
-        { color: adaptiveStop, position: 100 },
+        { color: "#6366f1", position: 0 },
+        { color: "#a855f7", position: 50 },
+        { color: "#ec4899", position: 100 },
       ],
     },
   };
@@ -81,9 +78,14 @@ export function useWorkspaceState(
       const savedState = localStorage.getItem("rune_workspace_state");
       if (savedState) {
         const parsed = JSON.parse(savedState);
+        const migratedIconType =
+          parsed.iconType === "isometric" || parsed.iconType === "dither"
+            ? "normal"
+            : parsed.iconType;
         setState({
           ...DEFAULT_STATE,
           ...parsed,
+          iconType: migratedIconType,
           motion: { ...DEFAULT_STATE.motion, ...(parsed.motion ?? {}) },
           shadow: { ...DEFAULT_STATE.shadow, ...(parsed.shadow ?? {}) },
           noise: { ...DEFAULT_STATE.noise, ...(parsed.noise ?? {}) },
@@ -146,48 +148,21 @@ export function useWorkspaceState(
     if (!isMountedRef.current) return;
 
     if (resolvedTheme && !hasInitializedTheme && !localStorage.getItem("rune_workspace_state")) {
-      const isDark = resolvedTheme === "dark";
-      const adaptiveColor = isDark ? "#ffffff" : "#000000";
-      const adaptiveStop = isDark ? "#cccccc" : "#333333";
-
-      setState((prev: CustomizationState) => ({
-        ...prev,
-        colors: [adaptiveColor],
-        gradient: {
-          ...prev.gradient,
-          stops: [
-            { color: adaptiveColor, position: 0 },
-            { color: adaptiveStop, position: 100 },
-          ],
-        },
-      }));
       setHasInitializedTheme(true);
     }
 
-    const adaptiveState = createAdaptiveState(resolvedTheme);
-    const previousTheme = lastResolvedThemeRef.current;
-    const previousAdaptiveState = previousTheme
-      ? createAdaptiveState(previousTheme)
-      : null;
-    const currentState = lastStateRef.current;
-    const shouldSyncAdaptivePalette =
-      !colorsManuallySetRef.current &&
-      (!previousAdaptiveState ||
-        (areStringArraysEqual(currentState.colors, previousAdaptiveState.colors) &&
-          areGradientsEqual(currentState.gradient, previousAdaptiveState.gradient)));
-
     lastResolvedThemeRef.current = resolvedTheme;
-
-    if (!shouldSyncAdaptivePalette) {
-      return;
-    }
-
-    setState((prev: CustomizationState) => ({
-      ...prev,
-      colors: adaptiveState.colors,
-      gradient: adaptiveState.gradient,
-    }));
   }, [resolvedTheme, hasInitializedTheme]);
+
+  useEffect(() => {
+    const multiColorTypes = new Set(["duotone", "fill"]);
+    if (multiColorTypes.has(state.iconType) && state.colors.length < 2) {
+      setState((prev: CustomizationState) => ({
+        ...prev,
+        colors: [prev.colors[0] || "#000000", prev.colors[0] || "#000000"],
+      }));
+    }
+  }, [state.iconType, state.colors.length]);
 
   const handleChange = useCallback((updates: Partial<CustomizationState>) => {
     if ("colors" in updates || "gradient" in updates) {

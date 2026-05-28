@@ -20,6 +20,14 @@ export function ColorSection({ state, onChange }: ColorSectionProps) {
         onChange({ colors: newColors });
     }, [state.colors, onChange]);
 
+    const handleSecondaryColorChange = useCallback((hex: HexColor) => {
+        const newColors = [...state.colors];
+        newColors[1] = hex;
+        onChange({ colors: newColors });
+    }, [state.colors, onChange]);
+
+    const isMultiColor = state.iconType === 'duotone' || state.iconType === 'fill';
+
     const handleGradientColorChange = useCallback((index: number, hex: HexColor) => {
         const newStops = [...state.gradient.stops];
         newStops[index] = { ...newStops[index], color: hex };
@@ -94,10 +102,17 @@ export function ColorSection({ state, onChange }: ColorSectionProps) {
                 {mode === 'solid' ? (
                     <div key="solid" className="space-y-1.5">
                         <ColorRow
-                            label="Primary"
+                            label={state.iconType === 'fill' ? 'Fill' : 'Primary'}
                             value={state.colors[0] as HexColor}
                             onChange={handleSolidChange}
                         />
+                        {isMultiColor && (
+                            <ColorRow
+                                label={state.iconType === 'fill' ? 'Stroke' : 'Secondary'}
+                                value={(state.colors[1] || state.colors[0]) as HexColor}
+                                onChange={handleSecondaryColorChange}
+                            />
+                        )}
                     </div>
                 ) : (
                         <div key="gradient" className="flex flex-col gap-3">

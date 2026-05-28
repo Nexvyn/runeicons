@@ -88,8 +88,8 @@ export interface CustomizationState {
     r: number;
   };
   customIcons: Array<{ id: string; name: string; url: string }>;
-  iconType: "normal" | "duotone" | "fill" | "pixelated" | "glass" | "isometric" | "dither";
-  strokeStyle: "round" | "sharp" | "square" | "soft" | "medium" | "heavy";
+  iconType: "normal" | "duotone" | "fill" | "pixelated" | "glass";
+  strokeStyle: "round" | "sharp" | "soft" | "medium";
 }
 
 export interface IconData {
