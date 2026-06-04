@@ -565,7 +565,9 @@ export class BlossomColorPicker {
       this.effectivePosition = result.effectivePosition;
     } else if (!this.isExpanded) {
       this.shiftOffset = { x: 0, y: 0 };
-      this.effectivePosition = this.opts.sliderPosition || 'right';
+     setTimeout(() => {
+        this.effectivePosition = this.opts.sliderPosition || 'right';
+      }, this.opts.animationDuration);
     }
     setStyles(this.containerEl, {
       width: `${this.isExpanded ? this.containerSize : this.opts.coreSize}px`,
@@ -696,7 +698,7 @@ export class BlossomColorPicker {
   }
   private handleClickOutside(e: MouseEvent): void {
     if (!this.opts.collapsible) return;
-    if (this.containerEl && !this.containerEl.contains(e.target as Node)) {
+    if (this.rootEl && !this.rootEl.contains(e.target as Node)) {
       this.setExpanded(false);
     }
   }

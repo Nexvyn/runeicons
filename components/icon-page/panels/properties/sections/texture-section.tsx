@@ -62,21 +62,22 @@ export function TextureSection({
             isOpen && "border-border/60 bg-muted/15"
           )}
         >
-          <div className="flex h-[34px] w-full items-center justify-between px-2 text-[10px] uppercase tracking-widest text-foreground/70">
+          <button
+            type="button"
+            onClick={() => setIsOpen(!isOpen)}
+            className={cn(
+              "flex h-[34px] w-full cursor-pointer items-center justify-between px-2",
+              "text-[10px] uppercase tracking-widest text-foreground/70 transition-colors",
+              "hover:bg-muted/20 focus:outline-none",
+              isOpen && "bg-muted/20"
+            )}
+          >
             <span className="ml-1">Texture</span>
-            <button
-              type="button"
-              onClick={() => setIsOpen(!isOpen)}
-              className={cn(
-                "flex cursor-pointer items-center gap-2 rounded-sm px-1.5 py-0.5 transition-colors",
-                "hover:bg-muted/30 focus:outline-none",
-                isOpen && "bg-muted/30"
-              )}
-            >
+            <div className="flex items-center gap-2">
               <span>{currentTex?.name || "None"}</span>
               <TexturePreview texId={state.texture.selected} />
-            </button>
-          </div>
+            </div>
+          </button>
 
           <AnimatePresence initial={false}>
             {isOpen && (
@@ -120,6 +121,8 @@ export function TextureSection({
             }
             min={0}
             max={100}
+            className="bg-white/[0.07] border-white/10"
+            fillClassName="bg-white/20"
           />
         )}
       </div>

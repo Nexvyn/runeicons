@@ -94,16 +94,25 @@ export const PreviewContent = memo(
             .replace(/\bstroke="(?!none)[^"]*"/g, `stroke="${strokeVal}"`)
             .replace(/\bfill="(?!none)[^"]*"/g, `fill="${fillVal}"`);
         } else if (color) {
-          baseColorized = svgContent
-            .replace(/\bstroke="(?!none)[^"]*"/g, `stroke="${color}"`)
-            .replace(/\bfill="(?!none)[^"]*"/g, `fill="none"`);
+          const hasExplicitStrokes = /\bstroke="(?!none)[^"]*"/.test(svgContent);
+          if (hasExplicitStrokes) {
+            baseColorized = svgContent
+              .replace(/\bstroke="(?!none)[^"]*"/g, `stroke="${color}"`)
+              .replace(/\bfill="(?!none)[^"]*"/g, `fill="none"`);
+          } else {
+            baseColorized = svgContent
+              .replace(/\bfill="(?!none)[^"]*"/g, `fill="${color}"`);
+          }
         } else {
           baseColorized = svgContent;
         }
-        let result = baseColorized
-          .replace(/\s*stroke-linecap="[^"]*"/g, "")
-          .replace(/\s*stroke-linejoin="[^"]*"/g, "")
-          .replace(/\s*stroke-width="[^"]*"/g, "");
+        const isFillOnly = !/\bstroke="(?!none)[^"]*"/.test(svgContent);
+         let result = isFillOnly
+          ? baseColorized
+          : baseColorized
+              .replace(/\s*stroke-linecap="[^"]*"/g, "")
+              .replace(/\s*stroke-linejoin="[^"]*"/g, "")
+              .replace(/\s*stroke-width="[^"]*"/g, "");
         if (isDrawAnim) {
           result = result.replace(
             /<(path|circle|rect|ellipse|line|polyline|polygon)(\s)/g,

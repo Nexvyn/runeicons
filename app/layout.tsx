@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ShapeProvider } from "@/lib/shape-context";
 import { MotionProvider } from "@/provider/motion-provider";
 import { ThemeProvider } from "@/provider/theme-provider";
+import { Agentation } from "agentation";
 
 import "./globals.css";
 
@@ -51,6 +52,8 @@ export default function RootLayout({
       >
         <MotionProvider>
           <ShapeProvider>
+                {process.env.NODE_ENV === "development" && <Agentation />}
+
             <ThemeProvider
               attribute="class"
               defaultTheme="system"

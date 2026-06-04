@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { PickerPortalContext } from "./picker-portal-context";
 import { Check, ChevronDown, Download } from "lucide-react";
 import { toast } from "sonner";
 import { PropertiesPanelProps } from "./types";
@@ -9,7 +10,7 @@ import { useCustomIconUpload } from "./hooks/use-custom-icon-upload";
 import { PanelHeader } from "./components/PanelHeader";
 import { ColorSection } from "./sections/color-section";
 import { SizeTransformSection } from "./sections/size-transform-section";
-import { FlipRotateSection } from "./sections/flip-rotate-section";
+// import { FlipRotateSection } from "./sections/flip-rotate-section";
 import { ShadowSection } from "./sections/shadow-section";
 import { NoiseSection } from "./sections/noise-section";
 import { TextureSection } from "./sections/texture-section";
@@ -84,7 +85,16 @@ export function PropertiesPanel({
     MAX_CUSTOM_ICONS,
   } = useCustomIconUpload(state, onChange, onDeleteIcon);
 
+  const [pickerPortalEl, setPickerPortalEl] = useState<HTMLDivElement | null>(null);
+
   return (
+    <PickerPortalContext.Provider value={pickerPortalEl}>
+    <div className="h-full relative">
+    <div
+      ref={setPickerPortalEl}
+      className="absolute inset-0 pointer-events-none overflow-hidden"
+      style={{ zIndex: 200 }}
+    />
     <div
       className="h-full overflow-y-auto custom-scrollbar bg-background"
       role="region"
@@ -149,7 +159,7 @@ export function PropertiesPanel({
           
           <StrokeStyleSection state={state} onChange={onChange} />
 
-          <FlipRotateSection state={state} onChange={onChange} />
+          {/* <FlipRotateSection state={state} onChange={onChange} /> */}
 
           {/* <ShadowSection state={state} onChange={onChange} /> */}
 
@@ -174,5 +184,7 @@ export function PropertiesPanel({
         </div>
       </div>
     </div>
+    </div>
+    </PickerPortalContext.Provider>
   );
 }

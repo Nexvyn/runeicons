@@ -1,12 +1,12 @@
 import { BlossomColorPickerColor, ColorInput } from './types';
 export function lightnessToSliderValue(l: number): number {
-  const minLightness = 20;
+  const minLightness = 5;
   const maxLightness = 100;
   const clampedL = Math.max(minLightness, Math.min(maxLightness, l));
   return ((maxLightness - clampedL) / (maxLightness - minLightness)) * 100;
 }
 export function sliderValueToLightness(sliderValue: number): number {
-  const minLightness = 20;
+  const minLightness = 5;
   const maxLightness = 100;
   return maxLightness - (sliderValue / 100) * (maxLightness - minLightness);
 }
@@ -145,9 +145,15 @@ export function getVisualSaturation(
   sliderValue: number,
   baseSaturation: number
 ): number {
-  return sliderValue < 10
-    ? (sliderValue / 10) * baseSaturation
-    : baseSaturation;
+  if (sliderValue < 10) {
+    // Fade to white: desaturate toward the light end
+    return (sliderValue / 10) * baseSaturation;
+  }
+  if (sliderValue > 90) {
+    // Fade to black: desaturate toward the dark end so no hue tint remains
+    return ((100 - sliderValue) / 10) * baseSaturation;
+  }
+  return baseSaturation;
 }
 export function hslToString(h: number, s: number, l: number): string {
   return `hsl(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(l)}%)`;
