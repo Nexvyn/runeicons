@@ -10,7 +10,7 @@ import { useCustomIconUpload } from "./hooks/use-custom-icon-upload";
 import { PanelHeader } from "./components/PanelHeader";
 import { ColorSection } from "./sections/color-section";
 import { SizeTransformSection } from "./sections/size-transform-section";
-import { FlipRotateSection } from "./sections/flip-rotate-section";
+// import { FlipRotateSection } from "./sections/flip-rotate-section";
 import { ShadowSection } from "./sections/shadow-section";
 import { NoiseSection } from "./sections/noise-section";
 import { TextureSection } from "./sections/texture-section";
@@ -159,7 +159,7 @@ export function PropertiesPanel({
           
           <StrokeStyleSection state={state} onChange={onChange} />
 
-          <FlipRotateSection state={state} onChange={onChange} />
+          {/* <FlipRotateSection state={state} onChange={onChange} /> */}
 
           {/* <ShadowSection state={state} onChange={onChange} /> */}
 
