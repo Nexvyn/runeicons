@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useCallback } from "react";
 import {
   AlertCircle,
   Loader2,
@@ -48,32 +48,10 @@ export function UploadSection({
   maxIcons,
 }: UploadSectionProps) {
   useTuning();
-  const [armedDeleteId, setArmedDeleteId] = useState<string | null>(null);
-  const deleteTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const disarmDelete = useCallback(() => {
-    setArmedDeleteId(null);
-    if (deleteTimeoutRef.current) {
-      clearTimeout(deleteTimeoutRef.current);
-      deleteTimeoutRef.current = null;
-    }
-  }, []);
-
-  const armDelete = useCallback((id: string) => {
-    setArmedDeleteId(id);
-    deleteTimeoutRef.current = setTimeout(() => {
-      setArmedDeleteId(null);
-    }, 2000);
-  }, []);
-
-  const handleDeleteClick = useCallback((id: string, name: string) => {
-    if (armedDeleteId === id) {
-      disarmDelete();
-      deleteIcon(id);
-    } else {
-      armDelete(id);
-    }
-  }, [armedDeleteId, disarmDelete, armDelete, deleteIcon]);
+  const handleDeleteClick = useCallback((id: string) => {
+    deleteIcon(id);
+  }, [deleteIcon]);
 
   return (
     <Section 
@@ -213,26 +191,17 @@ export function UploadSection({
                   >
                     {icon.name}
                   </span>
-                  <motion.div
-                    animate={armedDeleteId === icon.id ? { scale: [1, 1.1, 1] } : { scale: 1 }}
-                    transition={armedDeleteId === icon.id ? { repeat: Infinity, duration: 0.6, ease: "easeInOut" } : { duration: 0.15 }}
-                    className="flex-shrink-0"
-                  >
+                  <div className="flex-shrink-0">
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleDeleteClick(icon.id, icon.name)}
-                      className={cn(
-                        "h-8 w-8 transition-[scale,background-color,color,opacity] duration-200 rounded-lg active:scale-[0.96] outline-none focus-visible:ring-2",
-                        armedDeleteId === icon.id
-                          ? "bg-destructive text-white ring-destructive/30"
-                          : "text-muted-foreground hover:text-destructive hover:bg-destructive/10 focus-visible:ring-destructive opacity-0 group-hover:opacity-100"
-                      )}
-                      aria-label={armedDeleteId === icon.id ? `Confirm delete ${icon.name}` : `Delete ${icon.name}`}
+                      onClick={() => handleDeleteClick(icon.id)}
+                      className="h-8 w-8 transition-[scale,background-color,color,opacity] duration-200 rounded-lg active:scale-[0.96] outline-none focus-visible:ring-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 focus-visible:ring-destructive opacity-0 group-hover:opacity-100"
+                      aria-label={`Delete ${icon.name}`}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
-                  </motion.div>
+                  </div>
                 </motion.div>
               ))}
             </motion.div>

@@ -89,8 +89,6 @@ export function BezierEditor({ value, onChange }: BezierEditorProps) {
 
   return (
     <div className="space-y-2">
-      <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Bezier Curve</div>
-
       <svg
         ref={svgRef}
         width={SIZE}

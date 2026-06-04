@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { PickerPortalContext } from "./picker-portal-context";
 import { Check, ChevronDown, Download } from "lucide-react";
 import { toast } from "sonner";
 import { PropertiesPanelProps } from "./types";
@@ -84,7 +85,16 @@ export function PropertiesPanel({
     MAX_CUSTOM_ICONS,
   } = useCustomIconUpload(state, onChange, onDeleteIcon);
 
+  const [pickerPortalEl, setPickerPortalEl] = useState<HTMLDivElement | null>(null);
+
   return (
+    <PickerPortalContext.Provider value={pickerPortalEl}>
+    <div className="h-full relative">
+    <div
+      ref={setPickerPortalEl}
+      className="absolute inset-0 pointer-events-none overflow-hidden"
+      style={{ zIndex: 200 }}
+    />
     <div
       className="h-full overflow-y-auto custom-scrollbar bg-background"
       role="region"
@@ -174,5 +184,7 @@ export function PropertiesPanel({
         </div>
       </div>
     </div>
+    </div>
+    </PickerPortalContext.Provider>
   );
 }

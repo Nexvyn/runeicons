@@ -124,10 +124,10 @@ export function PanelHeader({ onExport, onImport, onReset }: PanelHeaderProps) {
             <AnimatePresence>
               {isResetArmed && (
                 <motion.div
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 42, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  className="absolute right-0 flex items-center gap-1 rounded-lg bg-popover p-1 border border-border shadow-xl z-[100] whitespace-nowrap"
+                  initial={{ opacity: 0, y: -4, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -4, scale: 0.95 }}
+                  className="absolute right-0 top-[calc(100%+6px)] flex items-center gap-1 rounded-lg bg-popover p-1 border border-border shadow-xl z-[100] whitespace-nowrap"
                 >
                   <button
                     onClick={handleResetClick}
@@ -143,7 +143,7 @@ export function PanelHeader({ onExport, onImport, onReset }: PanelHeaderProps) {
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
-                  <div className="absolute -top-1 right-3 w-2 h-2 bg-popover border-l border-t border-border rotate-45 z-[-1]" />
+                  <div className="absolute -top-[5px] right-3 w-2 h-2 bg-popover border-l border-t border-border rotate-45 z-[-1]" />
                 </motion.div>
               )}
             </AnimatePresence>

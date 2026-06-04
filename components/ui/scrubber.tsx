@@ -27,6 +27,7 @@ interface ScrubberProps {
   showCenterDivider?: boolean;
   rightSlot?: React.ReactNode;
   showTicks?: boolean;
+  showFill?: boolean;
 }
 
 export const Scrubber: React.FC<ScrubberProps> = ({
@@ -45,6 +46,7 @@ export const Scrubber: React.FC<ScrubberProps> = ({
   showCenterDivider = false,
   rightSlot,
   showTicks = true,
+  showFill = true,
 }) => {
   const { values } = useTuning();
   const [internalValue, setInternalValue] = useState(controlledValue ?? initialValue);
@@ -327,15 +329,17 @@ export const Scrubber: React.FC<ScrubberProps> = ({
             </div>
           </div>
         )}
-        <motion.div
-          style={{ transform: progressTransform, transformOrigin: "left" }}
-          animate={{
-            backgroundColor: fillClassName ? undefined : "var(--brand)",
-            opacity: isDragging ? 0.2 : 0.12,
-          }}
-          transition={{ duration: 0.1 }}
-          className={cn("absolute top-0 right-0 bottom-0 left-0 z-0", fillClassName)}
-        />
+        {showFill && (
+          <motion.div
+            style={{ transform: progressTransform, transformOrigin: "left" }}
+            animate={{
+              backgroundColor: fillClassName ? undefined : "var(--brand)",
+              opacity: isDragging ? 0.2 : 0.12,
+            }}
+            transition={{ duration: 0.1 }}
+            className={cn("absolute top-0 right-0 bottom-0 left-0 z-0", fillClassName)}
+          />
+        )}
         {showCenterDivider && (
           <div className="pointer-events-none absolute top-0 bottom-0 left-1/2 z-[5] w-px -translate-x-1/2 bg-border/50" />
         )}

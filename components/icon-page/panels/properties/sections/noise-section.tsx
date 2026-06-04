@@ -1,6 +1,5 @@
 import { Scrubber } from "@/components/ui/scrubber";
 import { CustomizationState } from "@/lib/types";
-import { NOISE_STYLES } from "@/lib/visual-effects";
 
 interface NoiseSectionProps {
   state: CustomizationState;
@@ -18,9 +17,6 @@ export function NoiseSection({
   return (
     <Section>
       <div className="pt-1 relative">
-        <style dangerouslySetInnerHTML={{
-          __html: NOISE_STYLES
-        }} />
         <Scrubber
           label="Noise Grain"
           value={state.noise.intensity}
@@ -31,9 +27,8 @@ export function NoiseSection({
           }
           min={0}
           max={100}
-          className="bg-transparent border-transparent"
-          trackClassName="noise-track-custom"
-          fillClassName="hidden"
+          className="noise-track-custom border-transparent"
+          showFill={false}
           showTicks={false}
         />
       </div>

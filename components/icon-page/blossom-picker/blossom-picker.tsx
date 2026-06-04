@@ -7,10 +7,11 @@ import {
   blossomPickerStyles,
 } from '@/components/icon-page/blossom-vendor';
 import type { BlossomColorPickerColor } from '@/components/icon-page/blossom-vendor/types';
-import { HexColor, normalizeHexColor } from '@/lib/color-utils';
+import { normalizeHexColor } from '@/lib/color-utils';
 import { cn } from '@/lib/utils';
 import { BlossomColorPickerProps } from './types';
 import { hexToPickerValue, VENDOR_PICKER_DEFAULTS } from './vendor-bridge';
+import { usePickerPortal } from '@/components/icon-page/panels/properties/picker-portal-context';
 
 let stylesInjected = false;
 
@@ -36,25 +37,49 @@ export const BlossomColorPicker = ({
   const instanceRef = useRef<VendorBlossomColorPicker | null>(null);
   const onChangeRef = useRef(onChange);
   const onDismissRef = useRef(onDismiss);
+  const rafRef = useRef<number | null>(null);
+
+  // Prefer the panel-level portal container from context; fall back to prop or body.
+  const panelPortal = usePickerPortal();
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
 
   onChangeRef.current = onChange;
   onDismissRef.current = onDismiss;
 
-  const syncPortalPosition = useCallback(() => {
-    const anchor = anchorRef.current;
-    const portal = portalHostRef.current;
-    if (!anchor || !portal) return;
+  // Resolve portal target: panel portal (absolute) > prop > document.body (fixed)
+  useEffect(() => {
+    setPortalTarget(panelPortal ?? portalContainer ?? document.body);
+  }, [panelPortal, portalContainer]);
 
-    const rect = anchor.getBoundingClientRect();
-    portal.style.position = 'fixed';
-    portal.style.left = `${rect.left}px`;
-    portal.style.top = `${rect.top}px`;
-    portal.style.width = `${rect.width}px`;
-    portal.style.height = `${rect.height}px`;
-    portal.style.zIndex = '9999';
-    portal.style.pointerEvents = 'auto';
-  }, []);
+  const syncPortalPosition = useCallback(() => {
+    if (rafRef.current !== null) return;
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null;
+      const anchor = anchorRef.current;
+      const portal = portalHostRef.current;
+      if (!anchor || !portal) return;
+
+      const anchorRect = anchor.getBoundingClientRect();
+
+      if (panelPortal) {
+        // Absolute positioning relative to the panel portal overlay
+        const containerRect = panelPortal.getBoundingClientRect();
+        portal.style.position = 'absolute';
+        portal.style.left = `${anchorRect.left - containerRect.left}px`;
+        portal.style.top = `${anchorRect.top - containerRect.top}px`;
+      } else {
+        // Fixed positioning relative to viewport (fallback / no panel context)
+        portal.style.position = 'fixed';
+        portal.style.left = `${anchorRect.left}px`;
+        portal.style.top = `${anchorRect.top}px`;
+      }
+
+      portal.style.width = `${anchorRect.width}px`;
+      portal.style.height = `${anchorRect.height}px`;
+      portal.style.zIndex = '9999';
+      portal.style.pointerEvents = 'auto';
+    });
+  }, [panelPortal]);
 
   const handleVendorChange = useCallback((color: BlossomColorPickerColor) => {
     onChangeRef.current?.(normalizeHexColor(color.hex, '#007aff'));
@@ -63,10 +88,6 @@ export const BlossomColorPicker = ({
   const handleVendorCollapse = useCallback((color: BlossomColorPickerColor) => {
     onDismissRef.current?.(normalizeHexColor(color.hex, '#007aff'));
   }, []);
-
-  useEffect(() => {
-    setPortalTarget(portalContainer ?? document.body);
-  }, [portalContainer]);
 
   useLayoutEffect(() => {
     if (!portalTarget) return;
@@ -126,10 +147,14 @@ export const BlossomColorPicker = ({
   useEffect(() => {
     syncPortalPosition();
     window.addEventListener('resize', syncPortalPosition);
-    window.addEventListener('scroll', syncPortalPosition, true);
+    window.addEventListener('scroll', syncPortalPosition);
     return () => {
       window.removeEventListener('resize', syncPortalPosition);
-      window.removeEventListener('scroll', syncPortalPosition, true);
+      window.removeEventListener('scroll', syncPortalPosition);
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
     };
   }, [syncPortalPosition]);
 

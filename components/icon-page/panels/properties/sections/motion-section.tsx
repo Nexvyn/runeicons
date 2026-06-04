@@ -43,6 +43,72 @@ function pathColor(i: number): string {
   return `hsl(${(i * 137) % 360}deg 65% 55%)`;
 }
 
+const EASING_CUBIC: Record<string, [number, number, number, number]> = {
+  "ease-in":     [0.42, 0, 1, 1],
+  "ease-out":    [0, 0, 0.58, 1],
+  "ease-in-out": [0.42, 0, 0.58, 1],
+  "linear":      [0, 0, 1, 1],
+  "custom":      [0.34, 1.56, 0.64, 1],
+};
+
+function easingCurvePoints(id: string, value: string): [number, number, number, number] {
+  if (EASING_CUBIC[id]) return EASING_CUBIC[id];
+  const m = value.match(/cubic-bezier\(\s*([\d.+-]+)\s*,\s*([\d.+-]+)\s*,\s*([\d.+-]+)\s*,\s*([\d.+-]+)\s*\)/);
+  if (m) return [parseFloat(m[1]), parseFloat(m[2]), parseFloat(m[3]), parseFloat(m[4])];
+  return [0.42, 0, 0.58, 1];
+}
+
+function EasingCurve({ x1, y1, x2, y2 }: { x1: number; y1: number; x2: number; y2: number }) {
+  const S = 48;   // total svg size
+  const PAD = 6;  // padding inside
+  const I = S - PAD * 2; // inner size
+
+  const toSvg = (nx: number, ny: number) => ({
+    sx: PAD + nx * I,
+    sy: PAD + (1 - ny) * I,
+  });
+
+  const pts: string[] = [];
+  for (let i = 0; i <= 32; i++) {
+    const t = i / 32;
+    const mt = 1 - t;
+    const nx = mt * mt * mt * 0 + 3 * mt * mt * t * x1 + 3 * mt * t * t * x2 + t * t * t * 1;
+    const ny = mt * mt * mt * 0 + 3 * mt * mt * t * y1 + 3 * mt * t * t * y2 + t * t * t * 1;
+    const sx = PAD + nx * I;
+    const sy = PAD + (1 - ny) * I;
+    pts.push(`${i === 0 ? "M" : "L"}${sx.toFixed(1)},${sy.toFixed(1)}`);
+  }
+
+  const p1 = toSvg(x1, y1);
+  const p2 = toSvg(x2, y2);
+  const origin = toSvg(0, 0);
+  const end = toSvg(1, 1);
+
+  return (
+    <svg width={S} height={S} viewBox={`0 0 ${S} ${S}`} className="pointer-events-none overflow-visible">
+      <g stroke="currentColor" strokeOpacity="0.12" strokeWidth="0.5">
+        {[0.25, 0.5, 0.75].map((f) => (
+          <g key={f}>
+            <line x1={PAD + f * I} y1={PAD} x2={PAD + f * I} y2={PAD + I} />
+            <line x1={PAD} y1={PAD + f * I} x2={PAD + I} y2={PAD + f * I} />
+          </g>
+        ))}
+      </g>
+      <rect x={PAD} y={PAD} width={I} height={I} fill="none" stroke="currentColor" strokeOpacity="0.2" strokeWidth="0.5" />
+      <line x1={origin.sx} y1={origin.sy} x2={end.sx} y2={end.sy} stroke="currentColor" strokeOpacity="0.1" strokeWidth="0.5" strokeDasharray="2 2" />
+      <g stroke="hsl(220 70% 65%)" strokeWidth="0.75" strokeOpacity="0.6">
+        <line x1={origin.sx} y1={origin.sy} x2={p1.sx} y2={p1.sy} />
+        <line x1={end.sx} y1={end.sy} x2={p2.sx} y2={p2.sy} />
+      </g>
+      <path d={pts.join(" ")} fill="none" stroke="hsl(220 80% 65%)" strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx={origin.sx} cy={origin.sy} r={1.5} fill="currentColor" fillOpacity="0.4" />
+      <circle cx={end.sx} cy={end.sy} r={1.5} fill="currentColor" fillOpacity="0.4" />
+      <circle cx={p1.sx} cy={p1.sy} r={2.5} fill="hsl(220 80% 65%)" stroke="currentColor" strokeWidth="0.75" strokeOpacity="0.4" />
+      <circle cx={p2.sx} cy={p2.sy} r={2.5} fill="hsl(220 80% 65%)" stroke="currentColor" strokeWidth="0.75" strokeOpacity="0.4" />
+    </svg>
+  );
+}
+
 
 
 export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationSectionProps) {
@@ -259,6 +325,19 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
             <>
               <button
                 type="button"
+                aria-label={`Loop ${motionState?.loop ? "on" : "off"}`}
+                aria-pressed={motionState?.loop ?? false}
+                onClick={() => handleGlobalChange({ loop: !motionState?.loop })}
+                className={cn(
+                  "h-5 px-1.5 rounded text-[9px] uppercase tracking-widest transition-colors flex items-center gap-1",
+                  motionState?.loop ? "text-foreground" : "text-foreground/30 hover:text-foreground/55"
+                )}
+              >
+                <span className={cn("h-1 w-1 rounded-full", motionState?.loop ? "bg-foreground" : "bg-foreground/20")} aria-hidden="true" />
+                Loop
+              </button>
+              <button
+                type="button"
                 aria-label={isPaused ? "Push and play animation" : "Pause animation"}
                 title={isPaused ? "Push & Play" : "Pause"}
                 onClick={() => handleGlobalChange({ isPaused: !isPaused, scrubProgress: null })}
@@ -453,33 +532,22 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
               {selectedPathIdx === -1 ? (
                 <div className="space-y-3">
                   <div className="space-y-1.5">
-                    <div className="flex items-center justify-between px-1">
+                    <div className="px-1">
                       <span className="text-[10px] uppercase tracking-widest text-foreground/35">Easing</span>
-                      <button
-                        type="button"
-                        aria-label={`Loop ${motionState?.loop ? "on" : "off"}`}
-                        aria-pressed={motionState?.loop ?? false}
-                        onClick={() => handleGlobalChange({ loop: !motionState?.loop })}
-                        className={cn(
-                          "h-5 px-1.5 rounded text-[9px] uppercase tracking-widest transition-colors flex items-center gap-1",
-                          motionState?.loop ? "text-foreground" : "text-foreground/30 hover:text-foreground/55"
-                        )}
-                      >
-                        <span className={cn("h-1 w-1 rounded-full", motionState?.loop ? "bg-foreground" : "bg-foreground/20")} aria-hidden="true" />
-                        Loop
-                      </button>
                     </div>
                     <div className="grid grid-cols-4 gap-1 px-1">
                       {EASING_SIMPLE.map((e) => {
                         const isActive = currentEasingId === e.id;
+                        const [cx1, cy1, cx2, cy2] = easingCurvePoints(e.id, e.value);
                         return (
                           <button key={e.id} type="button"
                             onClick={() => handleGlobalChange({ easingId: e.id, presetId: null })}
                             className={cn(
-                              "h-7 rounded-sm text-[9px] uppercase tracking-tighter transition-all",
+                              "h-20 rounded-sm flex flex-col items-center justify-center gap-1 transition-all",
                               isActive ? "bg-foreground text-background" : "text-foreground/35 hover:text-foreground/70 hover:bg-muted/10"
                             )}>
-                            {e.label}
+                            <EasingCurve x1={cx1} y1={cy1} x2={cx2} y2={cy2} />
+                            <span className="text-[8px] uppercase tracking-tighter">{e.label}</span>
                           </button>
                         );
                       })}
@@ -519,12 +587,14 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
                       <div className="grid grid-cols-4 gap-1 px-1">
                         {EASING_SIMPLE.map((e) => {
                           const isActive = (activeOverride.easingId ?? motionState?.easingId) === e.id;
+                          const [cx1, cy1, cx2, cy2] = easingCurvePoints(e.id, e.value);
                           return (
                             <button key={e.id} type="button"
                               onClick={() => handlePathOverrideUpdate(selectedPathIdx, { easingId: e.id })}
-                              className={cn("h-7 rounded-sm text-[9px] uppercase tracking-tighter transition-all",
+                              className={cn("h-20 rounded-sm flex flex-col items-center justify-center gap-1 transition-all",
                                 isActive ? "bg-foreground text-background" : "text-foreground/35 hover:text-foreground/70 hover:bg-muted/10")}>
-                              {e.label}
+                              <EasingCurve x1={cx1} y1={cy1} x2={cx2} y2={cy2} />
+                              <span className="text-[8px] uppercase tracking-tighter">{e.label}</span>
                             </button>
                           );
                         })}

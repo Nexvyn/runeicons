@@ -13,12 +13,12 @@ export const OUTER_COLORS = [
   { h: 96, s: 49, l: 67 }, 
 ];
 export const INNER_COLORS = [
-  { h: 50, s: 95, l: 85 }, 
-  { h: 26, s: 89, l: 89 }, 
-  { h: 345, s: 77, l: 88 }, 
-  { h: 283, s: 47, l: 84 }, 
-  { h: 209, s: 70, l: 87 }, 
-  { h: 116, s: 42, l: 87 }, 
+  { h: 50, s: 95, l: 85 },
+  { h: 26, s: 89, l: 89 },
+  { h: 345, s: 77, l: 88 },
+  { h: 283, s: 47, l: 84 },
+  { h: 209, s: 70, l: 87 },
+  { h: 116, s: 42, l: 87 },
 ];
 export const DEFAULT_COLORS = [...INNER_COLORS, ...OUTER_COLORS];
 export const BLOOM_EASING =
