@@ -106,6 +106,7 @@
 }
 
 .dark {
+  --brand: #5a8af5;
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -323,6 +324,80 @@
 .launchLiveGlyph {
   user-select: none;
   -webkit-user-select: none;
+}
+
+:root {
+  --scene-launch: #1346e7;
+  --scene-relaunch: #4fe5ff;
+
+  --scene-beam-1: #84a2ff;
+  --scene-beam-2: #1346e7;
+  --scene-beam-3: #5b78f2;
+
+  --scene-flame-1: #ffffff;
+  --scene-flame-2: #ffe9a8;
+  --scene-flame-3: #ffb257;
+  --scene-flame-4: #ff7b3c;
+
+  --scene-pulse: #5b78f2;
+  --scene-pulse-hot: #7e97fa;
+
+  --scene-arrow-1: #1565c0;
+  --scene-arrow-2: #229eff;
+  --scene-arrow-3: #7ac2ff;
+  --scene-arrow-line: #0f3d6b;
+}
+
+.dark {
+  --scene-launch: #a5750a;
+  --scene-relaunch: #b01a00;
+
+  --scene-beam-1: #7b5d00;
+  --scene-beam-2: #ecb918;
+  --scene-beam-3: #a4870d;
+
+  --scene-flame-1: #000000;
+  --scene-flame-2: #001657;
+  --scene-flame-3: #004da8;
+  --scene-flame-4: #0084c3;
+
+  --scene-pulse: #a4870d;
+  --scene-pulse-hot: #816805;
+
+  --scene-arrow-1: #ea9a3f;
+  --scene-arrow-2: #dd6100;
+  --scene-arrow-3: #853d00;
+  --scene-arrow-line: #f0c294;
+}
+
+.LaunchButton path,
+.LaunchButton rect {
+  transition: fill 0.5s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+.LaunchButton.is-relaunch {
+  --scene-launch: var(--scene-relaunch);
+}
+
+.Pluse {
+  stroke: var(--scene-pulse);
+  transition: stroke 0.4s ease;
+}
+
+.Pluse.is-hot {
+  stroke: var(--scene-pulse-hot);
+}
+
+.buildingCubeFace {
+  transition: fill 0.45s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.buildingCubeFace.is-ready {
+  fill: #93ffbb;
+}
+
+.dark .buildingCubeFace.is-ready {
+  fill: #ef467e;
 }
 
 .rocketRivet {
