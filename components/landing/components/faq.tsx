@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { MessageCircle } from "lucide-react";
 
 import {
@@ -50,8 +52,8 @@ const faqItems: FAQItem[] = [
 
 export default function Faq() {
   return (
-    <section className="w-full py-24">
-      <div className="relative w-full overflow-hidden px-4 py-8 sm:px-10 sm:py-14 lg:px-16 lg:py-16">
+    <section className="w-full">
+      <div className="relative w-full overflow-hidden px-4 py-6 sm:px-10 sm:py-8 lg:px-16 lg:py-10">
         <div className="relative z-10 flex flex-col gap-10 lg:flex-row lg:gap-20">
           <div className="flex shrink-0 flex-col gap-8 lg:w-[440px]">
             <div className="flex flex-col gap-2">
@@ -62,9 +64,11 @@ export default function Faq() {
               <p className="text-sm text-muted-foreground">
                 Can’t find the answer you’re looking for? <br /> I’m here to help.
               </p>
-              <Button className="mt-6 w-fit">
-                Contact us <MessageCircle />
-              </Button>
+              <Link href="https://x.com/RuneIcon" target="_blank" rel="noopener noreferrer">
+                <Button className="mt-6 w-fit">
+                  Contact us <MessageCircle />
+                </Button>
+              </Link>
             </div>
           </div>
 

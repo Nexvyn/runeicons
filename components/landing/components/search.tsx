@@ -3,14 +3,12 @@ import { useState } from "react";
 import type { ComponentType, SVGProps } from "react";
 
 import Image from "next/image";
-import Link from "next/link";
 
 import { Search as SearchIcon } from "lucide-react";
 import { AnimatePresence, useReducedMotion } from "motion/react";
 import * as m from "motion/react-m";
 
 import { useLandingSearch } from "../hooks/use-landing-search";
-import { Button } from "../../ui/button";
 import { DuotoneIcon } from "../../icons/DuotoneIcon";
 import { FillIcon } from "../../icons/FillIcon";
 import { GlassIcon } from "../../icons/GlassIcon";
@@ -69,14 +67,8 @@ const Search = () => {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search for icons..."
-                  className="h-full flex-1 border-0 bg-transparent pl-2 text-foreground shadow-none placeholder:text-muted-foreground focus-visible:ring-0 dark:text-white dark:placeholder:text-white/70"
+                  className="h-full flex-1 rounded-r-xl border-0 bg-transparent pr-4 pl-2 text-foreground shadow-none placeholder:text-muted-foreground focus-visible:ring-0 dark:text-white dark:placeholder:text-white/70"
                 />
-                <Button
-                  asChild
-                  className="h-full rounded-none bg-white px-4 text-black hover:bg-white/90 dark:bg-zinc-900 dark:text-white dark:hover:bg-zinc-800"
-                >
-                  <Link href="/icons">Search</Link>
-                </Button>
               </div>
 
               <div className="mt-4 mb-3 flex min-h-[200px] flex-col sm:mt-6 sm:mb-4 sm:min-h-[460px] md:min-h-[330px]">
