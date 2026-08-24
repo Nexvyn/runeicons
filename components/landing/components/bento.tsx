@@ -35,14 +35,14 @@ const BentoCard = ({
           : "pointer-events-none absolute inset-x-0 bottom-0 z-10 p-4 md:px-8 md:pb-6"
       }
     >
-      <h3 className="md:text-md mb-1 text-sm font-semibold">{title}</h3>
-      <p className="md:text-md text-sm text-muted-foreground">{description}</p>
+      <h3 className="mb-1 text-sm font-semibold md:text-base">{title}</h3>
+      <p className="text-sm text-muted-foreground md:text-base">{description}</p>
     </div>
   );
 
   return (
     <div
-      className={`relative flex min-h-0 flex-col overflow-hidden rounded-2xl border border-border ${transparentBg ? "bg-transparent" : "bg-card"} text-card-foreground transition-all duration-300 hover:shadow-lg md:rounded-3xl ${className}`}
+      className={`relative flex min-h-0 flex-col overflow-hidden rounded-2xl border border-border ${transparentBg ? "bg-transparent" : "bg-card"} text-card-foreground transition-shadow duration-150 ease hover:shadow-lg md:rounded-3xl ${className}`}
     >
       <div
         className={
@@ -61,7 +61,7 @@ const BentoCard = ({
 const Bento = () => {
   return (
     <section className="w-full">
-      <div className="mx-auto grid min-h-[50vh] w-full grid-cols-1 gap-2 max-sm:h-full md:gap-4 lg:h-[90vh] lg:grid-cols-12">
+      <div className="mx-auto grid min-h-[60vh] w-full grid-cols-1 gap-2 max-sm:h-full md:gap-4 lg:h-[calc(100vh-104px)] lg:grid-cols-12">
         <div className="grid min-h-0 grid-cols-1 gap-2 md:gap-4 lg:col-span-4 lg:grid-rows-[6fr_4fr]">
           <BentoCard
             title="Five styles, one library"
@@ -98,7 +98,7 @@ const Bento = () => {
             title="Tweak every detail"
             description="Stroke, size, color, animation, dial each icon in until it fits your brand."
             className="h-full"
-            graphicClassName="!p-0"
+            graphicClassName="p-0!"
             inlineLabel
             transparentBg
           >

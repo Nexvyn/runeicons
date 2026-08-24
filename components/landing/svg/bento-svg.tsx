@@ -32,6 +32,13 @@ const BentoSvg = ({ className }: { className?: string }) => {
 
     let hasAnimated = false;
 
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      gsap.set(paths, { strokeDashoffset: 0, opacity: 1 });
+      gsap.set(shapes, { opacity: 1 });
+      return;
+    }
+
     const playAnimation = () => {
       if (hasAnimated) return;
       hasAnimated = true;
@@ -42,11 +49,11 @@ const BentoSvg = ({ className }: { className?: string }) => {
           gsap.to(path, {
             strokeDashoffset: 0,
             duration: 1.2,
-            delay: i * 0.15,
+            delay: i * 0.05,
             ease: "power2.out",
           });
         } else {
-          gsap.to(path, { opacity: 1, duration: 1, delay: i * 0.15 });
+          gsap.to(path, { opacity: 1, duration: 1, delay: i * 0.05 });
         }
       });
 
@@ -54,7 +61,7 @@ const BentoSvg = ({ className }: { className?: string }) => {
         gsap.to(shape, {
           opacity: 1,
           duration: 1,
-          delay: 0.2 + i * 0.12,
+          delay: 0.2 + i * 0.04,
           ease: "power1.out",
         });
       });
