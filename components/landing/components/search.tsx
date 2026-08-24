@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Search as SearchIcon } from "lucide-react";
-import { AnimatePresence } from "motion/react";
+import { AnimatePresence, useReducedMotion } from "motion/react";
 import * as m from "motion/react-m";
 
 import { useLandingSearch } from "../hooks/use-landing-search";
@@ -34,6 +34,7 @@ const HIGHLIGHT_CLASS =
 
 const Search = () => {
   const [iconType, setIconType] = useState<IconType>("normal");
+  const shouldReduceMotion = useReducedMotion();
   const { query, setQuery, results } = useLandingSearch(iconType, 25);
 
   return (
@@ -78,26 +79,30 @@ const Search = () => {
                 </Button>
               </div>
 
-              <div className="my-3 mt-4 flex min-h-[200px] flex-col sm:my-4 sm:mt-6 sm:min-h-[460px] md:min-h-[330px]">
+              <div className="mt-4 mb-3 flex min-h-[200px] flex-col sm:mt-6 sm:mb-4 sm:min-h-[460px] md:min-h-[330px]">
                 {results.length > 0 ? (
                   <div className="grid flex-1 grid-cols-3 content-start justify-items-center gap-2 px-1 sm:grid-cols-4 sm:gap-3 sm:px-0 md:grid-cols-5">
                     <AnimatePresence mode="popLayout" initial={false}>
                       {results.map((icon, index) => (
                         <m.div
                           key={icon.id}
-                          layout
+                          layout={!shouldReduceMotion}
                           className={`flex w-14 flex-col items-center gap-1 ${
                             index >= 9 ? "hidden sm:flex" : ""
                           }`}
-                          initial={{ opacity: 0, scale: 0.9 }}
+                          initial={
+                            shouldReduceMotion ? false : { opacity: 0, scale: 0.9 }
+                          }
                           animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.9 }}
+                          exit={
+                            shouldReduceMotion ? undefined : { opacity: 0, scale: 0.9 }
+                          }
                           transition={{
-                            duration: 0.18,
+                            duration: shouldReduceMotion ? 0 : 0.18,
                             ease: [0.16, 1, 0.3, 1],
                           }}
                         >
-                          <div className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-muted/50 transition-colors hover:bg-muted">
+                          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg bg-muted/50 transition-colors hover:bg-muted">
                             {icon.url && (
                               <m.img
                                 key={icon.url}
@@ -107,7 +112,7 @@ const Search = () => {
                                 loading="lazy"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                transition={{ duration: 0.16, ease: "easeOut" }}
+                                transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
                               />
                             )}
                           </div>
@@ -137,19 +142,17 @@ const Search = () => {
                           aria-label={label}
                           title={label}
                           onClick={() => setIconType(value)}
-                          className="relative flex flex-1 cursor-pointer items-center justify-center py-2.5"
+                          className="relative flex flex-1 cursor-pointer items-center justify-center py-2.5 transition-transform duration-150 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 active:scale-[0.97]"
                         >
                           {isActive && (
                             <m.div
                               layoutId="landing-search-type"
                               className={HIGHLIGHT_CLASS}
-                              initial={{ scale: 1 }}
-                              animate={{ scale: 1.3 }}
-                              transition={{
-                                type: "spring",
-                                stiffness: 500,
-                                damping: 40,
-                              }}
+                              transition={
+                                shouldReduceMotion
+                                  ? { duration: 0 }
+                                  : { type: "spring", stiffness: 500, damping: 40 }
+                              }
                             />
                           )}
                           <span
