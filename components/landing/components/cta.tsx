@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { Diamond, Hammer, Paintbrush, Rocket, Sparkles, Zap } from "lucide-react";
+import { Diamond, Github, Hammer, Paintbrush, Rocket, Sparkles, Zap } from "lucide-react";
 import { useReducedMotion } from "motion/react";
 import * as m from "motion/react-m";
 
@@ -27,7 +27,6 @@ const CTA = () => {
 
   return (
     <section className="relative h-full w-full overflow-hidden rounded-3xl py-24">
-      {" "}
       <Image
         src="/landing/gradient/cta-gradient.png"
         className="absolute inset-0 h-full w-full object-cover"
@@ -56,18 +55,26 @@ const CTA = () => {
             key={`${item.x}-${item.y}`}
             className="text-white/75 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]"
             initial={{ opacity: 0 }}
-            animate={{
-              opacity: [0.1, 0.4, 0.1],
-              y: [0, -15, 0],
-              x: [0, 10, 0],
-              rotate: [0, 10, -10, 0],
-            }}
-            transition={{
-              duration: 6 + i,
-              repeat: Infinity,
-              delay: item.delay,
-              ease: "easeInOut",
-            }}
+            animate={
+              shouldReduceMotion
+                ? { opacity: 0.25, x: 0, y: 0, rotate: 0 }
+                : {
+                    opacity: [0.1, 0.4, 0.1],
+                    y: [0, -15, 0],
+                    x: [0, 10, 0],
+                    rotate: [0, 10, -10, 0],
+                  }
+            }
+            transition={
+              shouldReduceMotion
+                ? { duration: 0 }
+                : {
+                    duration: 6 + i,
+                    repeat: Infinity,
+                    delay: item.delay,
+                    ease: "linear",
+                  }
+            }
             style={{
               position: "absolute",
               left: item.x,
@@ -93,7 +100,7 @@ const CTA = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-10% 0px" }}
           transition={{ duration: ENTRANCE_DURATION, ease: EASE_OUT_QUART, delay: 0.08 }}
-          className="mb-8 text-3xl leading-[1.1] font-medium tracking-tight sm:text-xl md:text-xl lg:text-5xl"
+          className="mb-8 text-3xl leading-[1.1] font-medium tracking-tight sm:text-4xl md:text-5xl lg:text-6xl"
         >
           <span className="bg-linear-to-b from-white to-white/70 bg-clip-text text-transparent">
             Ready to build <br /> something beautiful?
@@ -110,10 +117,10 @@ const CTA = () => {
           <m.div
             whileHover={shouldReduceMotion ? undefined : { scale: 1.03 }}
             whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
-            transition={{ duration: HOVER_DURATION, ease: "easeOut" }}
+            transition={{ duration: HOVER_DURATION, ease: EASE_OUT_QUART }}
           >
             <Link href="/icons">
-              <Button size={"lg"} variant={"default"}>
+              <Button size="lg" variant="default">
                 Browse Icons
               </Button>
             </Link>
@@ -121,11 +128,13 @@ const CTA = () => {
           <m.div
             whileHover={shouldReduceMotion ? undefined : { scale: 1.03 }}
             whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
-            transition={{ duration: HOVER_DURATION, ease: "easeOut" }}
+            transition={{ duration: HOVER_DURATION, ease: EASE_OUT_QUART }}
           >
-            <Button size={"lg"} variant={"secondary"}>
-              Star On GitHub
-            </Button>
+            <Link href="https://github.com/Nexvyn/runeicons" target="_blank" rel="noopener noreferrer">
+              <Button size="lg" variant="secondary">
+                Star On GitHub <Github />
+              </Button>
+            </Link>
           </m.div>
         </m.div>
       </div>

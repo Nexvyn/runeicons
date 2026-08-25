@@ -4,24 +4,16 @@ import { Github } from "lucide-react";
 
 import LightLogo from "@/components/landing/svg/light";
 
-const usefulLinks = [
-  { title: "Hero", href: "#home" },
-  { title: "Icon Search", href: "#search" },
-  { title: "Features", href: "#features" },
-  { title: "Testimonials", href: "#testimonials" },
-  { title: "FAQ", href: "#faq" },
-];
-
-const productLinks = [
-  { title: "Product Teams", href: "#" },
-  { title: "Finance Teams", href: "#" },
-  { title: "Data Teams", href: "#" },
+const legalLinks = [
+  { title: "Terms of Use", href: "/terms" },
+  { title: "Privacy Policy", href: "/privacy" },
 ];
 
 const collaboratorsLinks = [
-  { title: "Nexvyn", href: "#" },
-  { title: "Vansh", href: "#" },
-  { title: "Abhinav", href: "#" },
+  { title: "Nexvyn", href: "https://x.com/nexvyn" },
+  { title: "Vansh", href: "https://x.com/vansh1029" },
+  { title: "Abhinav", href: "https://x.com/Abhinavstwt" },
+  { title: "Mohit", href: "https://x.com/mohitmehtre" },
 ];
 
 const Footer = () => {
@@ -30,7 +22,7 @@ const Footer = () => {
       <div className="w-full rounded-3xl border border-border/60 bg-background px-6 py-8 sm:px-10 sm:py-10">
         <div className="grid gap-10 md:grid-cols-6">
           <div className="md:col-span-2">
-            <Link href="/" aria-label="go home" className="flex size-fit items-center gap-2">
+            <Link href="/" aria-label="Go home" className="flex size-fit items-center gap-2">
               <LightLogo />
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
@@ -38,47 +30,15 @@ const Footer = () => {
             </p>
           </div>
 
-          <div className="space-y-3 text-sm">
-            <p className="text-xs font-semibold tracking-wide text-foreground uppercase">
-              Useful Link
-            </p>
-            <div className="space-y-2">
-              {usefulLinks.map((item) => (
-                <Link
-                  key={item.title}
-                  href={item.href}
-                  className="block text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  {item.title}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-3 text-sm">
-            <p className="text-xs font-semibold tracking-wide text-foreground uppercase">Product</p>
-            <div className="space-y-2">
-              {productLinks.map((item) => (
-                <Link
-                  key={item.title}
-                  href={item.href}
-                  className="block text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  {item.title}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-3 text-sm">
-            <p className="text-xs font-semibold tracking-wide text-foreground uppercase">
-              Collaborators
-            </p>
+          <div className="space-y-3 text-sm md:col-start-5">
+            <p className="text-xs font-semibold tracking-wide text-foreground uppercase">Team</p>
             <div className="space-y-2">
               {collaboratorsLinks.map((item) => (
                 <Link
                   key={item.title}
                   href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="block text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {item.title}
@@ -87,7 +47,7 @@ const Footer = () => {
             </div>
           </div>
 
-          <div className="space-y-3 text-sm">
+          <div className="space-y-3 text-sm md:col-start-6">
             <p className="text-xs font-semibold tracking-wide text-foreground uppercase">Social</p>
             <div className="flex items-center gap-4">
               <Link
@@ -98,23 +58,22 @@ const Footer = () => {
                 className="text-muted-foreground transition-colors hover:text-foreground"
               >
                 <svg
-                  className="invert dark:invert-0"
+                  className="text-black dark:text-white"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
                   width="16"
                   height="16"
-                  color="currentColor"
                   fill="none"
-                  stroke="#FFFFFF"
+                  stroke="currentColor"
                   strokeWidth="1.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
                   <path d="M3 21L10.5484 13.4516M21 3L13.4516 10.5484M13.4516 10.5484L8 3H3L10.5484 13.4516M13.4516 10.5484L21 21H16L10.5484 13.4516" />
-                </svg>{" "}
+                </svg>
               </Link>
               <Link
-                href="https://github.com/rune-icon/runeicons"
+                href="https://github.com/Nexvyn/runeicons"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"
@@ -131,18 +90,15 @@ const Footer = () => {
             Copyright © {new Date().getFullYear()} Rune. All rights reserved.
           </p>
           <div className="flex items-center gap-5 text-xs">
-            <Link
-              href="#"
-              className="text-muted-foreground transition-colors hover:text-foreground"
-            >
-              Terms of Use
-            </Link>
-            <Link
-              href="#"
-              className="text-muted-foreground transition-colors hover:text-foreground"
-            >
-              Privacy Policy
-            </Link>
+            {legalLinks.map((item) => (
+              <Link
+                key={item.title}
+                href={item.href}
+                className="text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {item.title}
+              </Link>
+            ))}
           </div>
         </div>
       </div>
