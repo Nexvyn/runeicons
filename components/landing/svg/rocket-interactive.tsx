@@ -102,15 +102,15 @@ export default function RocketInteractive() {
   const viewBox = `${VB.x} ${VB.y} ${VB.w} ${VB.h}`;
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center lg:p-8 xl:p-12">
+    <div className="relative w-full h-full flex items-center justify-center p-2">
       {isModified && (
         <button
           type="button"
           onClick={onReset}
-          className="absolute top-2 right-2 z-10 p-1.5 rounded-lg bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors duration-150 ease-out"
+          className="absolute -top-1 -right-1 z-10 p-1 rounded-md bg-background border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors duration-150 ease-out shadow-sm"
           aria-label="Reset rocket"
         >
-          <RotateCcw className="w-3.5 h-3.5" />
+          <RotateCcw className="w-3 h-3" />
         </button>
       )}
 
@@ -124,18 +124,26 @@ export default function RocketInteractive() {
         style={{ touchAction: "none" }}
         preserveAspectRatio="xMidYMid meet"
       >
-        {paths.map((entry, pathIdx) => (
-          <path
-            key={pathIdx}
-            d={entry.d}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={pathIdx <= 2 ? 2.33 : 2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="text-foreground"
-          />
-        ))}
+        {paths.map((entry, pathIdx) => {
+          const fills: Record<number, string> = {
+            0: "#dbeafe",
+            3: "#bfdbfe",
+            4: "#fed7aa",
+            5: "#fecaca",
+          };
+
+          return (
+            <path
+              key={pathIdx}
+              d={entry.d}
+              fill={fills[pathIdx] || "none"}
+              stroke="#000000"
+              strokeWidth={pathIdx <= 2 ? 1.5 : 1.2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          );
+        })}
 
         {paths.map((entry, pathIdx) =>
           entry.points.map((pt, i) => {
@@ -173,6 +181,7 @@ export default function RocketInteractive() {
                   fill={isAnchor ? "#2563eb" : "#ff4d4f"}
                   stroke="white"
                   strokeWidth={0.8 * SCALE}
+                  className="origin-center transition-transform duration-150 transform-fill hover:scale-150"
                   style={{ cursor: "move" }}
                   onMouseDown={(e) => onPointDown(pathIdx, i, e)}
                 />

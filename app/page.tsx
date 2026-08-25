@@ -27,11 +27,9 @@ const Page = async () => {
         />
       </div>
 
-      <div className="pointer-events-none col-span-full col-start-1 row-start-2 border-b-2 border-dashed" />
-
       <div
         id="home"
-        className="col-start-2 row-start-3 flex w-[95vw] max-w-[1440px] 2xl:max-w-[1800px] scroll-mt-24 flex-col gap-2 px-3 pt-20 pb-10 sm:px-6 sm:pb-14 md:w-[90vw] 2xl:w-[85vw]"
+        className="col-start-2 row-start-3 flex w-[95vw] max-w-[1440px] 2xl:max-w-[1800px] scroll-mt-24 flex-col gap-2 px-3 pt-20 pb-4 sm:px-6 sm:pb-6 md:w-[90vw] 2xl:w-[85vw]"
       >
         <HeroSection />
       </div>
@@ -49,7 +47,7 @@ const Page = async () => {
 
       <div
         id="features"
-        className="col-start-2 row-start-7 flex w-[95vw] max-w-[1440px] 2xl:max-w-[1800px] scroll-mt-24 flex-col p-3 py-10 sm:p-6 sm:py-14 md:w-[90vw] 2xl:w-[85vw]"
+        className="col-start-2 row-start-7 flex w-[95vw] max-w-[1440px] 2xl:max-w-[1800px] scroll-mt-24 flex-col p-3 sm:p-6 md:w-[90vw] 2xl:w-[85vw]"
       >
         <Bento />
       </div>
@@ -58,14 +56,14 @@ const Page = async () => {
 
       <div
         id="faq"
-        className="col-start-2 row-start-9 flex w-[95vw] max-w-[1440px] 2xl:max-w-[1800px] scroll-mt-24 flex-col px-3 py-10 sm:px-6 sm:py-14 md:w-[90vw] 2xl:w-[85vw]"
+        className="col-start-2 row-start-9 flex w-[95vw] max-w-[1440px] 2xl:max-w-[1800px] scroll-mt-24 flex-col justify-center p-3 sm:p-6 lg:min-h-[calc(100vh-104px)] md:w-[90vw] 2xl:w-[85vw]"
       >
         <Faq />
       </div>
 
       <div className="pointer-events-none col-span-full col-start-1 row-start-10 border-b-2 border-dashed" />
 
-      <div className="col-start-2 row-start-11 flex w-[95vw] max-w-[1440px] 2xl:max-w-[1800px] flex-col overflow-hidden p-3 py-10 sm:p-6 sm:py-14 md:w-[90vw] 2xl:w-[85vw]">
+      <div className="col-start-2 row-start-11 flex w-[95vw] max-w-[1440px] 2xl:max-w-[1800px] flex-col overflow-hidden p-3 sm:p-6 md:w-[90vw] 2xl:w-[85vw]">
         <CTA />
       </div>
 
@@ -75,7 +73,7 @@ const Page = async () => {
         <Footer />
       </div>
 
-      <div className="pointer-events-none z-50 col-start-2 row-span-full row-start-1 border-x-2 border-dashed" />
+      <div className="pointer-events-none fixed inset-y-0 left-1/2 z-40 w-[95vw] max-w-[1440px] -translate-x-1/2 border-x-2 border-dashed md:w-[90vw] 2xl:w-[85vw] 2xl:max-w-[1800px]" />
     </div>
   );
 };

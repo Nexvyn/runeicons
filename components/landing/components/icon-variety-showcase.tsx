@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import type { Transition } from "motion/react";
+import { useReducedMotion } from "motion/react";
 import * as m from "motion/react-m";
 
 import { DuotoneIcon } from "@/components/icons/DuotoneIcon";
@@ -52,10 +53,10 @@ const VARIANTS: Variant[] = [
 ];
 
 const VISIBLE = 3;
-const CARD_HEIGHT = 96;
-const STACK_OFFSET = 14;
-const WIDTH_SHRINK = 24;
-const BASE_WIDTH = 340;
+const CARD_HEIGHT = 78;
+const STACK_OFFSET = 12;
+const WIDTH_SHRINK = 20;
+const BASE_WIDTH = 280;
 
 const GHOST_LIFETIME_MS = 450;
 const SETTLE_MS = 520;
@@ -69,40 +70,45 @@ const IconVarietyShowcase = () => {
   const [phase, setPhase] = useState<"settling" | "filling" | "exiting">(
     "settling",
   );
-  const [displayProgress, setDisplayProgress] = useState(0);
-  const [ghost, setGhost] = useState<{ idx: number; progress: number } | null>(
-    null,
-  );
+  const [ghost, setGhost] = useState<{ idx: number } | null>(null);
   const [appearCard, setAppearCard] = useState<{
     idx: number;
     phase: "start" | "end";
   } | null>(null);
 
   const orderRef = useRef(order);
-  const displayProgressRef = useRef(displayProgress);
+  const shouldReduceMotion = useReducedMotion();
+  const isHoveredRef = useRef(false);
 
   useEffect(() => {
     orderRef.current = order;
   }, [order]);
   useEffect(() => {
-    displayProgressRef.current = displayProgress;
-  }, [displayProgress]);
-
-  useEffect(() => {
+    if (shouldReduceMotion) return;
     let phaseTimer: ReturnType<typeof setTimeout> | null = null;
 
+    const armDelayed = (ms: number, run: () => void) => {
+      const tick = () => {
+        if (isHoveredRef.current) {
+          phaseTimer = setTimeout(tick, 100);
+        } else {
+          run();
+        }
+      };
+      phaseTimer = setTimeout(tick, ms);
+    };
+
     if (phase === "settling") {
-      phaseTimer = setTimeout(() => setPhase("filling"), SETTLE_MS);
+      armDelayed(SETTLE_MS, () => setPhase("filling"));
     } else if (phase === "filling") {
-      phaseTimer = setTimeout(() => setPhase("exiting"), FILL_MS + HOLD_MS);
+      armDelayed(FILL_MS + HOLD_MS, () => setPhase("exiting"));
     } else if (phase === "exiting") {
       const top = orderRef.current[0];
       const newBackIdx =
         orderRef.current[VISIBLE % orderRef.current.length] ?? top;
 
-      setGhost({ idx: top, progress: displayProgressRef.current });
+      setGhost({ idx: top });
       setOrder(([first, ...rest]) => [...rest, first]);
-      setDisplayProgress(0);
       setAppearCard({ idx: newBackIdx, phase: "start" });
 
       requestAnimationFrame(() =>
@@ -117,7 +123,7 @@ const IconVarietyShowcase = () => {
     return () => {
       if (phaseTimer) clearTimeout(phaseTimer);
     };
-  }, [phase]);
+  }, [phase, shouldReduceMotion]);
 
   useEffect(() => {
     if (!ghost) return;
@@ -131,24 +137,19 @@ const IconVarietyShowcase = () => {
     return () => clearTimeout(t);
   }, [appearCard]);
 
-  useEffect(() => {
-    if (phase !== "filling") return;
-    const startTime = performance.now();
-    let frame: number;
-    const tick = (now: number) => {
-      const elapsed = Math.min(now - startTime, FILL_MS);
-      setDisplayProgress(Math.round((100 * elapsed) / FILL_MS));
-      if (elapsed < FILL_MS) frame = requestAnimationFrame(tick);
-    };
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [phase]);
-
   const visibleOrder = order.slice(0, VISIBLE);
   const stackHeight = CARD_HEIGHT + (VISIBLE - 1) * STACK_OFFSET;
 
   return (
-    <div className="relative flex h-full w-full items-center justify-center">
+    <div
+      className="relative flex h-full w-full items-center justify-center"
+      onMouseEnter={() => {
+        isHoveredRef.current = true;
+      }}
+      onMouseLeave={() => {
+        isHoveredRef.current = false;
+      }}
+    >
       <div
         className="relative"
         style={{ width: BASE_WIDTH, height: stackHeight + 32 }}
@@ -247,15 +248,15 @@ const IconVarietyShowcase = () => {
 function CardContent({ variant }: { variant: Variant }) {
   const Icon = variant.Icon;
   return (
-    <div className="flex h-full items-center gap-4 px-5">
-      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-muted">
-        <Icon className="h-9 w-9 text-foreground" />
+    <div className="flex h-full items-center gap-3 px-4">
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-muted">
+        <Icon className="h-7 w-7 text-foreground" />
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <span className="truncate text-[18px] leading-tight font-semibold text-foreground">
+        <span className="truncate text-[15px] leading-tight font-semibold text-foreground">
           {variant.title}
         </span>
-        <span className="truncate text-[13px] leading-snug text-muted-foreground">
+        <span className="truncate text-[11px] leading-snug text-muted-foreground">
           {variant.description}
         </span>
       </div>

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Atom, AudioLines, Bug, Cat, Flower2, Hop, Minus, Plus } from "lucide-react";
+import { useReducedMotion } from "motion/react";
 import * as m from "motion/react-m";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 
@@ -41,17 +42,23 @@ const IconCarousel = () => {
   const [iconSize, setIconSize] = useState(16);
   const [strokeColor, setStrokeColor] = useState("currentColor");
   const [animation, setAnimation] = useState("none");
+  const isHoveredRef = useRef(false);
+  const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
+    if (shouldReduceMotion) return;
     const interval = setInterval(() => {
+      if (isHoveredRef.current) return;
       setActiveIndex((prev) => (prev + 1) % ICONS.length);
     }, 4000);
     return () => clearInterval(interval);
-  }, []);
+  }, [shouldReduceMotion]);
 
   const goTo = (i: number) => {
     setActiveIndex(i);
   };
+
+  const activeAnimation = shouldReduceMotion ? "none" : animation;
 
   return (
     <div className="flex h-full w-full flex-col gap-4 self-stretch">
@@ -132,7 +139,15 @@ const IconCarousel = () => {
         </div>
       </div>
 
-      <div className="relative flex min-h-0 flex-1 items-center justify-center mask-r-from-70% mask-l-from-70%">
+      <div
+        className="relative flex min-h-0 flex-1 items-center justify-center mask-r-from-70% mask-l-from-70%"
+        onMouseEnter={() => {
+          isHoveredRef.current = true;
+        }}
+        onMouseLeave={() => {
+          isHoveredRef.current = false;
+        }}
+      >
         <m.div
           className="absolute flex items-center justify-center"
           animate={{ x: -activeIndex * ICON_GAP, y: "-50%" }}
@@ -156,13 +171,18 @@ const IconCarousel = () => {
                   }
                 }}
                 style={{ width: ICON_GAP }}
+                whileHover={
+                  !isActive && !shouldReduceMotion
+                    ? { opacity: 0.55, scale: 1.04 }
+                    : undefined
+                }
                 animate={
                   isActive
                     ? {
                         opacity: 1,
-                        rotate: animation === "spin" ? 360 : 0,
-                        scale: animation === "pulse" ? 1.2 : 1,
-                        y: animation === "bounce" ? -15 : 0,
+                        rotate: activeAnimation === "spin" ? 360 : 0,
+                        scale: activeAnimation === "pulse" ? 1.2 : 1,
+                        y: activeAnimation === "bounce" ? -15 : 0,
                       }
                     : {
                         opacity: dist === 1 ? 0.3 : 0.12,
@@ -172,34 +192,34 @@ const IconCarousel = () => {
                       }
                 }
                 transition={
-                  isActive && animation !== "none"
+                  isActive && activeAnimation !== "none"
                     ? {
-                        opacity: { duration: 0.4 },
+                        opacity: { duration: 0.2 },
                         rotate:
-                          animation === "spin"
+                          activeAnimation === "spin"
                             ? { duration: 3, repeat: Infinity, ease: "linear" }
-                            : { duration: 0.4 },
+                            : { duration: 0.2 },
                         scale:
-                          animation === "pulse"
+                          activeAnimation === "pulse"
                             ? {
                                 duration: 0.8,
                                 repeat: Infinity,
                                 repeatType: "reverse",
                                 ease: "easeInOut",
                               }
-                            : { duration: 0.4 },
+                            : { duration: 0.2 },
                         y:
-                          animation === "bounce"
+                          activeAnimation === "bounce"
                             ? {
                                 duration: 0.8,
                                 repeat: Infinity,
                                 repeatType: "reverse",
                                 ease: "easeInOut",
                               }
-                            : { duration: 0.4 },
+                            : { duration: 0.2 },
                       }
                     : {
-                        duration: 0.4,
+                        duration: 0.2,
                         ease: "easeOut",
                       }
                 }

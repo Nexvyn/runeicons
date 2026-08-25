@@ -1,5 +1,8 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+
+import { useAnimation, useReducedMotion } from "motion/react";
 import * as m from "motion/react-m";
 
 const blinkTransition = {
@@ -8,6 +11,24 @@ const blinkTransition = {
   repeat: Infinity,
   ease: "easeInOut" as const,
 };
+
+const REACT_UP = {
+  scale: [1, 0.93, 1.09, 1],
+  rotate: [0, -2.5, 2, 0],
+};
+
+const REACT_DOWN = {
+  scale: [1, 0.96, 1],
+  rotate: [0, 1.5, 0],
+};
+
+const heartFloat = (i: number) => ({
+  duration: 2.2 + i * 0.25,
+  repeat: Infinity,
+  repeatType: "reverse" as const,
+  ease: "easeInOut" as const,
+  delay: i * 0.12,
+});
 
 const mouthSpring = {
   type: "spring" as const,
@@ -58,9 +79,32 @@ const Mascot = ({ stage = 1 }: MascotProps) => {
   const showBlush = stage >= 3;
   const showHearts = stage >= 4;
 
+  const shouldReduceMotion = useReducedMotion();
+  const bodyControls = useAnimation();
+  const previousStage = useRef(stage);
+
+  useEffect(() => {
+    const from = previousStage.current;
+    if (from === stage) return;
+    previousStage.current = stage;
+    if (shouldReduceMotion) return;
+
+    const goingUp = stage > from;
+    bodyControls.start(goingUp ? REACT_UP : REACT_DOWN, {
+      duration: goingUp ? 0.52 : 0.26,
+      ease: [0.23, 1, 0.32, 1],
+    });
+  }, [stage, bodyControls, shouldReduceMotion]);
+
   return (
     <>
-      <svg viewBox="0 0 248 195" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <m.svg
+        viewBox="0 0 248 195"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        animate={bodyControls}
+        style={{ transformOrigin: "center bottom" }}
+      >
         <path
           d="M197.087 19.2749C202.59 15.5089 209.123 13.227 215.81 15.2612L215.851 15.2739L215.894 15.2788C221.16 15.9353 228.783 18.5286 234.513 24.1518C240.218 29.7506 244.088 38.3909 241.83 51.2602L241.829 51.2681L241.828 51.2749C241.128 56.0993 236.898 66.9162 225.638 71.4214L225.13 71.6245L225.377 72.1118C237.52 96.0495 246.146 133.086 221.596 163.931C206.085 183.419 177.517 191.267 147.957 193.101C118.425 194.932 88.0517 190.751 69.1104 186.328C47.1499 181.201 15.2042 164.696 12.8144 122.079C11.7389 102.899 17.2682 85.9467 25.0977 72.1323L25.3184 71.7417L24.9551 71.48C10.8459 61.3032 7.43249 50.6926 8.7666 41.6069C10.1066 32.4822 16.2526 24.7613 21.5488 20.436C33.1746 13.8081 42.7345 14.3576 49.9648 17.6753C57.233 21.0104 62.206 27.1718 64.5508 31.8266L64.7812 32.2837L65.2334 32.0425C112.312 6.8543 154.898 15.9946 184.171 32.0395L184.578 32.2632L184.83 31.8735C187.189 28.2397 191.586 23.0395 197.087 19.2749Z"
           fill="white"
@@ -123,8 +167,8 @@ const Mascot = ({ stage = 1 }: MascotProps) => {
             transformBox: "fill-box",
             transformOrigin: "center",
           }}
-          animate={{ scaleY: [1, 1, 0.1, 1] }}
-          transition={blinkTransition}
+          animate={shouldReduceMotion ? { scaleY: 1 } : { scaleY: [1, 1, 0.1, 1] }}
+          transition={shouldReduceMotion ? { duration: 0 } : blinkTransition}
         />
         <m.path
           d="M171.634 123.42C174.053 122.772 175.298 119.571 174.414 116.272C173.530 112.972 170.852 110.823 168.432 111.471C166.013 112.119 164.768 115.320 165.652 118.619C166.536 121.919 169.215 124.069 171.634 123.420Z"
@@ -133,8 +177,8 @@ const Mascot = ({ stage = 1 }: MascotProps) => {
             transformBox: "fill-box",
             transformOrigin: "center",
           }}
-          animate={{ scaleY: [1, 1, 0.1, 1] }}
-          transition={blinkTransition}
+          animate={shouldReduceMotion ? { scaleY: 1 } : { scaleY: [1, 1, 0.1, 1] }}
+          transition={shouldReduceMotion ? { duration: 0 } : blinkTransition}
         />
         <m.ellipse
           cx="58"
@@ -182,11 +226,15 @@ const Mascot = ({ stage = 1 }: MascotProps) => {
             animate={{
               opacity: showHearts ? 1 : 0,
               scale: showHearts ? 1 : 0.3,
-              y: showHearts ? 0 : 14,
+              y: showHearts && !shouldReduceMotion ? [0, -5, 0] : showHearts ? 0 : 14,
             }}
             transition={{
-              ...heartSpring,
-              delay: showHearts ? i * 0.07 : 0,
+              opacity: { ...heartSpring, delay: showHearts ? i * 0.07 : 0 },
+              scale: { ...heartSpring, delay: showHearts ? i * 0.07 : 0 },
+              y:
+                showHearts && !shouldReduceMotion
+                  ? heartFloat(i)
+                  : { ...heartSpring, delay: showHearts ? i * 0.07 : 0 },
             }}
           >
             <path
@@ -233,7 +281,7 @@ const Mascot = ({ stage = 1 }: MascotProps) => {
             />
           </clipPath>
         </defs>
-      </svg>
+      </m.svg>
     </>
   );
 };
