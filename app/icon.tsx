@@ -2,10 +2,10 @@ import { ImageResponse } from "next/og";
 
 import { BrandMark } from "./brand-mark";
 
-export const size = { width: 180, height: 180 };
+export const size = { width: 32, height: 32 };
 export const contentType = "image/png";
 
-export default function AppleIcon() {
+export default function Icon() {
   return new ImageResponse(
     <div
       style={{
@@ -15,9 +15,10 @@ export default function AppleIcon() {
         alignItems: "center",
         justifyContent: "center",
         background: "#1346E7",
+        borderRadius: 6,
       }}
     >
-      <BrandMark size={104} fill="#FFFFFF" />
+      <BrandMark size={22} fill="#FFFFFF" />
     </div>,
     size,
   );

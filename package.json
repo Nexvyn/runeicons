@@ -57,6 +57,7 @@
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^10.2.0",
     "eslint-config-next": "16.2.2",
+    "playwright": "^1.62.1",
     "postcss": "^8.5",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
