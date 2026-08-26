@@ -3,11 +3,11 @@ import { useState } from "react";
 
 import * as m from "motion/react-m";
 
+import Navbar from "@/components/ui/navbar";
 import { getCheckoutForAmount } from "@/lib/creem";
 
 import { AmountSelector } from "./ui/amount-selector";
 import { CertificateCard } from "./ui/certificate-card";
-import Navbar from "@/components/ui/navbar";
 
 export default function SponsorContent() {
   const [selectedAmount, setSelectedAmount] = useState(5);
@@ -15,13 +15,8 @@ export default function SponsorContent() {
 
   const checkout = getCheckoutForAmount(selectedAmount);
 
-  const stage: 1 | 2 | 3 | 4 = customMode
-    ? 4
-    : selectedAmount === 100
-      ? 3
-      : selectedAmount === 20
-        ? 2
-        : 1;
+  const stage: 1 | 2 | 3 | 4 =
+    selectedAmount >= 100 ? 4 : selectedAmount >= 20 ? 3 : selectedAmount >= 5 ? 2 : 1;
 
   return (
     <div className="relative grid min-h-screen w-full grid-cols-[1fr_auto_1fr] grid-rows-[auto_1px_1fr] overflow-hidden bg-[#F5F5F5] font-(family-name:--font-inter-tight) dark:bg-background">
@@ -79,9 +74,9 @@ export default function SponsorContent() {
           </h1>
 
           <p className="max-w-[480px] text-center text-[13px] leading-relaxed text-muted-foreground">
-            RuneIcons will always be free and open-source. If the library has saved you time,
-            or if you just want to see it keep growing, your support helps me design new icons,
-            ship new styles, and keep everything sharp.
+            RuneIcons will always be free and open-source. If the library has saved you time, or if
+            you just want to see it keep growing, your support helps me design new icons, ship new
+            styles, and keep everything sharp.
           </p>
         </m.div>
 
@@ -106,12 +101,7 @@ export default function SponsorContent() {
             </div>
 
             <div className="w-full">
-              <CertificateCard
-                amount={selectedAmount}
-                stage={stage}
-                checkout={checkout}
-                flush
-              />
+              <CertificateCard amount={selectedAmount} stage={stage} checkout={checkout} flush />
             </div>
           </div>
         </m.div>

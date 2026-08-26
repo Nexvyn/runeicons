@@ -79,8 +79,6 @@ export function AmountSelector({
                   <m.div
                     layoutId="amount-highlight"
                     className={HIGHLIGHT_CLASS}
-                    initial={{ scale: 1 }}
-                    animate={{ scale: 1.3 }}
                     transition={{ type: "spring", stiffness: 500, damping: 40 }}
                   />
                 )}
@@ -103,8 +101,6 @@ export function AmountSelector({
               <m.div
                 layoutId="amount-highlight"
                 className={HIGHLIGHT_CLASS}
-                initial={{ scale: 1 }}
-                animate={{ scale: 1.3 }}
                 transition={{ type: "spring", stiffness: 500, damping: 40 }}
               />
             )}
