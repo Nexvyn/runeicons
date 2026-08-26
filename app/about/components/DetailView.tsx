@@ -1,11 +1,5 @@
 "use client";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Disc as Discord,
-  Globe,
-  X,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Disc as Discord, Github, Globe, Mail, X } from "lucide-react";
 import { AnimatePresence, useReducedMotion } from "motion/react";
 import * as m from "motion/react-m";
 
@@ -47,13 +41,7 @@ interface DetailViewProps {
   onPrev: () => void;
 }
 
-const DetailView = ({
-  user,
-  isMobile = false,
-  onClose,
-  onNext,
-  onPrev,
-}: DetailViewProps) => {
+const DetailView = ({ user, isMobile = false, onClose, onNext, onPrev }: DetailViewProps) => {
   const reduceMotion = useReducedMotion();
 
   if (isMobile) {
@@ -64,11 +52,7 @@ const DetailView = ({
         initial={{ y: reduceMotion ? 0 : "100%" }}
         animate={{ y: 0 }}
         exit={{ y: reduceMotion ? 0 : "100%" }}
-        transition={
-          reduceMotion
-            ? { duration: 0 }
-            : { duration: TIMING.drawer, ease: SWIFT }
-        }
+        transition={reduceMotion ? { duration: 0 } : { duration: TIMING.drawer, ease: SWIFT }}
         drag={reduceMotion ? false : "y"}
         dragConstraints={{ top: 0, bottom: 0 }}
         dragElastic={{ top: 0, bottom: 0.4 }}
@@ -127,9 +111,7 @@ const DetailView = ({
               }}
               transition={{ duration: TIMING.info, ease: EASE_OUT }}
             >
-              <h2 className="mb-4 font-['Syne'] text-3xl font-bold text-foreground">
-                {user.name}
-              </h2>
+              <h2 className="mb-4 font-['Syne'] text-3xl font-bold text-foreground">{user.name}</h2>
               <p className="mb-6 text-base leading-relaxed text-muted-foreground">
                 {user.description}
               </p>
@@ -165,6 +147,8 @@ const DetailView = ({
                   >
                     {social.type === "globe" && <Globe size={20} />}
                     {social.type === "twitter" && <XIcon size={20} />}
+                    {social.type === "github" && <Github size={20} />}
+                    {social.type === "mail" && <Mail size={20} />}
                     {social.type === "discord" && <Discord size={20} />}
                   </a>
                 ))}
@@ -250,9 +234,7 @@ const DetailView = ({
             }}
             transition={{ duration: TIMING.info, ease: EASE_OUT }}
           >
-            <h2 className="mb-6 font-['Syne'] text-4xl font-bold text-foreground">
-              {user.name}
-            </h2>
+            <h2 className="mb-6 font-['Syne'] text-4xl font-bold text-foreground">{user.name}</h2>
 
             <p className="mb-8 text-base leading-relaxed text-muted-foreground">
               {user.description}
@@ -289,6 +271,8 @@ const DetailView = ({
                 >
                   {social.type === "globe" && <Globe size={20} />}
                   {social.type === "twitter" && <XIcon size={20} />}
+                  {social.type === "github" && <Github size={20} />}
+                  {social.type === "mail" && <Mail size={20} />}
                   {social.type === "discord" && <Discord size={20} />}
                 </a>
               ))}

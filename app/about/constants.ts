@@ -2,13 +2,14 @@ const UserDetails = [
   {
     id: 1,
     name: "Abhinav",
-    description:
-      "Full-stack developer with a passion for building scalable web applications. Expert in React, Node.js, and cloud architecture.",
-    industry: "WEB3",
+    description: "An engineer who designs with taste.",
+    industry: "Software Engineering",
     status: "Active",
     socials: [
       { type: "globe", url: "https://abhi.at/" },
       { type: "twitter", url: "https://x.com/Abhinavstwt" },
+      { type: "github", url: "https://github.com/abhinavkale-dev" },
+      { type: "mail", url: "mailto:hi@abhi.at" },
     ],
     img: "/about/abhinav-v4.webp",
     accentColor: "#EF4444",
@@ -18,8 +19,8 @@ const UserDetails = [
     id: 2,
     name: "Vansh",
     description:
-      "Full-stack / design engineer. Driven by✱crafting tomorrow's tech,✧engineering systems andꕤsparking creative communities.",
-    industry: "Design",
+      "Full-stack and design engineer. Driven by ✱ crafting tomorrow's tech, ✧ engineering systems and ꕤ sparking creative communities.",
+    industry: "Design Engineering",
     status: "Offline",
     socials: [
       { type: "globe", url: "https://vanshnagar.me/" },
@@ -32,13 +33,14 @@ const UserDetails = [
   {
     id: 3,
     name: "Nexvyn",
-    description:
-      "Design engineer combining creative vision with technical implementation.",
-    industry: "Design Engineer",
+    description: "Design engineer. Handles both how a thing looks and how it gets built.",
+    industry: "Design Engineering",
     status: "Active",
     socials: [
       { type: "globe", url: "https://nexvyn.dev" },
       { type: "twitter", url: "https://x.com/nexvyn" },
+      { type: "github", url: "https://github.com/nexvyn" },
+      { type: "mail", url: "mailto:hello@nexvyn.dev" },
     ],
     img: "/about/Nexvyn-v4.webp",
     accentColor: "#22C55E",
@@ -48,7 +50,7 @@ const UserDetails = [
     id: 4,
     name: "Mohit",
     description:
-      "Software Developer working with web development, Figma, and creative projects. I also explore animation, illustration, and Blender. Currently learning Japanese and French.",
+      "Software developer, mostly web work and Figma. Spends the rest of his time on animation, illustration and Blender. Learning Japanese and French at the moment.",
     industry: "Software Development",
     status: "Active",
     socials: [],
