@@ -1,14 +1,7 @@
 const HeroDefs = () => (
   <defs>
     <mask id="pipeRevealMask" maskUnits="userSpaceOnUse">
-      <rect
-        className="pipeRevealRect"
-        x="336"
-        y="395"
-        width="0"
-        height="110"
-        fill="white"
-      />
+      <rect className="pipeRevealRect" x="336" y="395" width="0" height="110" fill="white" />
     </mask>
     <clipPath id="rocketFlameClip" clipPathUnits="userSpaceOnUse">
       <rect x="-200" y="-1000" width="1164" height="1490" />
@@ -23,46 +16,22 @@ const HeroDefs = () => (
       <rect width="8" height="8" className="hazardStripeYellow" />
       <rect width="4" height="8" className="hazardStripeDark" />
     </pattern>
-    <filter
-      id="cloudBlur"
-      x="-50%"
-      y="-50%"
-      width="200%"
-      height="200%"
-    >
+    <filter id="cloudBlur" x="-50%" y="-50%" width="200%" height="200%">
       <feGaussianBlur stdDeviation="3" />
     </filter>
-    <linearGradient
-      id="rocketCoreGradient"
-      x1="0"
-      y1="0"
-      x2="0"
-      y2="1"
-    >
+    <linearGradient id="rocketCoreGradient" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" style={{ stopColor: "var(--scene-flame-1)" }} stopOpacity="0.95" />
       <stop offset="30%" style={{ stopColor: "var(--scene-flame-2)" }} stopOpacity="0.85" />
       <stop offset="70%" style={{ stopColor: "var(--scene-flame-3)" }} stopOpacity="0.55" />
       <stop offset="100%" style={{ stopColor: "var(--scene-flame-3)" }} stopOpacity="0" />
     </linearGradient>
-    <linearGradient
-      id="rocketPlumeGradient"
-      x1="0"
-      y1="0"
-      x2="0"
-      y2="1"
-    >
+    <linearGradient id="rocketPlumeGradient" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" style={{ stopColor: "var(--scene-flame-3)" }} stopOpacity="0.8" />
       <stop offset="45%" style={{ stopColor: "var(--scene-flame-4)" }} stopOpacity="0.55" />
       <stop offset="85%" style={{ stopColor: "var(--scene-beam-3)" }} stopOpacity="0.18" />
       <stop offset="100%" style={{ stopColor: "var(--scene-beam-3)" }} stopOpacity="0" />
     </linearGradient>
-    <linearGradient
-      id="rocketHaloGradient"
-      x1="0"
-      y1="0"
-      x2="0"
-      y2="1"
-    >
+    <linearGradient id="rocketHaloGradient" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" style={{ stopColor: "var(--scene-flame-3)" }} stopOpacity="0.35" />
       <stop offset="50%" style={{ stopColor: "var(--scene-beam-3)" }} stopOpacity="0.25" />
       <stop offset="100%" style={{ stopColor: "var(--scene-beam-3)" }} stopOpacity="0" />
@@ -80,13 +49,7 @@ const HeroDefs = () => (
       <stop offset="70%" style={{ stopColor: "var(--scene-beam-3)" }} stopOpacity="0.6" />
       <stop offset="100%" style={{ stopColor: "var(--scene-beam-1)" }} stopOpacity="0.35" />
     </linearGradient>
-    <filter
-      id="rocketHaloBlur"
-      x="-20%"
-      y="-20%"
-      width="140%"
-      height="140%"
-    >
+    <filter id="rocketHaloBlur" x="-20%" y="-20%" width="140%" height="140%">
       <feGaussianBlur stdDeviation="6" />
     </filter>
     <filter

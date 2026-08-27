@@ -34,9 +34,7 @@ const HeroSvg = () => {
   const [isResetting, setIsResetting] = useState(false);
   const [animationRun, setAnimationRun] = useState(0);
   const [labelText, setLabelText] = useState("BUILD");
-  const [launchButtonState, setLaunchButtonState] = useState<
-    "launch" | "relaunch"
-  >("launch");
+  const [launchButtonState, setLaunchButtonState] = useState<"launch" | "relaunch">("launch");
   const launchButtonStateRef = useRef<"launch" | "relaunch">("launch");
   const isResettingRef = useRef(false);
   useEffect(() => {
@@ -51,9 +49,7 @@ const HeroSvg = () => {
     if (!root) return;
     const isRelaunch = launchButtonState === "relaunch";
 
-    root
-      .querySelector<SVGGElement>(".LaunchButton")
-      ?.classList.toggle("is-relaunch", isRelaunch);
+    root.querySelector<SVGGElement>(".LaunchButton")?.classList.toggle("is-relaunch", isRelaunch);
 
     const outgoing = root.querySelector<SVGTextElement>(
       isRelaunch ? ".launchLiveGlyph_launch" : ".launchLiveGlyph_relaunch",
@@ -199,10 +195,8 @@ const HeroSvg = () => {
             if (rocketEl) {
               const beamEndTime = 1.0 + (beams.length - 1) * 0.22;
               const rocketLaunchDelay = beamEndTime + 1;
-              const haloEl =
-                rocketEl.querySelector<SVGPathElement>(".rocketTrail-halo");
-              const plumeEl =
-                rocketEl.querySelector<SVGPathElement>(".rocketTrail-plume");
+              const haloEl = rocketEl.querySelector<SVGPathElement>(".rocketTrail-halo");
+              const plumeEl = rocketEl.querySelector<SVGPathElement>(".rocketTrail-plume");
               const coreEls = gsap.utils.toArray<SVGPathElement>(
                 rocketEl.querySelectorAll(".rocketTrail-core"),
               );
@@ -238,14 +232,12 @@ const HeroSvg = () => {
               const rocketTl = gsap.timeline({
                 delay: rocketLaunchDelay,
                 onStart: () => {
-                  const details =
-                    svgRef.current?.querySelector<SVGGElement>(".rocketDetails");
+                  const details = svgRef.current?.querySelector<SVGGElement>(".rocketDetails");
                   if (details) details.classList.add("is-launching");
                   if (fullMotion) {
                     const shakeEls = ".rocketRivet, .rocketPorthole";
                     const cycles = ROCKET_DETAILS.ignition.cycles;
-                    const stepDuration =
-                      ROCKET_DETAILS.ignition.duration / cycles;
+                    const stepDuration = ROCKET_DETAILS.ignition.duration / cycles;
                     const shakeTl = gsap.timeline({
                       onComplete: () => {
                         gsap.set(shakeEls, { x: 0, y: 0 });
@@ -278,8 +270,7 @@ const HeroSvg = () => {
                   rocketEl.style.willChange = "";
                   setLaunchButtonState("relaunch");
                   launchTriggered = false;
-                  const details =
-                    svgRef.current?.querySelector<SVGGElement>(".rocketDetails");
+                  const details = svgRef.current?.querySelector<SVGGElement>(".rocketDetails");
                   if (details) {
                     details.classList.remove("is-launching");
                     details.classList.remove("is-pulsing");
@@ -436,10 +427,7 @@ const HeroSvg = () => {
                 );
               }
 
-              const emberEls =
-                svgRef.current?.querySelectorAll<SVGCircleElement>(
-                  ".rocketEmber",
-                );
+              const emberEls = svgRef.current?.querySelectorAll<SVGCircleElement>(".rocketEmber");
               const emberTweens: gsap.core.Tween[] = [];
               if (emberEls && emberEls.length) {
                 gsap.killTweensOf(emberEls);
@@ -476,22 +464,13 @@ const HeroSvg = () => {
                     LAUNCH.ignition,
                   );
                 } else {
-                  rocketTl.set(
-                    emberEls,
-                    { opacity: 0.25, x: 0, y: 0 },
-                    LAUNCH.ignition,
-                  );
+                  rocketTl.set(emberEls, { opacity: 0.25, x: 0, y: 0 }, LAUNCH.ignition);
                 }
               }
 
-              const cloudPuffEls =
-                svgRef.current?.querySelectorAll<SVGCircleElement>(
-                  ".cloudPuff",
-                );
+              const cloudPuffEls = svgRef.current?.querySelectorAll<SVGCircleElement>(".cloudPuff");
               const cloudSilhouetteEls =
-                svgRef.current?.querySelectorAll<SVGPathElement>(
-                  ".cloudSilhouette",
-                );
+                svgRef.current?.querySelectorAll<SVGPathElement>(".cloudSilhouette");
 
               if (cloudPuffEls && cloudPuffEls.length) {
                 gsap.killTweensOf(cloudPuffEls);
@@ -567,8 +546,7 @@ const HeroSvg = () => {
                 );
               }
 
-              const blastIconEls =
-                svgRef.current?.querySelectorAll<SVGGElement>(".blastIcon");
+              const blastIconEls = svgRef.current?.querySelectorAll<SVGGElement>(".blastIcon");
               if (blastIconEls && blastIconEls.length) {
                 gsap.killTweensOf(blastIconEls);
                 gsap.set(blastIconEls, {
@@ -607,8 +585,7 @@ const HeroSvg = () => {
                                 y: -icon.lift,
                                 rotation: icon.spin,
                                 opacity: 0,
-                                duration:
-                                  icon.flight * (1 - BLAST_ICONS_CFG.holdRatio),
+                                duration: icon.flight * (1 - BLAST_ICONS_CFG.holdRatio),
                                 ease: "power1.out",
                               },
                             ],
@@ -700,9 +677,7 @@ const HeroSvg = () => {
           }
 
           if (reduceMotion) {
-            const layers = gsap.utils.toArray<SVGGElement>(
-              ".layer1, .layer2, .layer3, .layer4",
-            );
+            const layers = gsap.utils.toArray<SVGGElement>(".layer1, .layer2, .layer3, .layer4");
             layers.forEach((l) => {
               (l as SVGGElement).style.visibility = "visible";
             });
@@ -714,357 +689,353 @@ const HeroSvg = () => {
             });
           }
 
-          const pulse = fullMotion
-            ? svgRef.current?.querySelector<SVGPathElement>(".Pluse")
-            : null;
+          const pulse = fullMotion ? svgRef.current?.querySelector<SVGPathElement>(".Pluse") : null;
           if (pulse) {
-        const len = pulse.getTotalLength();
-        gsap.set(pulse, {
-          strokeDasharray: len,
-          strokeDashoffset: len,
-          opacity: 0,
-        });
-
-        const pulseTimeline = gsap.timeline({ repeat: -1, repeatDelay: 1.9 });
-
-        pulseTimeline
-          .to(pulse, {
-            strokeDashoffset: 0,
-            duration: 2.6,
-            ease: "sine.out",
-          })
-          .to(
-            pulse,
-            {
-              opacity: 0.62,
-              duration: 2.6,
-              ease: "sine.out",
-            },
-            "<",
-          );
-
-        pulseTimeline.to(pulse, {
-          opacity: 0.68,
-          duration: 0.4,
-          ease: "sine.inOut",
-          yoyo: true,
-          repeat: 1,
-          onStart: () => pulse.classList.add("is-hot"),
-          onComplete: () => pulse.classList.remove("is-hot"),
-        });
-
-        pulseTimeline
-          .to(pulse, {
-            strokeDashoffset: -len,
-            duration: 2.2,
-            ease: "power1.inOut",
-          })
-          .to(
-            pulse,
-            {
-              opacity: 0.58,
-              duration: 1.5,
-              ease: "none",
-            },
-            "<",
-          )
-          .to(pulse, {
-            opacity: 0,
-            duration: 0.75,
-            ease: "power1.in",
-          });
-      }
-
-      if (fullMotion) {
-        const pistons = gsap.utils.toArray<SVGPathElement>(".piston");
-        pistons.forEach((piston, i) => {
-          const box = piston.getBBox();
-          const moveOnY = box.height >= box.width;
-          const travel = gsap.utils.clamp(2, 6, (moveOnY ? box.height : box.width) * 0.03);
-
-          gsap.set(piston, { transformOrigin: "50% 50%" });
-
-          gsap
-            .timeline({
-              repeat: -1,
-              delay: i * 0.2,
-              defaults: { duration: 0.42, ease: "sine.inOut" },
-            })
-            .to(piston, moveOnY ? { y: -travel } : { x: -travel })
-            .to(piston, moveOnY ? { y: travel } : { x: travel })
-            .to(piston, moveOnY ? { y: 0 } : { x: 0 });
-        });
-      }
-
-      let layerSequenceDuration = 0;
-      if (fullMotion) {
-        const layers = gsap.utils.toArray<SVGGElement>(".layer1, .layer2, .layer3, .layer4");
-        if (layers.length) {
-          const layerDropValues = [10, 24, 38, 54];
-
-          gsap.set(layers, {
-            opacity: 0,
-            y: 0,
-            filter: "blur(4px)",
-          });
-
-          const LAYER_STAGGER = 0.38;
-          const LAYER_REVEAL_DURATION = 0.85;
-          const LAST_LAYER_FADE_DELAY = 0.15;
-          const LAST_LAYER_FADE_DURATION = 0.45;
-
-          const layerTl = gsap.timeline({ defaults: { ease: "power3.out" } });
-          layers.forEach((layer, i) => {
-            const drop = layerDropValues[i] ?? layerDropValues[layerDropValues.length - 1] ?? 10;
-
-            if (i > 0) {
-              layerTl.to(
-                layers.slice(0, i),
-                {
-                  opacity: 0,
-                  filter: "blur(3px)",
-                  duration: 0.32,
-                  ease: "power2.out",
-                  overwrite: "auto",
-                },
-                i * LAYER_STAGGER,
-              );
-            }
-
-            layerTl.to(
-              layer,
-              {
-                opacity: 1,
-                y: drop,
-                filter: "blur(0px)",
-                duration: LAYER_REVEAL_DURATION,
-                onStart:
-                  i === 0
-                    ? () => {
-                        layers.forEach((l) => {
-                          (l as SVGGElement).style.visibility = "visible";
-                        });
-                      }
-                    : undefined,
-              },
-              i * LAYER_STAGGER,
-            );
-          });
-
-          const revealDuration = layerTl.duration();
-          gsap.to(layers[layers.length - 1], {
-            opacity: 0,
-            filter: "blur(3px)",
-            duration: LAST_LAYER_FADE_DURATION,
-            ease: "power2.out",
-            delay: revealDuration + LAST_LAYER_FADE_DELAY,
-            overwrite: "auto",
-          });
-
-          layerSequenceDuration = revealDuration + LAST_LAYER_FADE_DELAY + LAST_LAYER_FADE_DURATION;
-        }
-      }
-
-      const path1StartDelay = layerSequenceDuration + 0.1;
-      const path1Duration = 2.0;
-      const path2ExtraDelay = 0.5;
-      const path2StartDelay = path1StartDelay + path1Duration + path2ExtraDelay;
-      const path2Duration = 2.5;
-      const introCompleteAt = path2StartDelay + path2Duration;
-
-      let launchUnlocked = reduceMotion;
-      let launchTriggered = false;
-      let lastBlockedToastAt = -Infinity;
-      if (fullMotion) {
-        gsap.delayedCall(introCompleteAt, () => {
-          launchUnlocked = true;
-        });
-      }
-
-      gsap.set(".buildingVectorLabel", { opacity: 0 });
-      gsap.set(".buildingLiveLabel", { opacity: 1 });
-      if (fullMotion) {
-        const conveyorWindow = introCompleteAt - path1StartDelay;
-        const tickInterval = conveyorWindow / COUNTDOWN_TICKS.length;
-        COUNTDOWN_TICKS.forEach((n, i) =>
-          gsap.delayedCall(path1StartDelay + i * tickInterval, () =>
-            setLabelText(String(n)),
-          ),
-        );
-        gsap.delayedCall(introCompleteAt, () => {
-          setLabelText("READY");
-          gsap.utils
-            .toArray<SVGElement>(".buildingCubeFace")
-            .forEach((el) => el.classList.add("is-ready"));
-          gsap.utils
-            .toArray<SVGPathElement>(".rocketPorthole")
-            .forEach((el, i) => {
-              gsap.delayedCall(i * ROCKET_DETAILS.readyStagger, () =>
-                el.classList.add("is-ready"),
-              );
+            const len = pulse.getTotalLength();
+            gsap.set(pulse, {
+              strokeDasharray: len,
+              strokeDashoffset: len,
+              opacity: 0,
             });
-          startIdleLeak();
-        });
-      } else {
-        setLabelText("READY");
-        gsap.utils
-          .toArray<SVGElement>(".buildingCubeFace")
-          .forEach((el) => el.classList.add("is-ready"));
-        gsap.utils
-          .toArray<SVGPathElement>(".rocketPorthole")
-          .forEach((el) => el.classList.add("is-ready"));
-        startIdleLeak();
-      }
 
-      if (fullMotion) {
-        const mover = svgRef.current?.querySelector<SVGGElement>(".path1svg1");
-        const guideLine = svgRef.current?.querySelector<SVGLineElement>(".path1");
-        if (mover && guideLine) {
-          const x1 = Number(guideLine.getAttribute("x1") ?? 0);
-          const y1 = Number(guideLine.getAttribute("y1") ?? 0);
-          const x2 = Number(guideLine.getAttribute("x2") ?? 0);
-          const y2 = Number(guideLine.getAttribute("y2") ?? 0);
+            const pulseTimeline = gsap.timeline({ repeat: -1, repeatDelay: 1.9 });
 
-          const box = mover.getBBox();
-          const centerX = box.x + box.width / 2;
-          const centerY = box.y + box.height / 2;
+            pulseTimeline
+              .to(pulse, {
+                strokeDashoffset: 0,
+                duration: 2.6,
+                ease: "sine.out",
+              })
+              .to(
+                pulse,
+                {
+                  opacity: 0.62,
+                  duration: 2.6,
+                  ease: "sine.out",
+                },
+                "<",
+              );
 
-          gsap.set(mover, {
-            transformOrigin: "50% 50%",
-            x: x1 - centerX,
-            y: y1 - centerY,
-            opacity: 0,
-          });
-          mover.style.willChange = "transform, opacity";
+            pulseTimeline.to(pulse, {
+              opacity: 0.68,
+              duration: 0.4,
+              ease: "sine.inOut",
+              yoyo: true,
+              repeat: 1,
+              onStart: () => pulse.classList.add("is-hot"),
+              onComplete: () => pulse.classList.remove("is-hot"),
+            });
 
-          gsap.to(mover, {
-            opacity: 1,
-            duration: 0.2,
-            ease: "power1.out",
-            delay: path1StartDelay,
-          });
+            pulseTimeline
+              .to(pulse, {
+                strokeDashoffset: -len,
+                duration: 2.2,
+                ease: "power1.inOut",
+              })
+              .to(
+                pulse,
+                {
+                  opacity: 0.58,
+                  duration: 1.5,
+                  ease: "none",
+                },
+                "<",
+              )
+              .to(pulse, {
+                opacity: 0,
+                duration: 0.75,
+                ease: "power1.in",
+              });
+          }
 
-          gsap.to(mover, {
-            duration: path1Duration,
-            ease: "power1.inOut",
-            delay: path1StartDelay,
-            x: x2 - centerX,
-            y: y2 - centerY,
-            onComplete: () => {
-              mover.style.willChange = "";
-            },
-          });
-        }
-      }
+          if (fullMotion) {
+            const pistons = gsap.utils.toArray<SVGPathElement>(".piston");
+            pistons.forEach((piston, i) => {
+              const box = piston.getBBox();
+              const moveOnY = box.height >= box.width;
+              const travel = gsap.utils.clamp(2, 6, (moveOnY ? box.height : box.width) * 0.03);
 
-      if (fullMotion) {
-        const mover2 = svgRef.current?.querySelector<SVGGElement>(".path2svg2");
-        const guideLine2 = svgRef.current?.querySelector<SVGLineElement>(".path2");
-        if (mover2 && guideLine2) {
-          const x1 = Number(guideLine2.getAttribute("x1") ?? 0);
-          const y1 = Number(guideLine2.getAttribute("y1") ?? 0);
-          const x2 = Number(guideLine2.getAttribute("x2") ?? 0);
-          const y2 = Number(guideLine2.getAttribute("y2") ?? 0);
-          const path2YOffset = -6;
+              gsap.set(piston, { transformOrigin: "50% 50%" });
 
-          const box = mover2.getBBox();
-          const centerX = box.x + box.width / 2;
-          const centerY = box.y + box.height / 2;
-
-          gsap.set(mover2, {
-            transformOrigin: "50% 50%",
-            x: x1 - centerX,
-            y: y1 - centerY + path2YOffset,
-            opacity: 0,
-          });
-          mover2.style.willChange = "transform, opacity";
-
-          gsap.to(mover2, {
-            opacity: 1,
-            duration: 0.2,
-            ease: "power1.out",
-            delay: path2StartDelay,
-          });
-
-          gsap.to(mover2, {
-            duration: path2Duration,
-            ease: "power1.inOut",
-            delay: path2StartDelay,
-            x: x2 - centerX,
-            y: y2 - centerY + path2YOffset,
-            onComplete: () => {
-              mover2.style.willChange = "";
-            },
-          });
-        }
-      }
-
-      const btn = svgRef.current?.querySelector<SVGGElement>(".LaunchButton");
-      const btnHit = svgRef.current?.querySelector<SVGGElement>(".LaunchButtonHit");
-      if (!btn || !btnHit) return;
-
-      gsap.set(btn, { y: 0 });
-      btnHit.style.cursor = "pointer";
-
-      btnHit.addEventListener("mouseenter", () => {
-        if (launchTriggered) return;
-        if (fullMotion) {
-          gsap.to(btn, { y: 4, duration: 0.18, ease: "power2.out" });
-        }
-      });
-
-      btnHit.addEventListener("mouseleave", () => {
-        if (launchTriggered) return;
-        if (fullMotion) {
-          gsap.to(btn, { y: 0, duration: 0.22, ease: "power2.out" });
-        }
-      });
-
-      btnHit.addEventListener("mousedown", () => {
-        if (launchTriggered) return;
-        if (fullMotion) {
-          gsap.to(btn, { y: 8, duration: 0.1, ease: "power2.out" });
-        }
-      });
-
-      btnHit.addEventListener("mouseup", () => {
-        if (launchTriggered) return;
-        if (isResettingRef.current) return;
-
-        if (fullMotion) {
-          gsap.to(btn, { y: 4, duration: 0.18, ease: "power2.out" });
-        }
-
-        if (launchButtonStateRef.current === "relaunch") {
-          handleRelaunch();
-          return;
-        }
-
-        if (!launchUnlocked) {
-          const now = performance.now();
-          if (now - lastBlockedToastAt > 1200) {
-            lastBlockedToastAt = now;
-            gsap.killTweensOf(".hazardStripes");
-            gsap.to(".hazardStripes", {
-              keyframes: [
-                { opacity: 0.9, duration: 0.18, ease: "power2.out" },
-                { opacity: 0.4, duration: 0.22, ease: "sine.inOut" },
-                { opacity: 0.9, duration: 0.22, ease: "sine.inOut" },
-                { opacity: 0.4, duration: 0.22, ease: "sine.inOut" },
-                { opacity: 0.9, duration: 0.22, ease: "sine.inOut" },
-                { opacity: 0, duration: 0.2, ease: "power2.out" },
-              ],
+              gsap
+                .timeline({
+                  repeat: -1,
+                  delay: i * 0.2,
+                  defaults: { duration: 0.42, ease: "sine.inOut" },
+                })
+                .to(piston, moveOnY ? { y: -travel } : { x: -travel })
+                .to(piston, moveOnY ? { y: travel } : { x: travel })
+                .to(piston, moveOnY ? { y: 0 } : { x: 0 });
             });
           }
-          return;
-        }
 
-        launchTriggered = true;
-        btnHit.style.cursor = "not-allowed";
-        btnHit.style.pointerEvents = "none";
+          let layerSequenceDuration = 0;
+          if (fullMotion) {
+            const layers = gsap.utils.toArray<SVGGElement>(".layer1, .layer2, .layer3, .layer4");
+            if (layers.length) {
+              const layerDropValues = [10, 24, 38, 54];
 
-        fireBeams();
-      });
+              gsap.set(layers, {
+                opacity: 0,
+                y: 0,
+                filter: "blur(4px)",
+              });
+
+              const LAYER_STAGGER = 0.38;
+              const LAYER_REVEAL_DURATION = 0.85;
+              const LAST_LAYER_FADE_DELAY = 0.15;
+              const LAST_LAYER_FADE_DURATION = 0.45;
+
+              const layerTl = gsap.timeline({ defaults: { ease: "power3.out" } });
+              layers.forEach((layer, i) => {
+                const drop =
+                  layerDropValues[i] ?? layerDropValues[layerDropValues.length - 1] ?? 10;
+
+                if (i > 0) {
+                  layerTl.to(
+                    layers.slice(0, i),
+                    {
+                      opacity: 0,
+                      filter: "blur(3px)",
+                      duration: 0.32,
+                      ease: "power2.out",
+                      overwrite: "auto",
+                    },
+                    i * LAYER_STAGGER,
+                  );
+                }
+
+                layerTl.to(
+                  layer,
+                  {
+                    opacity: 1,
+                    y: drop,
+                    filter: "blur(0px)",
+                    duration: LAYER_REVEAL_DURATION,
+                    onStart:
+                      i === 0
+                        ? () => {
+                            layers.forEach((l) => {
+                              (l as SVGGElement).style.visibility = "visible";
+                            });
+                          }
+                        : undefined,
+                  },
+                  i * LAYER_STAGGER,
+                );
+              });
+
+              const revealDuration = layerTl.duration();
+              gsap.to(layers[layers.length - 1], {
+                opacity: 0,
+                filter: "blur(3px)",
+                duration: LAST_LAYER_FADE_DURATION,
+                ease: "power2.out",
+                delay: revealDuration + LAST_LAYER_FADE_DELAY,
+                overwrite: "auto",
+              });
+
+              layerSequenceDuration =
+                revealDuration + LAST_LAYER_FADE_DELAY + LAST_LAYER_FADE_DURATION;
+            }
+          }
+
+          const path1StartDelay = layerSequenceDuration + 0.1;
+          const path1Duration = 2.0;
+          const path2ExtraDelay = 0.5;
+          const path2StartDelay = path1StartDelay + path1Duration + path2ExtraDelay;
+          const path2Duration = 2.5;
+          const introCompleteAt = path2StartDelay + path2Duration;
+
+          let launchUnlocked = reduceMotion;
+          let launchTriggered = false;
+          let lastBlockedToastAt = -Infinity;
+          if (fullMotion) {
+            gsap.delayedCall(introCompleteAt, () => {
+              launchUnlocked = true;
+            });
+          }
+
+          gsap.set(".buildingVectorLabel", { opacity: 0 });
+          gsap.set(".buildingLiveLabel", { opacity: 1 });
+          if (fullMotion) {
+            const conveyorWindow = introCompleteAt - path1StartDelay;
+            const tickInterval = conveyorWindow / COUNTDOWN_TICKS.length;
+            COUNTDOWN_TICKS.forEach((n, i) =>
+              gsap.delayedCall(path1StartDelay + i * tickInterval, () => setLabelText(String(n))),
+            );
+            gsap.delayedCall(introCompleteAt, () => {
+              setLabelText("READY");
+              gsap.utils
+                .toArray<SVGElement>(".buildingCubeFace")
+                .forEach((el) => el.classList.add("is-ready"));
+              gsap.utils.toArray<SVGPathElement>(".rocketPorthole").forEach((el, i) => {
+                gsap.delayedCall(i * ROCKET_DETAILS.readyStagger, () =>
+                  el.classList.add("is-ready"),
+                );
+              });
+              startIdleLeak();
+            });
+          } else {
+            setLabelText("READY");
+            gsap.utils
+              .toArray<SVGElement>(".buildingCubeFace")
+              .forEach((el) => el.classList.add("is-ready"));
+            gsap.utils
+              .toArray<SVGPathElement>(".rocketPorthole")
+              .forEach((el) => el.classList.add("is-ready"));
+            startIdleLeak();
+          }
+
+          if (fullMotion) {
+            const mover = svgRef.current?.querySelector<SVGGElement>(".path1svg1");
+            const guideLine = svgRef.current?.querySelector<SVGLineElement>(".path1");
+            if (mover && guideLine) {
+              const x1 = Number(guideLine.getAttribute("x1") ?? 0);
+              const y1 = Number(guideLine.getAttribute("y1") ?? 0);
+              const x2 = Number(guideLine.getAttribute("x2") ?? 0);
+              const y2 = Number(guideLine.getAttribute("y2") ?? 0);
+
+              const box = mover.getBBox();
+              const centerX = box.x + box.width / 2;
+              const centerY = box.y + box.height / 2;
+
+              gsap.set(mover, {
+                transformOrigin: "50% 50%",
+                x: x1 - centerX,
+                y: y1 - centerY,
+                opacity: 0,
+              });
+              mover.style.willChange = "transform, opacity";
+
+              gsap.to(mover, {
+                opacity: 1,
+                duration: 0.2,
+                ease: "power1.out",
+                delay: path1StartDelay,
+              });
+
+              gsap.to(mover, {
+                duration: path1Duration,
+                ease: "power1.inOut",
+                delay: path1StartDelay,
+                x: x2 - centerX,
+                y: y2 - centerY,
+                onComplete: () => {
+                  mover.style.willChange = "";
+                },
+              });
+            }
+          }
+
+          if (fullMotion) {
+            const mover2 = svgRef.current?.querySelector<SVGGElement>(".path2svg2");
+            const guideLine2 = svgRef.current?.querySelector<SVGLineElement>(".path2");
+            if (mover2 && guideLine2) {
+              const x1 = Number(guideLine2.getAttribute("x1") ?? 0);
+              const y1 = Number(guideLine2.getAttribute("y1") ?? 0);
+              const x2 = Number(guideLine2.getAttribute("x2") ?? 0);
+              const y2 = Number(guideLine2.getAttribute("y2") ?? 0);
+              const path2YOffset = -6;
+
+              const box = mover2.getBBox();
+              const centerX = box.x + box.width / 2;
+              const centerY = box.y + box.height / 2;
+
+              gsap.set(mover2, {
+                transformOrigin: "50% 50%",
+                x: x1 - centerX,
+                y: y1 - centerY + path2YOffset,
+                opacity: 0,
+              });
+              mover2.style.willChange = "transform, opacity";
+
+              gsap.to(mover2, {
+                opacity: 1,
+                duration: 0.2,
+                ease: "power1.out",
+                delay: path2StartDelay,
+              });
+
+              gsap.to(mover2, {
+                duration: path2Duration,
+                ease: "power1.inOut",
+                delay: path2StartDelay,
+                x: x2 - centerX,
+                y: y2 - centerY + path2YOffset,
+                onComplete: () => {
+                  mover2.style.willChange = "";
+                },
+              });
+            }
+          }
+
+          const btn = svgRef.current?.querySelector<SVGGElement>(".LaunchButton");
+          const btnHit = svgRef.current?.querySelector<SVGGElement>(".LaunchButtonHit");
+          if (!btn || !btnHit) return;
+
+          gsap.set(btn, { y: 0 });
+          btnHit.style.cursor = "pointer";
+
+          btnHit.addEventListener("mouseenter", () => {
+            if (launchTriggered) return;
+            if (fullMotion) {
+              gsap.to(btn, { y: 4, duration: 0.18, ease: "power2.out" });
+            }
+          });
+
+          btnHit.addEventListener("mouseleave", () => {
+            if (launchTriggered) return;
+            if (fullMotion) {
+              gsap.to(btn, { y: 0, duration: 0.22, ease: "power2.out" });
+            }
+          });
+
+          btnHit.addEventListener("mousedown", () => {
+            if (launchTriggered) return;
+            if (fullMotion) {
+              gsap.to(btn, { y: 8, duration: 0.1, ease: "power2.out" });
+            }
+          });
+
+          btnHit.addEventListener("mouseup", () => {
+            if (launchTriggered) return;
+            if (isResettingRef.current) return;
+
+            if (fullMotion) {
+              gsap.to(btn, { y: 4, duration: 0.18, ease: "power2.out" });
+            }
+
+            if (launchButtonStateRef.current === "relaunch") {
+              handleRelaunch();
+              return;
+            }
+
+            if (!launchUnlocked) {
+              const now = performance.now();
+              if (now - lastBlockedToastAt > 1200) {
+                lastBlockedToastAt = now;
+                gsap.killTweensOf(".hazardStripes");
+                gsap.to(".hazardStripes", {
+                  keyframes: [
+                    { opacity: 0.9, duration: 0.18, ease: "power2.out" },
+                    { opacity: 0.4, duration: 0.22, ease: "sine.inOut" },
+                    { opacity: 0.9, duration: 0.22, ease: "sine.inOut" },
+                    { opacity: 0.4, duration: 0.22, ease: "sine.inOut" },
+                    { opacity: 0.9, duration: 0.22, ease: "sine.inOut" },
+                    { opacity: 0, duration: 0.2, ease: "power2.out" },
+                  ],
+                });
+              }
+              return;
+            }
+
+            launchTriggered = true;
+            btnHit.style.cursor = "not-allowed";
+            btnHit.style.pointerEvents = "none";
+
+            fireBeams();
+          });
         },
       );
 
@@ -1094,12 +1065,9 @@ const HeroSvg = () => {
     const coreEls = gsap.utils.toArray<SVGPathElement>(
       rocketEl.querySelectorAll(".rocketTrail-core"),
     );
-    const plumeEl =
-      rocketEl.querySelector<SVGPathElement>(".rocketTrail-plume");
+    const plumeEl = rocketEl.querySelector<SVGPathElement>(".rocketTrail-plume");
     const haloEl = rocketEl.querySelector<SVGPathElement>(".rocketTrail-halo");
-    const flameEls = [...coreEls, plumeEl, haloEl].filter(
-      (el): el is SVGPathElement => el != null,
-    );
+    const flameEls = [...coreEls, plumeEl, haloEl].filter((el): el is SVGPathElement => el != null);
     if (flameEls.length) {
       flameEls.forEach((el) => gsap.killTweensOf(el));
       gsap.set(flameEls, {
@@ -1110,16 +1078,13 @@ const HeroSvg = () => {
       });
     }
 
-    const emberEls =
-      svgRef.current?.querySelectorAll<SVGCircleElement>(".rocketEmber");
+    const emberEls = svgRef.current?.querySelectorAll<SVGCircleElement>(".rocketEmber");
     if (emberEls && emberEls.length) {
       gsap.killTweensOf(".rocketEmber");
       gsap.set(".rocketEmber", { opacity: 0, x: 0, y: 0 });
     }
 
-    const fullMotion = !window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const fullMotion = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const descentEmberTweens: gsap.core.Tween[] = [];
 
@@ -1150,8 +1115,7 @@ const HeroSvg = () => {
 
     gsap.killTweensOf(rocketEl);
 
-    const detailsForDescent =
-      svgRef.current?.querySelector<SVGGElement>(".rocketDetails");
+    const detailsForDescent = svgRef.current?.querySelector<SVGGElement>(".rocketDetails");
     if (detailsForDescent) detailsForDescent.classList.add("is-pulsing");
 
     gsap
@@ -1164,8 +1128,7 @@ const HeroSvg = () => {
           if (flameEls.length) {
             gsap.set(flameEls, { opacity: 0, scaleY: 1, scale: 1 });
           }
-          const dustEls =
-            svgRef.current?.querySelectorAll<SVGCircleElement>(".dustPuff");
+          const dustEls = svgRef.current?.querySelectorAll<SVGCircleElement>(".dustPuff");
           if (dustEls && dustEls.length) {
             gsap.killTweensOf(dustEls);
             gsap.set(dustEls, {
@@ -1180,8 +1143,7 @@ const HeroSvg = () => {
             y: 0,
             clearProps: "opacity",
           });
-          const details =
-            svgRef.current?.querySelector<SVGGElement>(".rocketDetails");
+          const details = svgRef.current?.querySelector<SVGGElement>(".rocketDetails");
           if (details) {
             details.classList.remove("is-launching");
             details.classList.remove("is-pulsing");
@@ -1307,8 +1269,7 @@ const HeroSvg = () => {
       )
       .call(
         () => {
-          const dustEls =
-            svgRef.current?.querySelectorAll<SVGCircleElement>(".dustPuff");
+          const dustEls = svgRef.current?.querySelectorAll<SVGCircleElement>(".dustPuff");
           if (!dustEls || !dustEls.length) return;
           gsap.killTweensOf(dustEls);
           gsap.set(dustEls, {
@@ -1348,8 +1309,7 @@ const HeroSvg = () => {
       )
       .call(
         () => {
-          const iconEls =
-            svgRef.current?.querySelectorAll<SVGGElement>(".blastIcon");
+          const iconEls = svgRef.current?.querySelectorAll<SVGGElement>(".blastIcon");
           if (!iconEls || !iconEls.length) return;
           gsap.killTweensOf(iconEls);
           BLAST_ICONS.forEach((icon, i) => {
@@ -1380,16 +1340,11 @@ const HeroSvg = () => {
       )
       .call(
         () => {
-          const detailsEl =
-            svgRef.current?.querySelector<SVGGElement>(".rocketDetails");
+          const detailsEl = svgRef.current?.querySelector<SVGGElement>(".rocketDetails");
           if (!detailsEl) return;
-          const settleEls = gsap.utils.toArray<SVGElement>(
-            ".rocketRivet, .rocketPorthole",
-          );
+          const settleEls = gsap.utils.toArray<SVGElement>(".rocketRivet, .rocketPorthole");
           settleEls.forEach((el) => {
-            const current = parseFloat(
-              window.getComputedStyle(el).opacity || "1",
-            );
+            const current = parseFloat(window.getComputedStyle(el).opacity || "1");
             el.style.opacity = String(current);
           });
           detailsEl.classList.remove("is-pulsing");
@@ -1437,10 +1392,7 @@ const HeroSvg = () => {
         <SceneConveyor />
 
         <SceneAnimatedLayers />
-        <SceneCubes
-          labelText={labelText}
-          launchButtonState={launchButtonState}
-        />
+        <SceneCubes labelText={labelText} launchButtonState={launchButtonState} />
         <ScenePipesAndPulse />
         <SceneBlastIcons />
         <HeroDefs />
