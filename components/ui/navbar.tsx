@@ -57,7 +57,7 @@ const Navbar = ({
   const githubStars = useGitHubStars();
 
   useEffect(() => {
-    setIconCount(1000);
+    setIconCount(900);
   }, []);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
@@ -135,7 +135,7 @@ const Navbar = ({
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="cursor-pointer rounded-md border border-border px-3 py-2 text-muted-foreground outline-none transition-[color,transform] duration-150 hover:text-accent-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 active:scale-[0.97]"
+                  className="cursor-pointer rounded-md border border-border px-3 py-2 text-muted-foreground transition-[color,transform] duration-150 outline-none hover:text-accent-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 active:scale-[0.97]"
                 >
                   {link.label}
                 </Link>

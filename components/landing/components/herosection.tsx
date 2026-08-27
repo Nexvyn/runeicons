@@ -32,16 +32,16 @@ const HeroSection = () => {
   const [iconCount, setIconCount] = useState(0);
 
   useEffect(() => {
-    setIconCount(1000);
+    setIconCount(900);
   }, []);
 
   return (
     <div className="grid min-h-[60vh] grid-cols-1 lg:h-[calc(100vh-104px)] lg:grid-cols-2">
       <div className="flex h-full flex-col justify-center py-8 lg:py-0">
-        <div className="flex w-fit items-center gap-2 rounded-md border p-0.5 pl-2.5 text-xs">
+        <div className="flex w-fit -rotate-2 items-center gap-2 rounded-md border p-0.5 pl-2.5 text-xs">
           <span className="flex items-center font-semibold">
             <span className="text-blue-700">Added&nbsp;</span>
-            <NumberFlow value={iconCount} />
+            <NumberFlow value={iconCount} suffix="+" />
             <span>&nbsp;icons</span>
           </span>
           <div className="rounded-sm border bg-background p-1">
@@ -53,8 +53,7 @@ const HeroSection = () => {
           <span className="text-blue-700">system</span> for products
         </div>
         <div className="mt-4 max-w-lg text-xs leading-tight text-muted-foreground sm:text-sm sm:leading-5 md:text-base">
-          Consistent, lightweight, and production-ready icons designed to fit seamlessly into SaaS
-          and AI interfaces.
+          217 glyphs, drawn five ways. Copy any of them straight into your project.
         </div>
 
         <div className="mt-8 flex flex-wrap gap-2 sm:gap-4 lg:mt-14">
@@ -94,7 +93,7 @@ const HeroSection = () => {
           >
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute top-0 right-0 -z-10 block w-11 origin-bottom-left translate-y-1 transition-transform duration-300 ease-out group-hover:-translate-y-4 group-hover:translate-x-1/2 group-hover:rotate-45 group-hover:duration-420 group-hover:ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 motion-reduce:group-hover:translate-y-1 motion-reduce:group-hover:rotate-0 [&_svg]:block [&_svg]:h-auto [&_svg]:w-full"
+              className="pointer-events-none absolute top-0 right-0 -z-10 block w-11 origin-bottom-left translate-y-1 transition-transform duration-300 ease-out group-hover:translate-x-1/2 group-hover:-translate-y-4 group-hover:rotate-45 group-hover:duration-420 group-hover:ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 motion-reduce:group-hover:translate-y-1 motion-reduce:group-hover:rotate-0 [&_svg]:block [&_svg]:h-auto [&_svg]:w-full"
             >
               <Mascot />
             </span>
