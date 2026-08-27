@@ -112,7 +112,9 @@ const Search = () => {
                                 key={icon.url}
                                 src={icon.url}
                                 alt={icon.name}
-                                className="h-5 w-5"
+                                className={`h-5 w-5 ${
+                                  iconType === "duotone" ? "brightness-0 dark:brightness-100" : ""
+                                }`}
                                 loading="lazy"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
