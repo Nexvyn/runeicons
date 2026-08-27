@@ -37,13 +37,9 @@ const PrivacyPage = () => {
                 We{" "}
                 <strong className="font-medium text-foreground">do not require an account</strong>{" "}
                 to browse or download icons. If you sponsor the project or contact us, we may
-                receive the information you{" "}
-                <strong className="font-medium text-foreground">voluntarily provide</strong>, such
-                as your{" "}
+                receive the information you voluntarily provide, such as your
                 <strong className="font-medium text-foreground">name and email address</strong>,
-                through{" "}
-                <strong className="font-medium text-foreground">third-party services</strong> (e.g.
-                GitHub, payment processors).
+                through third-party services (e.g. GitHub, payment processors).
               </p>
             </div>
 
@@ -54,8 +50,7 @@ const PrivacyPage = () => {
                 <strong className="font-medium text-foreground">
                   basic, privacy-respecting analytics
                 </strong>{" "}
-                to understand{" "}
-                <strong className="font-medium text-foreground">aggregate site usage</strong>. We{" "}
+                to understand aggregate site usage. We{" "}
                 <strong className="font-medium text-foreground">
                   do not sell personal data to third parties
                 </strong>
@@ -66,9 +61,8 @@ const PrivacyPage = () => {
             <div className="flex flex-col gap-2">
               <h2 className="text-base font-semibold text-foreground">3. Third-Party Services</h2>
               <p>
-                Sponsorships and payments are processed by{" "}
-                <strong className="font-medium text-foreground">third-party providers</strong>, and
-                interactions with our GitHub repository are governed by{" "}
+                Sponsorships and payments are processed by third-party providers, and interactions
+                with our GitHub repository are governed by{" "}
                 <strong className="font-medium text-foreground">
                   GitHub&apos;s own privacy policy
                 </strong>
@@ -79,11 +73,8 @@ const PrivacyPage = () => {
             <div className="flex flex-col gap-2">
               <h2 className="text-base font-semibold text-foreground">4. Changes to This Policy</h2>
               <p>
-                We{" "}
-                <strong className="font-medium text-foreground">
-                  may update this Privacy Policy
-                </strong>{" "}
-                from time to time. Continued use of the site after changes are posted{" "}
+                We may update this Privacy Policy from time to time. Continued use of the site after
+                changes are posted{" "}
                 <strong className="font-medium text-foreground">
                   constitutes acceptance of the revised policy
                 </strong>

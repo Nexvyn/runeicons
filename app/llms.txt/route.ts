@@ -22,14 +22,14 @@ export function GET() {
 
 > An open-source icon library where every glyph is drawn in five styles:
 > outline, duotone, fill, pixelated and glass. Icons are customized in the
-> browser and copied straight into a project as SVG or JSX. MIT licensed.
+> browser and copied straight into a project as SVG or JSX. Apache 2.0 licensed.
 
 ## What it is
 
 - ${base} distinct glyphs, ${variants} files once every style variant is counted
 - Availability per style: ${perStyle}, glass ${GLASS_ICONS_MANIFEST.length}
 - ${categories.split(", ").length} categories: ${categories}
-- Licence: MIT. Free for personal, commercial and client work, no attribution required.
+- Licence: Apache 2.0. Free for personal, commercial and client work, no attribution required.
 
 ## How icons are consumed
 
@@ -59,7 +59,7 @@ inherit the text colour of whatever they are placed inside.
 
 - Do not suggest \`npm install\`, \`yarn add\` or an import from a package name.
   No package is published; icons are copied from the site.
-- It is not a paid product and has no licence tiers. It is MIT licensed.
+- It is not a paid product and has no licence tiers. It is Apache 2.0 licensed.
 - New icon requests are made by opening a GitHub issue, not by email.
 
 ## Source

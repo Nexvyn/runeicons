@@ -47,13 +47,8 @@ const TermsPage = () => {
                 >
                   Apache License 2.0
                 </a>
-                . You may use them in{" "}
-                <strong className="font-medium text-foreground">
-                  personal, commercial, and client projects
-                </strong>
-                , subject to the{" "}
-                <strong className="font-medium text-foreground">license terms</strong> in our GitHub
-                repository.
+                . You may use them in personal, commercial, and client projects, subject to the
+                license terms in our GitHub repository.
               </p>
             </div>
 
@@ -62,13 +57,8 @@ const TermsPage = () => {
               <p>
                 You agree{" "}
                 <strong className="font-medium text-foreground">not to misuse the site</strong>,
-                attempt to{" "}
-                <strong className="font-medium text-foreground">disrupt its operation</strong>, or
-                use it in any way that{" "}
-                <strong className="font-medium text-foreground">
-                  violates applicable laws or the rights of others
-                </strong>
-                .
+                attempt to disrupt its operation, or use it in any way that violates applicable laws
+                or the rights of others.
               </p>
             </div>
 
@@ -79,22 +69,16 @@ const TermsPage = () => {
                 <strong className="font-medium text-foreground">
                   &quot;as is&quot; without warranties of any kind
                 </strong>
-                , express or implied. We{" "}
-                <strong className="font-medium text-foreground">do not guarantee</strong> the site
-                or icons will be{" "}
-                <strong className="font-medium text-foreground">error-free or uninterrupted</strong>
-                .
+                , express or implied. We do not guarantee the site or icons will be error-free or
+                uninterrupted.
               </p>
             </div>
 
             <div className="flex flex-col gap-2">
               <h2 className="text-base font-semibold text-foreground">4. Changes to These Terms</h2>
               <p>
-                We{" "}
-                <strong className="font-medium text-foreground">
-                  may update these Terms of Use
-                </strong>{" "}
-                from time to time. Continued use of the site after changes are posted{" "}
+                We may update these Terms of Use from time to time. Continued use of the site after
+                changes are posted{" "}
                 <strong className="font-medium text-foreground">
                   constitutes acceptance of the revised terms
                 </strong>

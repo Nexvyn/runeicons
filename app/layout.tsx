@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Gemunu_Libre, Inter, Inter_Tight } from "next/font/google";
+import { Caveat, Geist, Geist_Mono, Gemunu_Libre, Inter, Inter_Tight } from "next/font/google";
 
 import { Toaster } from "@/components/ui/sonner";
 import { ShapeProvider } from "@/lib/shape-context";
@@ -34,10 +34,15 @@ const interTight = Inter_Tight({
   subsets: ["latin"],
 });
 
+const caveat = Caveat({
+  variable: "--font-caveat",
+  subsets: ["latin"],
+});
+
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://runeicons.com";
 
 const DESCRIPTION =
-  "An open-source icon library where every glyph comes in five styles: outline, duotone, fill, pixelated and glass. Reshape any path in the browser, then copy it out as SVG or JSX. MIT licensed.";
+  "An open-source icon library where every glyph comes in five styles: outline, duotone, fill, pixelated and glass. Reshape any path in the browser, then copy it out as SVG or JSX. Apache 2.0 licensed.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -58,7 +63,7 @@ export const metadata: Metadata = {
     "duotone icons",
     "pixel art icons",
     "glass icons",
-    "MIT licensed icons",
+    "Apache 2.0 licensed icons",
     "free icons for developers",
   ],
   alternates: { canonical: "/" },
@@ -127,7 +132,7 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        className={`${inter.variable} ${geistSans.variable} ${geistMono.variable} ${gemunuLibre.variable} ${interTight.variable} antialiased`}
+        className={`${inter.variable} ${geistSans.variable} ${geistMono.variable} ${gemunuLibre.variable} ${interTight.variable} ${caveat.variable} antialiased`}
       >
         <MotionProvider>
           <ShapeProvider>
