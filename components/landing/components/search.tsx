@@ -105,7 +105,11 @@ const Search = () => {
                             onPointerEnter={() => setPreviewed(icon)}
                             onFocus={() => setPreviewed(icon)}
                             onClick={() => setPreviewed(icon)}
-                            className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-muted/50 transition-colors hover:bg-muted"
+                            className={`flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg transition-colors ${
+                              iconType === "glass"
+                                ? "bg-muted/50 hover:bg-muted dark:bg-white/85 dark:hover:bg-white"
+                                : "bg-muted/50 hover:bg-muted"
+                            }`}
                           >
                             {icon.url && (
                               <m.img
@@ -113,7 +117,11 @@ const Search = () => {
                                 src={icon.url}
                                 alt={icon.name}
                                 className={`h-5 w-5 ${
-                                  iconType === "duotone" ? "brightness-0 dark:brightness-100" : ""
+                                  iconType === "duotone"
+                                    ? "brightness-0 dark:brightness-100"
+                                    : iconType === "normal" || iconType === "pixelated"
+                                      ? "dark:invert"
+                                      : ""
                                 }`}
                                 loading="lazy"
                                 initial={{ opacity: 0 }}

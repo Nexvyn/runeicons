@@ -157,7 +157,7 @@ const HandArrow = ({ flip, reduced }: { flip?: boolean; reduced: boolean }) => (
       transition={{ duration: 0.5, delay: 0.15, ease: EASE_OUT_QUART }}
     />
     <m.path
-      d="M13.5 23.5 L5 29 L14.5 31.5"
+      d="M13.6 26.4 L5 29 L7.6 20.4"
       stroke="currentColor"
       strokeWidth="1.6"
       strokeLinecap="round"
