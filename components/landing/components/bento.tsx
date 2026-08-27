@@ -42,7 +42,7 @@ const BentoCard = ({
 
   return (
     <div
-      className={`relative flex min-h-0 flex-col overflow-hidden rounded-2xl border border-border ${transparentBg ? "bg-transparent" : "bg-card"} text-card-foreground transition-shadow duration-150 ease hover:shadow-lg md:rounded-3xl ${className}`}
+      className={`relative flex min-h-0 flex-col overflow-hidden rounded-2xl border border-border ${transparentBg ? "bg-transparent" : "bg-card"} ease text-card-foreground transition-shadow duration-150 hover:shadow-lg md:rounded-3xl ${className}`}
     >
       <div
         className={
@@ -65,7 +65,7 @@ const Bento = () => {
         <div className="grid min-h-0 grid-cols-1 gap-2 md:gap-4 lg:col-span-4 lg:grid-rows-[6fr_4fr]">
           <BentoCard
             title="Five styles, one library"
-            description="From clean outlines to glossy 3D, every icon comes in five distinct flavors."
+            description="Every icon ships in five styles. Pick the one that fits."
             className="flex h-full items-center justify-center"
             inlineLabel
             transparentBg
@@ -74,7 +74,7 @@ const Bento = () => {
           </BentoCard>
           <BentoCard
             title="Interactive SVG Editing"
-            description="Drag points, reshape paths, and customize vectors directly in the browser."
+            description="Drag the points. Reshape the paths. Right here in the browser."
             className="h-full"
             inlineLabel
             transparentBg
@@ -85,7 +85,7 @@ const Bento = () => {
 
         <BentoCard
           title="Modular by design"
-          description="Composable shapes that snap into any layout without breaking your grid."
+          description="Shapes that snap into any layout."
           className="h-full min-h-0 max-sm:p-5 lg:col-span-3"
           inlineLabel
           transparentBg
@@ -96,7 +96,7 @@ const Bento = () => {
         <div className="grid min-h-0 grid-cols-1 gap-2 md:gap-4 lg:col-span-5 lg:grid-rows-[5fr_5fr]">
           <BentoCard
             title="Tweak every detail"
-            description="Stroke, size, color, animation, dial each icon in until it fits your brand."
+            description="Stroke, size, color, motion. Dial it in."
             className="h-full"
             graphicClassName="p-0!"
             inlineLabel
@@ -106,7 +106,7 @@ const Bento = () => {
           </BentoCard>
           <BentoCard
             title="Crafted line by line"
-            description="Hand-tuned strokes and perfect curves that scale to any size without losing detail."
+            description="Hand-tuned strokes that stay sharp at any size."
             className="h-full max-lg:aspect-square"
             fullBackgroundGraphic
             transparentBg

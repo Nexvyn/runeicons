@@ -64,12 +64,8 @@ const FILL_MS = 1800;
 const HOLD_MS = 400;
 
 const IconVarietyShowcase = () => {
-  const [order, setOrder] = useState(() =>
-    Array.from({ length: VARIANTS.length }, (_, i) => i),
-  );
-  const [phase, setPhase] = useState<"settling" | "filling" | "exiting">(
-    "settling",
-  );
+  const [order, setOrder] = useState(() => Array.from({ length: VARIANTS.length }, (_, i) => i));
+  const [phase, setPhase] = useState<"settling" | "filling" | "exiting">("settling");
   const [ghost, setGhost] = useState<{ idx: number } | null>(null);
   const [appearCard, setAppearCard] = useState<{
     idx: number;
@@ -104,17 +100,14 @@ const IconVarietyShowcase = () => {
       armDelayed(FILL_MS + HOLD_MS, () => setPhase("exiting"));
     } else if (phase === "exiting") {
       const top = orderRef.current[0];
-      const newBackIdx =
-        orderRef.current[VISIBLE % orderRef.current.length] ?? top;
+      const newBackIdx = orderRef.current[VISIBLE % orderRef.current.length] ?? top;
 
       setGhost({ idx: top });
       setOrder(([first, ...rest]) => [...rest, first]);
       setAppearCard({ idx: newBackIdx, phase: "start" });
 
       requestAnimationFrame(() =>
-        requestAnimationFrame(() =>
-          setAppearCard({ idx: newBackIdx, phase: "end" }),
-        ),
+        requestAnimationFrame(() => setAppearCard({ idx: newBackIdx, phase: "end" })),
       );
 
       setPhase("settling");
@@ -150,10 +143,7 @@ const IconVarietyShowcase = () => {
         isHoveredRef.current = false;
       }}
     >
-      <div
-        className="relative"
-        style={{ width: BASE_WIDTH, height: stackHeight + 32 }}
-      >
+      <div className="relative" style={{ width: BASE_WIDTH, height: stackHeight + 32 }}>
         <div
           className="absolute left-0"
           style={{ top: 16, width: BASE_WIDTH, height: stackHeight }}
@@ -185,10 +175,8 @@ const IconVarietyShowcase = () => {
 
           {visibleOrder.map((cardIdx, stackPos) => {
             const isTop = stackPos === 0;
-            const isAppearStart =
-              appearCard?.idx === cardIdx && appearCard.phase === "start";
-            const isAppearEnd =
-              appearCard?.idx === cardIdx && appearCard.phase === "end";
+            const isAppearStart = appearCard?.idx === cardIdx && appearCard.phase === "start";
+            const isAppearEnd = appearCard?.idx === cardIdx && appearCard.phase === "end";
             const topOffset = stackPos * STACK_OFFSET;
             const widthShrink = stackPos * WIDTH_SHRINK;
             const cardWidth = BASE_WIDTH - widthShrink;

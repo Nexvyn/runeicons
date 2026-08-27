@@ -267,7 +267,14 @@ const BentoSvg = ({ className }: { className?: string }) => {
           strokeLinecap="round"
           strokeLinejoin="round"
         />
-        <line x1="247.645" y1="239.915" x2="328.625" y2="321.543" stroke="black" strokeWidth="1.5" />
+        <line
+          x1="247.645"
+          y1="239.915"
+          x2="328.625"
+          y2="321.543"
+          stroke="black"
+          strokeWidth="1.5"
+        />
         <path
           d="M328.673 318.078L328.435 322.084L324.428 322.29"
           stroke="black"

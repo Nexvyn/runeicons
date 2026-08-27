@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import * as SliderPrimitive from "@radix-ui/react-slider";
 import { Atom, AudioLines, Bug, Cat, Flower2, Hop, Minus, Plus } from "lucide-react";
 import { useReducedMotion } from "motion/react";
 import * as m from "motion/react-m";
-import * as SliderPrimitive from "@radix-ui/react-slider";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -172,10 +172,9 @@ const IconCarousel = () => {
                 }}
                 style={{ width: ICON_GAP }}
                 whileHover={
-                  !isActive && !shouldReduceMotion
-                    ? { opacity: 0.55, scale: 1.04 }
-                    : undefined
+                  !isActive && !shouldReduceMotion ? { opacity: 0.55, scale: 1.04 } : undefined
                 }
+                whileTap={!shouldReduceMotion ? { scale: 0.95 } : undefined}
                 animate={
                   isActive
                     ? {
@@ -236,7 +235,6 @@ const IconCarousel = () => {
           })}
         </m.div>
       </div>
-
     </div>
   );
 };
