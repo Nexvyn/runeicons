@@ -2,20 +2,21 @@
 import { useState } from "react";
 import type { ComponentType, SVGProps } from "react";
 
-import Image from "next/image";
-
 import { Search as SearchIcon } from "lucide-react";
 import { AnimatePresence, useReducedMotion } from "motion/react";
 import * as m from "motion/react-m";
 
-import { useLandingSearch } from "../hooks/use-landing-search";
+import type { IconType } from "@/lib/icons";
+import type { IconData } from "@/lib/types";
+
 import { DuotoneIcon } from "../../icons/DuotoneIcon";
 import { FillIcon } from "../../icons/FillIcon";
 import { GlassIcon } from "../../icons/GlassIcon";
-import { Input } from "../../ui/input";
 import { NormalIcon } from "../../icons/NormalIcon";
 import { PixelatedIcon } from "../../icons/PixelatedIcon";
-import type { IconType } from "@/lib/icons";
+import { Input } from "../../ui/input";
+import { useLandingSearch } from "../hooks/use-landing-search";
+import SpecimenPlate from "./specimen-plate";
 
 type TypeIcon = ComponentType<SVGProps<SVGSVGElement>>;
 
@@ -32,21 +33,26 @@ const HIGHLIGHT_CLASS =
 
 const Search = () => {
   const [iconType, setIconType] = useState<IconType>("normal");
+  const [interacting, setInteracting] = useState(false);
+  const [previewed, setPreviewed] = useState<IconData | undefined>(undefined);
   const shouldReduceMotion = useReducedMotion();
   const { query, setQuery, results } = useLandingSearch(iconType, 25);
 
+  const specimen = previewed ?? (query.trim() ? results[0] : undefined);
+
   return (
-    <div className="flex h-full flex-col gap-5 py-6 lg:flex-row">
+    <div
+      className="flex h-full flex-col gap-5 py-6 lg:flex-row"
+      onPointerEnter={() => setInteracting(true)}
+      onPointerLeave={() => setInteracting(false)}
+    >
       <div className="min-h-[400px] lg:min-h-0 lg:w-1/2">
-        <div className="relative h-full min-h-[400px] w-full overflow-hidden rounded-2xl bg-background bg-center">
-          <Image
-            className="h-full w-full object-cover"
-            src="https://i.pinimg.com/1200x/d3/49/0e/d3490eaa1637583dca52fe021fa38d19.jpg"
-            alt=""
-            fill
-            sizes="(max-width: 1024px) 100vw, 50vw"
-          />
-        </div>
+        <SpecimenPlate
+          iconType={iconType}
+          onChange={setIconType}
+          paused={interacting}
+          icon={specimen}
+        />
       </div>
 
       <div className="lg:w-1/2">
@@ -65,7 +71,10 @@ const Search = () => {
                 </div>
                 <Input
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    setPreviewed(undefined);
+                  }}
                   placeholder="Search for icons..."
                   className="h-full flex-1 rounded-r-xl border-0 bg-transparent pr-4 pl-2 text-foreground shadow-none placeholder:text-muted-foreground focus-visible:ring-0 dark:text-white dark:placeholder:text-white/70"
                 />
@@ -82,19 +91,22 @@ const Search = () => {
                           className={`flex w-14 flex-col items-center gap-1 ${
                             index >= 9 ? "hidden sm:flex" : ""
                           }`}
-                          initial={
-                            shouldReduceMotion ? false : { opacity: 0, scale: 0.9 }
-                          }
+                          initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
-                          exit={
-                            shouldReduceMotion ? undefined : { opacity: 0, scale: 0.9 }
-                          }
+                          exit={shouldReduceMotion ? undefined : { opacity: 0, scale: 0.9 }}
                           transition={{
                             duration: shouldReduceMotion ? 0 : 0.18,
                             ease: [0.16, 1, 0.3, 1],
                           }}
                         >
-                          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg bg-muted/50 transition-colors hover:bg-muted">
+                          <button
+                            type="button"
+                            aria-label={`Preview ${icon.name}`}
+                            onPointerEnter={() => setPreviewed(icon)}
+                            onFocus={() => setPreviewed(icon)}
+                            onClick={() => setPreviewed(icon)}
+                            className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-muted/50 transition-colors hover:bg-muted"
+                          >
                             {icon.url && (
                               <m.img
                                 key={icon.url}
@@ -107,7 +119,7 @@ const Search = () => {
                                 transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
                               />
                             )}
-                          </div>
+                          </button>
                           <span className="w-full truncate text-center text-[10px] text-white/85">
                             {icon.name}
                           </span>
@@ -149,9 +161,7 @@ const Search = () => {
                           )}
                           <span
                             className={`relative z-10 ${
-                              isActive
-                                ? "text-black dark:text-white"
-                                : "text-muted-foreground"
+                              isActive ? "text-black dark:text-white" : "text-muted-foreground"
                             }`}
                           >
                             <Icon className="h-5 w-5" />
