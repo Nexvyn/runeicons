@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 
 import { useAnimation, useReducedMotion } from "motion/react";
-import * as m from "motion/react-m";
+import { motion as m } from "motion/react";
 
 const blinkTransition = {
   duration: 3.4,
@@ -40,7 +40,7 @@ const mouthSpring = {
 const blushSpring = {
   type: "spring" as const,
   stiffness: 260,
-  damping: 26,
+  damping: 13,
   mass: 0.7,
 };
 
@@ -81,7 +81,43 @@ const Mascot = ({ stage = 1 }: MascotProps) => {
 
   const shouldReduceMotion = useReducedMotion();
   const bodyControls = useAnimation();
+  const breathControls = useAnimation();
   const previousStage = useRef(stage);
+  const eyeRefs = useRef<(SVGGElement | null)[]>([]);
+
+  useEffect(() => {
+    if (shouldReduceMotion) return;
+    breathControls.start({
+      scaleY: [1, 1.015, 1],
+      transition: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+    });
+  }, [breathControls, shouldReduceMotion]);
+
+  useEffect(() => {
+    if (shouldReduceMotion) return;
+    let raf = 0;
+    let tx = 0;
+    let ty = 0;
+    let cx = 0;
+    let cy = 0;
+    const onMove = (e: PointerEvent) => {
+      tx = (e.clientX / window.innerWidth - 0.5) * 8;
+      ty = (e.clientY / window.innerHeight - 0.5) * 8;
+    };
+    const tick = () => {
+      cx += (tx - cx) * 0.12;
+      cy += (ty - cy) * 0.12;
+      const t = `translate(${cx.toFixed(2)} ${cy.toFixed(2)}) scale(1.08)`;
+      eyeRefs.current.forEach((el) => el?.setAttribute("transform", t));
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    window.addEventListener("pointermove", onMove);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      cancelAnimationFrame(raf);
+    };
+  }, [shouldReduceMotion]);
 
   useEffect(() => {
     const from = previousStage.current;
@@ -102,185 +138,206 @@ const Mascot = ({ stage = 1 }: MascotProps) => {
         viewBox="0 0 248 195"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        animate={bodyControls}
+        animate={breathControls}
         style={{ transformOrigin: "center bottom" }}
       >
-        <path
-          d="M197.087 19.2749C202.59 15.5089 209.123 13.227 215.81 15.2612L215.851 15.2739L215.894 15.2788C221.16 15.9353 228.783 18.5286 234.513 24.1518C240.218 29.7506 244.088 38.3909 241.83 51.2602L241.829 51.2681L241.828 51.2749C241.128 56.0993 236.898 66.9162 225.638 71.4214L225.13 71.6245L225.377 72.1118C237.52 96.0495 246.146 133.086 221.596 163.931C206.085 183.419 177.517 191.267 147.957 193.101C118.425 194.932 88.0517 190.751 69.1104 186.328C47.1499 181.201 15.2042 164.696 12.8144 122.079C11.7389 102.899 17.2682 85.9467 25.0977 72.1323L25.3184 71.7417L24.9551 71.48C10.8459 61.3032 7.43249 50.6926 8.7666 41.6069C10.1066 32.4822 16.2526 24.7613 21.5488 20.436C33.1746 13.8081 42.7345 14.3576 49.9648 17.6753C57.233 21.0104 62.206 27.1718 64.5508 31.8266L64.7812 32.2837L65.2334 32.0425C112.312 6.8543 154.898 15.9946 184.171 32.0395L184.578 32.2632L184.83 31.8735C187.189 28.2397 191.586 23.0395 197.087 19.2749Z"
-          fill="white"
-          stroke="black"
-        />
-        <path
-          d="M221.596 163.931C246.146 133.086 237.52 96.0489 225.377 72.1112C218.383 63.146 200.64 42.0727 184.578 32.2626L184.171 32.0389C154.898 15.994 112.312 6.85371 65.2334 32.0419L64.7812 32.2831C43.8061 46.1096 29.733 64.3495 25.3184 71.7411L25.0977 72.1317C17.2682 85.9461 11.7389 102.899 12.8144 122.079C15.2042 164.696 47.1499 181.201 69.1104 186.328C88.0517 190.751 118.425 194.932 147.957 193.101C177.517 191.267 206.085 183.419 221.596 163.931Z"
-          fill="white"
-        />
-        <path
-          d="M225.377 72.1112L225.13 71.6239M225.377 72.1112C237.52 96.0489 246.146 133.086 221.596 163.931C206.085 183.419 177.517 191.267 147.957 193.101C118.425 194.932 88.0517 190.751 69.1104 186.328C47.1499 181.201 15.2042 164.696 12.8144 122.079C11.7389 102.899 17.2682 85.9461 25.0977 72.1317L25.3184 71.7411M225.377 72.1112C218.383 63.146 200.64 42.0727 184.578 32.2626M25.3184 71.7411L24.9551 71.4794M25.3184 71.7411C29.733 64.3495 43.8061 46.1096 64.7812 32.2831M64.5508 31.826L64.7812 32.2831M64.7812 32.2831L65.2334 32.0419C112.312 6.85371 154.898 15.994 184.171 32.0389L184.578 32.2626M184.578 32.2626L184.83 31.8729"
-          stroke="black"
-          strokeWidth="2"
-        />
-        <path
-          d="M184 32.5C197.748 40.0353 197.826 41.7111 205.5 49C214.147 57.2128 221.767 66.126 225 72.5C236.482 67.9063 241.607 56.2798 242.323 51.3476C246.893 25.2953 226.649 16.1164 215.955 14.7835C202.174 10.591 188.773 25.1468 184 32.5Z"
-          fill="black"
-        />
-        <path
-          d="M21.5496 20.4364C33.1668 13.8142 42.8478 14.5806 50.2078 18.121C57.3762 21.5693 62.3876 27.673 64.8259 32.2841C61.7092 33.9174 56.4503 37.366 51.6912 41.1063C45.4295 46.0276 41.1811 49.5514 37.2927 53.9833C33.4788 58.3304 30.0253 63.5357 25.3425 71.7645C11.6058 61.6841 8.06816 51.0478 9.18726 41.9013C10.3225 32.6224 16.2635 24.7545 21.5496 20.4364Z"
-          fill="black"
-          stroke="black"
-        />
-        <m.path
-          d="M140 155.5C138.5 172.5 110.5 169 112 155.5C118 158 125.5 149 125.5 149C128 152.5 134 158.5 140 155.5Z"
-          fill="#FBBEBD"
-          stroke="black"
-          strokeWidth="4"
-          strokeLinejoin="round"
-          style={{
-            transformBox: "fill-box",
-            transformOrigin: "center top",
-          }}
-          initial={false}
-          animate={{
-            scaleY: showMouth ? 1 : 0,
-            opacity: showMouth ? 1 : 0,
-          }}
-          transition={{
-            scaleY: mouthSpring,
-            opacity: { duration: showMouth ? 0.18 : 0.14, ease: "easeOut" },
-          }}
-        />
-        <path
-          d="M45.1879 125.333C46.0751 100.048 61.4301 91.5083 68.9966 90.3993C80.8623 87.5688 90.8523 96.7202 92.9266 105.358C95.6953 125.847 84.3897 136.507 78.3908 139.275C50.7036 150.429 44.7192 134.628 45.1879 125.333Z"
-          fill="black"
-        />
-        <path
-          d="M160.103 128.833C150.383 109.124 158.078 97.6719 163.14 94.4095C166.178 91.6573 184.411 81.2473 199.589 105.354C211.732 124.639 202.849 137.142 196.889 140.983C188.677 145.146 169.823 148.545 160.103 128.833Z"
-          fill="black"
-        />
-        <path
-          d="M122.77 141.709C117.776 141.587 112.945 135.306 113.407 132.117C113.981 128.156 120.785 128.156 125.358 128.156C129.931 128.156 136.711 128.919 136.929 133.031C137.148 137.142 131.307 140.529 128.359 141.709C127.629 144.598 128.359 147.176 128.814 148.104C135.945 157.632 143.038 149.586 143.858 148.104C144.515 146.918 145.955 146.747 146.594 146.81C150.751 147.652 148.934 151.271 147.505 152.976C138.898 162.763 129.155 157.053 125.358 152.976C115.919 161.989 107.216 157.289 104.044 153.813C102.877 152.696 100.74 149.992 101.532 148.104C102.324 146.216 104.197 146.454 105.034 146.81C116.848 158.564 123.027 149.05 122.77 141.709Z"
-          fill="black"
-        />
-        <m.path
-          d="M75.5724 122.446C77.7791 123.631 80.8784 122.152 82.4948 119.143C84.1113 116.133 83.6329 112.733 81.4262 111.548C79.2195 110.362 76.1203 111.841 74.5038 114.851C72.8873 117.860 73.3658 121.261 75.5724 122.446Z"
-          fill="white"
-          style={{
-            transformBox: "fill-box",
-            transformOrigin: "center",
-          }}
-          animate={shouldReduceMotion ? { scaleY: 1 } : { scaleY: [1, 1, 0.1, 1] }}
-          transition={shouldReduceMotion ? { duration: 0 } : blinkTransition}
-        />
-        <m.path
-          d="M171.634 123.42C174.053 122.772 175.298 119.571 174.414 116.272C173.530 112.972 170.852 110.823 168.432 111.471C166.013 112.119 164.768 115.320 165.652 118.619C166.536 121.919 169.215 124.069 171.634 123.420Z"
-          fill="white"
-          style={{
-            transformBox: "fill-box",
-            transformOrigin: "center",
-          }}
-          animate={shouldReduceMotion ? { scaleY: 1 } : { scaleY: [1, 1, 0.1, 1] }}
-          transition={shouldReduceMotion ? { duration: 0 } : blinkTransition}
-        />
-        <m.ellipse
-          cx="58"
-          cy="155"
-          rx="13"
-          ry="6"
-          fill="#FCBFC1"
-          style={{
-            transformBox: "fill-box",
-            transformOrigin: "center",
-          }}
-          initial={false}
-          animate={{
-            opacity: showBlush ? 1 : 0,
-            scale: showBlush ? 1 : 0.4,
-          }}
-          transition={blushSpring}
-        />
-        <m.ellipse
-          cx="205.5"
-          cy="152"
-          rx="12.5"
-          ry="6"
-          fill="#FCBFC1"
-          style={{
-            transformBox: "fill-box",
-            transformOrigin: "center",
-          }}
-          initial={false}
-          animate={{
-            opacity: showBlush ? 1 : 0,
-            scale: showBlush ? 1 : 0.4,
-          }}
-          transition={blushSpring}
-        />
-        {HEARTS.map((heart, i) => (
-          <m.g
-            key={heart.clipId}
-            clipPath={`url(#${heart.clipId})`}
+        <m.g
+          animate={bodyControls}
+          style={{ transformBox: "fill-box", transformOrigin: "center bottom" }}
+        >
+          <path
+            d="M197.087 19.2749C202.59 15.5089 209.123 13.227 215.81 15.2612L215.851 15.2739L215.894 15.2788C221.16 15.9353 228.783 18.5286 234.513 24.1518C240.218 29.7506 244.088 38.3909 241.83 51.2602L241.829 51.2681L241.828 51.2749C241.128 56.0993 236.898 66.9162 225.638 71.4214L225.13 71.6245L225.377 72.1118C237.52 96.0495 246.146 133.086 221.596 163.931C206.085 183.419 177.517 191.267 147.957 193.101C118.425 194.932 88.0517 190.751 69.1104 186.328C47.1499 181.201 15.2042 164.696 12.8144 122.079C11.7389 102.899 17.2682 85.9467 25.0977 72.1323L25.3184 71.7417L24.9551 71.48C10.8459 61.3032 7.43249 50.6926 8.7666 41.6069C10.1066 32.4822 16.2526 24.7613 21.5488 20.436C33.1746 13.8081 42.7345 14.3576 49.9648 17.6753C57.233 21.0104 62.206 27.1718 64.5508 31.8266L64.7812 32.2837L65.2334 32.0425C112.312 6.8543 154.898 15.9946 184.171 32.0395L184.578 32.2632L184.83 31.8735C187.189 28.2397 191.586 23.0395 197.087 19.2749Z"
+            fill="white"
+            stroke="black"
+          />
+          <path
+            d="M221.596 163.931C246.146 133.086 237.52 96.0489 225.377 72.1112C218.383 63.146 200.64 42.0727 184.578 32.2626L184.171 32.0389C154.898 15.994 112.312 6.85371 65.2334 32.0419L64.7812 32.2831C43.8061 46.1096 29.733 64.3495 25.3184 71.7411L25.0977 72.1317C17.2682 85.9461 11.7389 102.899 12.8144 122.079C15.2042 164.696 47.1499 181.201 69.1104 186.328C88.0517 190.751 118.425 194.932 147.957 193.101C177.517 191.267 206.085 183.419 221.596 163.931Z"
+            fill="white"
+          />
+          <path
+            d="M225.377 72.1112L225.13 71.6239M225.377 72.1112C237.52 96.0489 246.146 133.086 221.596 163.931C206.085 183.419 177.517 191.267 147.957 193.101C118.425 194.932 88.0517 190.751 69.1104 186.328C47.1499 181.201 15.2042 164.696 12.8144 122.079C11.7389 102.899 17.2682 85.9461 25.0977 72.1317L25.3184 71.7411M225.377 72.1112C218.383 63.146 200.64 42.0727 184.578 32.2626M25.3184 71.7411L24.9551 71.4794M25.3184 71.7411C29.733 64.3495 43.8061 46.1096 64.7812 32.2831M64.5508 31.826L64.7812 32.2831M64.7812 32.2831L65.2334 32.0419C112.312 6.85371 154.898 15.994 184.171 32.0389L184.578 32.2626M184.578 32.2626L184.83 31.8729"
+            stroke="black"
+            strokeWidth="2"
+          />
+          <path
+            d="M184 32.5C197.748 40.0353 197.826 41.7111 205.5 49C214.147 57.2128 221.767 66.126 225 72.5C236.482 67.9063 241.607 56.2798 242.323 51.3476C246.893 25.2953 226.649 16.1164 215.955 14.7835C202.174 10.591 188.773 25.1468 184 32.5Z"
+            fill="black"
+          />
+          <path
+            d="M21.5496 20.4364C33.1668 13.8142 42.8478 14.5806 50.2078 18.121C57.3762 21.5693 62.3876 27.673 64.8259 32.2841C61.7092 33.9174 56.4503 37.366 51.6912 41.1063C45.4295 46.0276 41.1811 49.5514 37.2927 53.9833C33.4788 58.3304 30.0253 63.5357 25.3425 71.7645C11.6058 61.6841 8.06816 51.0478 9.18726 41.9013C10.3225 32.6224 16.2635 24.7545 21.5496 20.4364Z"
+            fill="black"
+            stroke="black"
+          />
+          <m.path
+            d="M140 155.5C138.5 172.5 110.5 169 112 155.5C118 158 125.5 149 125.5 149C128 152.5 134 158.5 140 155.5Z"
+            fill="#FBBEBD"
+            stroke="black"
+            strokeWidth="4"
+            strokeLinejoin="round"
+            style={{
+              transformBox: "fill-box",
+              transformOrigin: "center top",
+            }}
+            initial={false}
+            animate={{
+              scaleY: showMouth ? 1 : 0,
+              opacity: showMouth ? 1 : 0,
+            }}
+            transition={{
+              scaleY: mouthSpring,
+              opacity: { duration: showMouth ? 0.18 : 0.14, ease: "easeOut" },
+            }}
+          />
+          <g
+            ref={(el) => {
+              eyeRefs.current[0] = el;
+            }}
+            style={{ transformBox: "fill-box", transformOrigin: "center" }}
+          >
+            <path
+              d="M45.1879 125.333C46.0751 100.048 61.4301 91.5083 68.9966 90.3993C80.8623 87.5688 90.8523 96.7202 92.9266 105.358C95.6953 125.847 84.3897 136.507 78.3908 139.275C50.7036 150.429 44.7192 134.628 45.1879 125.333Z"
+              fill="black"
+            />
+            <circle cx="62" cy="112" r="2.6" fill="white" opacity="0.95" />
+          </g>
+          <g
+            ref={(el) => {
+              eyeRefs.current[1] = el;
+            }}
+            style={{ transformBox: "fill-box", transformOrigin: "center" }}
+          >
+            <path
+              d="M160.103 128.833C150.383 109.124 158.078 97.6719 163.14 94.4095C166.178 91.6573 184.411 81.2473 199.589 105.354C211.732 124.639 202.849 137.142 196.889 140.983C188.677 145.146 169.823 148.545 160.103 128.833Z"
+              fill="black"
+            />
+            <circle cx="178" cy="113" r="2.6" fill="white" opacity="0.95" />
+          </g>
+          <path
+            d="M122.77 141.709C117.776 141.587 112.945 135.306 113.407 132.117C113.981 128.156 120.785 128.156 125.358 128.156C129.931 128.156 136.711 128.919 136.929 133.031C137.148 137.142 131.307 140.529 128.359 141.709C127.629 144.598 128.359 147.176 128.814 148.104C135.945 157.632 143.038 149.586 143.858 148.104C144.515 146.918 145.955 146.747 146.594 146.81C150.751 147.652 148.934 151.271 147.505 152.976C138.898 162.763 129.155 157.053 125.358 152.976C115.919 161.989 107.216 157.289 104.044 153.813C102.877 152.696 100.74 149.992 101.532 148.104C102.324 146.216 104.197 146.454 105.034 146.81C116.848 158.564 123.027 149.05 122.77 141.709Z"
+            fill="black"
+          />
+          <m.path
+            d="M75.5724 122.446C77.7791 123.631 80.8784 122.152 82.4948 119.143C84.1113 116.133 83.6329 112.733 81.4262 111.548C79.2195 110.362 76.1203 111.841 74.5038 114.851C72.8873 117.860 73.3658 121.261 75.5724 122.446Z"
+            fill="white"
+            style={{
+              transformBox: "fill-box",
+              transformOrigin: "center",
+            }}
+            animate={shouldReduceMotion ? { scaleY: 1 } : { scaleY: [1, 1, 0.1, 1] }}
+            transition={shouldReduceMotion ? { duration: 0 } : blinkTransition}
+          />
+          <m.path
+            d="M171.634 123.42C174.053 122.772 175.298 119.571 174.414 116.272C173.530 112.972 170.852 110.823 168.432 111.471C166.013 112.119 164.768 115.320 165.652 118.619C166.536 121.919 169.215 124.069 171.634 123.420Z"
+            fill="white"
+            style={{
+              transformBox: "fill-box",
+              transformOrigin: "center",
+            }}
+            animate={shouldReduceMotion ? { scaleY: 1 } : { scaleY: [1, 1, 0.1, 1] }}
+            transition={shouldReduceMotion ? { duration: 0 } : blinkTransition}
+          />
+          <m.ellipse
+            cx="58"
+            cy="155"
+            rx="13"
+            ry="6"
+            fill="#FCBFC1"
             style={{
               transformBox: "fill-box",
               transformOrigin: "center",
             }}
             initial={false}
             animate={{
-              opacity: showHearts ? 1 : 0,
-              scale: showHearts ? 1 : 0.3,
-              y: showHearts && !shouldReduceMotion ? [0, -5, 0] : showHearts ? 0 : 14,
+              opacity: showBlush ? 1 : 0,
+              scale: showBlush ? 1 : 0.4,
             }}
-            transition={{
-              opacity: { ...heartSpring, delay: showHearts ? i * 0.07 : 0 },
-              scale: { ...heartSpring, delay: showHearts ? i * 0.07 : 0 },
-              y:
-                showHearts && !shouldReduceMotion
-                  ? heartFloat(i)
-                  : { ...heartSpring, delay: showHearts ? i * 0.07 : 0 },
+            transition={blushSpring}
+          />
+          <m.ellipse
+            cx="205.5"
+            cy="152"
+            rx="12.5"
+            ry="6"
+            fill="#FCBFC1"
+            style={{
+              transformBox: "fill-box",
+              transformOrigin: "center",
             }}
-          >
-            <path
-              d={heart.d}
-              fill="black"
-              stroke="black"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </m.g>
-        ))}
-        <defs>
-          <clipPath id="clip0_536_2">
-            <rect
-              width="13.1237"
-              height="13.1237"
-              fill="white"
-              transform="translate(0 79.7305) rotate(-41.7024)"
-            />
-          </clipPath>
-          <clipPath id="clip1_536_2">
-            <rect
-              width="17.0952"
-              height="17.0952"
-              fill="white"
-              transform="translate(53 6.98828) rotate(-13.4939)"
-            />
-          </clipPath>
-          <clipPath id="clip2_536_2">
-            <rect
-              width="10.87"
-              height="10.87"
-              fill="white"
-              transform="translate(171.6 11) rotate(25.0345)"
-            />
-          </clipPath>
-          <clipPath id="clip3_536_2">
-            <rect
-              width="16.4632"
-              height="16.4632"
-              fill="white"
-              transform="translate(190.328 0) rotate(34.5126)"
-            />
-          </clipPath>
-        </defs>
+            initial={false}
+            animate={{
+              opacity: showBlush ? 1 : 0,
+              scale: showBlush ? 1 : 0.4,
+            }}
+            transition={blushSpring}
+          />
+          {HEARTS.map((heart, i) => (
+            <m.g
+              key={heart.clipId}
+              clipPath={`url(#${heart.clipId})`}
+              style={{
+                transformBox: "fill-box",
+                transformOrigin: "center",
+              }}
+              initial={false}
+              animate={{
+                opacity: showHearts ? 1 : 0,
+                scale: showHearts ? 1 : 0.3,
+                y: showHearts && !shouldReduceMotion ? [0, -5, 0] : showHearts ? 0 : 14,
+              }}
+              transition={{
+                opacity: { ...heartSpring, delay: showHearts ? i * 0.07 : 0 },
+                scale: { ...heartSpring, delay: showHearts ? i * 0.07 : 0 },
+                y:
+                  showHearts && !shouldReduceMotion
+                    ? heartFloat(i)
+                    : { ...heartSpring, delay: showHearts ? i * 0.07 : 0 },
+              }}
+            >
+              <path
+                d={heart.d}
+                fill="black"
+                stroke="black"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </m.g>
+          ))}
+          <defs>
+            <clipPath id="clip0_536_2">
+              <rect
+                width="13.1237"
+                height="13.1237"
+                fill="white"
+                transform="translate(0 79.7305) rotate(-41.7024)"
+              />
+            </clipPath>
+            <clipPath id="clip1_536_2">
+              <rect
+                width="17.0952"
+                height="17.0952"
+                fill="white"
+                transform="translate(53 6.98828) rotate(-13.4939)"
+              />
+            </clipPath>
+            <clipPath id="clip2_536_2">
+              <rect
+                width="10.87"
+                height="10.87"
+                fill="white"
+                transform="translate(171.6 11) rotate(25.0345)"
+              />
+            </clipPath>
+            <clipPath id="clip3_536_2">
+              <rect
+                width="16.4632"
+                height="16.4632"
+                fill="white"
+                transform="translate(190.328 0) rotate(34.5126)"
+              />
+            </clipPath>
+          </defs>
+        </m.g>
       </m.svg>
     </>
   );

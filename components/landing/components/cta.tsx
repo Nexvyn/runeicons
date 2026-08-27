@@ -1,4 +1,6 @@
 "use client";
+import { useEffect, useRef, useState } from "react";
+
 import Image from "next/image";
 import Link from "next/link";
 
@@ -16,6 +18,23 @@ const HOVER_DURATION = 0.15;
 
 const CTA = () => {
   const shouldReduceMotion = useReducedMotion();
+  const [stage, setStage] = useState<1 | 2 | 3 | 4>(1);
+  const mascotRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = mascotRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        setStage(2);
+        io.disconnect();
+      },
+      { threshold: 0.4 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
   const icons = [
     { icon: Rocket, x: "10%", y: "20%", size: 32, delay: 0 },
     { icon: Sparkles, x: "85%", y: "15%", size: 24, delay: 1 },
@@ -86,15 +105,22 @@ const CTA = () => {
         ))}
       </div>
       <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center text-center">
-        <m.div
-          initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.92 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, margin: "-10% 0px" }}
-          transition={{ duration: ENTRANCE_DURATION, ease: EASE_OUT_QUART, delay: 0 }}
-          className="mb-3 h-20 w-20"
-        >
-          <Mascot />
-        </m.div>
+        <div ref={mascotRef} data-stage={stage} className="mb-3 h-20 w-20 rotate-2">
+          <m.div
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 46, scaleX: 1, scaleY: 1 }}
+            whileInView={{
+              opacity: [0, 1, 1, 1],
+              y: [46, 0, -9, 0],
+              scaleY: [1, 0.88, 1.05, 1],
+              scaleX: [1, 1.1, 0.97, 1],
+            }}
+            viewport={{ once: true, margin: "-10% 0px" }}
+            transition={{ duration: 0.75, times: [0, 0.55, 0.8, 1], ease: EASE_OUT_QUART }}
+            className="h-full w-full origin-bottom"
+          >
+            <Mascot stage={stage} />
+          </m.div>
+        </div>
         <m.h2
           initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -103,7 +129,7 @@ const CTA = () => {
           className="mb-8 text-3xl leading-[1.1] font-medium tracking-tight sm:text-4xl md:text-5xl lg:text-6xl"
         >
           <span className="bg-linear-to-b from-white to-white/70 bg-clip-text text-transparent">
-            Ready to build <br /> something beautiful?
+            900+ icons. Five styles. Free forever.
           </span>
         </m.h2>
 
@@ -118,6 +144,8 @@ const CTA = () => {
             whileHover={shouldReduceMotion ? undefined : { scale: 1.03 }}
             whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
             transition={{ duration: HOVER_DURATION, ease: EASE_OUT_QUART }}
+            onMouseEnter={() => setStage(3)}
+            onMouseLeave={() => setStage(2)}
           >
             <Link href="/icons">
               <Button size="lg" variant="default">
@@ -129,8 +157,14 @@ const CTA = () => {
             whileHover={shouldReduceMotion ? undefined : { scale: 1.03 }}
             whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
             transition={{ duration: HOVER_DURATION, ease: EASE_OUT_QUART }}
+            onMouseEnter={() => setStage(4)}
+            onMouseLeave={() => setStage(2)}
           >
-            <Link href="https://github.com/Nexvyn/runeicons" target="_blank" rel="noopener noreferrer">
+            <Link
+              href="https://github.com/Nexvyn/runeicons"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Button size="lg" variant="secondary">
                 Star On GitHub <Github />
               </Button>
