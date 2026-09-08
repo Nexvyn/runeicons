@@ -70,7 +70,10 @@ export function IconTray({
                   className={cn(
                     "w-11 h-11 rounded-lg border flex items-center justify-center p-2",
                     "transition-[colors,transform,box-shadow] duration-150 ease-out hover:scale-105 active:scale-[0.97]",
-                    "bg-card shadow-sm cursor-pointer outline-none",
+                    "shadow-sm cursor-pointer outline-none",
+                    isDesigned && slotType !== "pixelated"
+                      ? "bg-white dark:bg-zinc-200"
+                      : "bg-card",
                     isSelected
                       ? "border-primary ring-2 ring-primary/30"
                       : "border-border/50 hover:border-border",

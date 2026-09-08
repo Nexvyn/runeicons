@@ -31,6 +31,7 @@ export function useIconLibrary(
       name: ci.name,
       url: ci.url,
       category: "custom" as const,
+      iconType: "normal" as const,
       tags: ["custom", "upload"],
     })),
   ], [iconType, customIcons]);

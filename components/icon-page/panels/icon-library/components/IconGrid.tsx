@@ -1,7 +1,7 @@
 "use client";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 
-import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 import type { IconType } from "@/lib/icons";
 import { STROKE_STYLE_MAP } from "@/lib/stroke-style";
@@ -21,41 +21,30 @@ interface IconGridProps {
 
 interface GridTileProps {
   icon: IconData;
-  index: number;
-  total: number;
-  cols: number;
   isSelected: boolean;
   isSearching?: boolean;
   invertInDark: boolean;
   customizationState?: CustomizationState;
-  tagActive: boolean;
-  tagFromX: number;
   reduceMotion: boolean;
-  onShowTag: (id: string, index: number) => void;
+  onShowTag: (icon: IconData, index: number, el: HTMLButtonElement) => void;
+  onTrackMove: (icon: IconData, el: HTMLButtonElement, x: number, y: number) => void;
   onHideTag: () => void;
   onSelect: (icon: IconData) => void;
 }
 
 const GridTile = memo(function GridTile({
   icon,
-  index,
-  total,
-  cols,
   isSelected,
   isSearching,
   invertInDark,
   customizationState,
-  tagActive,
-  tagFromX,
   reduceMotion,
   onShowTag,
+  onTrackMove,
   onHideTag,
   onSelect,
 }: GridTileProps) {
   const Icon = icon.icon;
-  const col = index % cols;
-  const showAbove = index >= total - cols;
-  const align = col === 0 ? "left" : col === cols - 1 ? "right" : "center";
 
   return (
     <div className="relative w-full">
@@ -68,9 +57,10 @@ const GridTile = memo(function GridTile({
       </span>
       <motion.button
         onClick={() => onSelect(icon)}
-        onMouseEnter={() => onShowTag(icon.id, index)}
+        onMouseEnter={(e) => onTrackMove(icon, e.currentTarget, e.clientX, e.clientY)}
+        onMouseMove={(e) => onTrackMove(icon, e.currentTarget, e.clientX, e.clientY)}
         onMouseLeave={onHideTag}
-        onFocus={() => onShowTag(icon.id, index)}
+        onFocus={(e) => onShowTag(icon, -1, e.currentTarget)}
         onBlur={onHideTag}
         initial="initial"
         whileTap={reduceMotion ? undefined : { scale: 0.96 }}
@@ -135,20 +125,19 @@ const GridTile = memo(function GridTile({
           })()}
         </div>
       </motion.button>
-      <AnimatePresence>
-        {tagActive && (
-          <IconNameTag
-            label={icon.name}
-            above={showAbove}
-            fromX={tagFromX}
-            align={align}
-            reduceMotion={reduceMotion}
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 });
+
+interface ActiveTag {
+  id: string;
+  label: string;
+  left?: number;
+  right?: number;
+  top: number;
+  above: boolean;
+  align: "center" | "left" | "right";
+}
 
 function IconGridInner({
   icons,
@@ -161,34 +150,86 @@ function IconGridInner({
   const invertInDark = iconType === "normal" || iconType === "pixelated";
   const containerRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
-  const [activeTag, setActiveTag] = useState<{ id: string; fromX: number } | null>(null);
-  const activeTagRef = useRef<{ id: string; fromX: number } | null>(null);
-  const lastIndexRef = useRef<number | null>(null);
+  const [activeTag, setActiveTag] = useState<ActiveTag | null>(null);
+  const activeTagRef = useRef<ActiveTag | null>(null);
   const tagTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastMoveRef = useRef({ x: 0, y: 0, t: 0 });
   const COLS = 5;
+  const DWELL_MS = 280;
+  const MOVE_TOLERANCE = 6;
 
   const clearTagTimer = useCallback(() => {
     if (tagTimer.current) clearTimeout(tagTimer.current);
     tagTimer.current = null;
   }, []);
 
-  const showTag = useCallback((id: string, index: number) => {
-    if (tagTimer.current) clearTimeout(tagTimer.current);
-    tagTimer.current = null;
-    const prev = lastIndexRef.current;
-    lastIndexRef.current = index;
-    const dir = prev === null || prev === index ? 0 : Math.sign(index - prev);
-    const next = { id, fromX: dir * 10 };
-    if (activeTagRef.current !== null) {
-      activeTagRef.current = next;
-      setActiveTag(next);
-      return;
-    }
-    tagTimer.current = setTimeout(() => {
-      activeTagRef.current = next;
-      setActiveTag(next);
-    }, 100);
-  }, []);
+  const measureTag = useCallback(
+    (icon: IconData, el: HTMLButtonElement): ActiveTag | null => {
+      const container = containerRef.current;
+      if (!container) return null;
+      const gridBox = container.getBoundingClientRect();
+      const tileBox = el.getBoundingClientRect();
+      const index = icons.findIndex((entry) => entry.id === icon.id);
+      const col = index % COLS;
+      const above = index >= icons.length - COLS;
+      const align = col === 0 ? "left" : col === COLS - 1 ? "right" : ("center" as const);
+      const tag: ActiveTag = {
+        id: icon.id,
+        label: icon.name,
+        top: above ? tileBox.top - gridBox.top : tileBox.top - gridBox.top + tileBox.height,
+        above,
+        align,
+      };
+      if (align === "center") tag.left = tileBox.left - gridBox.left + tileBox.width / 2;
+      else if (align === "left") tag.left = tileBox.left - gridBox.left + 4;
+      else tag.right = gridBox.right - tileBox.right + 4;
+      return tag;
+    },
+    [icons],
+  );
+
+  const showTag = useCallback(
+    (icon: IconData, _index: number, el: HTMLButtonElement) => {
+      if (tagTimer.current) clearTimeout(tagTimer.current);
+      tagTimer.current = null;
+      const now = performance.now();
+      const still = now - lastMoveRef.current.t;
+      const place = () => {
+        const next = measureTag(icon, el);
+        if (!next) return;
+        activeTagRef.current = next;
+        setActiveTag(next);
+      };
+      if (activeTagRef.current !== null || still >= DWELL_MS) {
+        place();
+        return;
+      }
+      tagTimer.current = setTimeout(() => {
+        if (performance.now() - lastMoveRef.current.t < DWELL_MS) return;
+        place();
+      }, DWELL_MS - still);
+    },
+    [measureTag],
+  );
+
+  const trackMove = useCallback(
+    (icon: IconData, el: HTMLButtonElement, x: number, y: number) => {
+      const last = lastMoveRef.current;
+      if (Math.hypot(x - last.x, y - last.y) > MOVE_TOLERANCE) {
+        lastMoveRef.current = { x, y, t: performance.now() };
+      }
+      if (activeTagRef.current === null) {
+        showTag(icon, -1, el);
+      } else if (activeTagRef.current.id !== icon.id) {
+        const next = measureTag(icon, el);
+        if (next) {
+          activeTagRef.current = next;
+          setActiveTag(next);
+        }
+      }
+    },
+    [measureTag],
+  );
 
   const hideTag = useCallback(() => {
     if (tagTimer.current) clearTimeout(tagTimer.current);
@@ -211,16 +252,18 @@ function IconGridInner({
       if (tagTimer.current) clearTimeout(tagTimer.current);
       tagTimer.current = null;
       activeTagRef.current = null;
-      lastIndexRef.current = null;
       setActiveTag(null);
     };
     window.addEventListener("blur", hideNow);
-    return () => window.removeEventListener("blur", hideNow);
+    window.addEventListener("resize", hideNow);
+    return () => {
+      window.removeEventListener("blur", hideNow);
+      window.removeEventListener("resize", hideNow);
+    };
   }, []);
 
   useEffect(() => {
     activeTagRef.current = null;
-    lastIndexRef.current = null;
     setActiveTag(null);
   }, [icons]);
 
@@ -268,33 +311,41 @@ function IconGridInner({
   }, [hideTag]);
 
   return (
-    <LayoutGroup>
-      <div
-        className="grid grid-cols-5 border-b border-border outline-none"
-        ref={containerRef}
-        tabIndex={-1}
-      >
-        {icons.map((icon, index) => (
-          <GridTile
-            key={icon.id}
-            icon={icon}
-            index={index}
-            total={icons.length}
-            cols={COLS}
-            isSelected={selectedIconId === icon.id}
-            isSearching={isSearching}
-            invertInDark={invertInDark}
-            customizationState={customizationState}
-            tagActive={activeTag?.id === icon.id}
-            tagFromX={activeTag?.id === icon.id ? activeTag.fromX : 0}
+    <div
+      key={iconType}
+      className="grid-fade relative grid grid-cols-5 border-b border-border outline-none"
+      ref={containerRef}
+      tabIndex={-1}
+    >
+      {icons.map((icon) => (
+        <GridTile
+          key={icon.id}
+          icon={icon}
+          isSelected={selectedIconId === icon.id}
+          isSearching={isSearching}
+          invertInDark={invertInDark}
+          customizationState={customizationState}
+          reduceMotion={reduceMotion === true}
+          onShowTag={showTag}
+          onTrackMove={trackMove}
+          onHideTag={hideTag}
+          onSelect={onIconClick}
+        />
+      ))}
+      <AnimatePresence>
+        {activeTag && (
+          <IconNameTag
+            label={activeTag.label}
+            above={activeTag.above}
+            align={activeTag.align}
+            left={activeTag.left}
+            right={activeTag.right}
+            top={activeTag.top}
             reduceMotion={reduceMotion === true}
-            onShowTag={showTag}
-            onHideTag={hideTag}
-            onSelect={onIconClick}
           />
-        ))}
-      </div>
-    </LayoutGroup>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 export const IconGrid = memo(IconGridInner);

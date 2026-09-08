@@ -9,6 +9,7 @@ import { PixelatedIcon } from "@/components/icons/PixelatedIcon";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { CustomizationState } from "@/lib/types";
+import { getIconsForType } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 type IconType = CustomizationState["iconType"];
 export const iconTypes: Array<{
@@ -55,6 +56,21 @@ export function IconTypeList({
   supportedTypes,
 }: IconTypeListProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const prefetchedRef = useRef<Set<IconType>>(new Set());
+  const prefetchType = (type: IconType) => {
+    if (prefetchedRef.current.has(type)) return;
+    prefetchedRef.current.add(type);
+    try {
+      for (const icon of getIconsForType(type)) {
+        if (!icon.url) continue;
+        const img = new Image();
+        img.decoding = "async";
+        img.src = icon.url;
+      }
+    } catch {
+      /* prefetch is best-effort */
+    }
+  };
   const visibleTypes = supportedTypes
     ? iconTypes.filter((type) => supportedTypes.includes(type.id))
     : iconTypes;
@@ -98,6 +114,8 @@ export function IconTypeList({
                   variant="outline"
                   size="icon"
                   onClick={() => onTypeChange?.(type.id)}
+                  onMouseEnter={() => prefetchType(type.id)}
+                  onFocus={() => prefetchType(type.id)}
                   className={cn(
                     "group/icon-type h-8 w-8 rounded-md border-border transition-[background-color,color,scale] duration-150 ease-out focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[0.96]",
                     isActive
