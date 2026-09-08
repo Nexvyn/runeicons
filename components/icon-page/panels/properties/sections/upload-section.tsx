@@ -113,12 +113,12 @@ export function UploadSection({
                 Drag & drop files here
               </p>
               <p className="text-[10px] font-bold text-muted-foreground/60 mb-4 px-6">
-                SVG or PNG (MAX 5MB)
+                SVG, PNG or JPG (MAX 5MB)
               </p>
               <label className="cursor-pointer">
                 <input
                   type="file"
-                  accept="image/svg+xml,image/png"
+                  accept="image/svg+xml,image/png,image/jpeg"
                   multiple
                   onChange={handleFileUpload}
                   className="sr-only"
@@ -175,6 +175,7 @@ export function UploadSection({
                     icon: null,
                     url: icon.url,
                     category: "custom",
+                    iconType: "normal",
                     tags: ["custom", "upload"]
                   })}
                 >
@@ -195,7 +196,10 @@ export function UploadSection({
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleDeleteClick(icon.id)}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleDeleteClick(icon.id);
+                      }}
                       className="h-8 w-8 transition-[scale,background-color,color,opacity] duration-200 rounded-lg active:scale-[0.96] outline-none focus-visible:ring-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 focus-visible:ring-destructive opacity-0 group-hover:opacity-100"
                       aria-label={`Delete ${icon.name}`}
                     >

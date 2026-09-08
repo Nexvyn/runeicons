@@ -1,30 +1,31 @@
 "use client";
 
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+
+import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
-import { useGSAP } from "@gsap/react";
-
-gsap.registerPlugin(MotionPathPlugin, useGSAP);
-
-import { EASING_PRESETS } from "@/lib/editor/animation-engine";
-import { computeTotalDuration } from "@/lib/editor/path-animation";
-import { type MotionPreset } from "@/lib/editor/motion-presets";
-import { motion, AnimatePresence } from "motion/react";
-import { cn } from "@/lib/utils";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 import { Button } from "@/components/ui/button";
 import { Scrubber } from "@/components/ui/scrubber";
 import { Switch } from "@/components/ui/switch";
-
-import type { CustomizationSectionProps } from "../types";
+import { EASING_PRESETS } from "@/lib/editor/animation-engine";
+import { type MotionPreset } from "@/lib/editor/motion-presets";
 import type { PathAnimationOverride } from "@/lib/types";
-import { BezierEditor } from "./bezier-editor";
+import { cn } from "@/lib/utils";
+
 import { Section } from "../components/Section";
+import type { CustomizationSectionProps } from "../types";
+import { BezierEditor } from "./bezier-editor";
+
+gsap.registerPlugin(MotionPathPlugin, useGSAP);
 
 type EasingId = (typeof EASING_PRESETS)[number]["id"];
 
-const EASING_SIMPLE = EASING_PRESETS.filter((e) => e.id === "ease-in" || e.id === "ease-out" || e.id === "ease-in-out" || e.id === "custom");
+const EASING_SIMPLE = EASING_PRESETS.filter(
+  (e) => e.id === "ease-in" || e.id === "ease-out" || e.id === "ease-in-out" || e.id === "custom",
+);
 
 const INTERACTION_MODES = [
   { id: "animate", label: "Animate" },
@@ -36,7 +37,10 @@ const INTERACTION_MODES = [
 
 type InteractionMode = (typeof INTERACTION_MODES)[number]["id"];
 
-const MODE_DEFAULTS: Record<InteractionMode, Partial<{ loop: boolean; trigger: PathAnimationOverride["trigger"]; animationType: string }>> = {
+const MODE_DEFAULTS: Record<
+  InteractionMode,
+  Partial<{ loop: boolean; trigger: PathAnimationOverride["trigger"]; animationType: string }>
+> = {
   animate: { loop: false, trigger: "auto" },
   hover: { loop: false, trigger: "hover" },
   loading: { loop: true, trigger: "auto" },
@@ -44,28 +48,37 @@ const MODE_DEFAULTS: Record<InteractionMode, Partial<{ loop: boolean; trigger: P
   error: { loop: false, trigger: "once", animationType: "shake" },
 };
 
-function pathColor(i: number): string {
-  return `hsl(${(i * 137) % 360}deg 65% 55%)`;
-}
+const ALLOWED_ANIMATIONS: Record<
+  string,
+  ReadonlyArray<"draw" | "stroke" | "bounce" | "shake" | "jump">
+> = {
+  normal: ["draw", "stroke", "bounce", "shake", "jump"],
+  duotone: ["draw", "stroke", "bounce", "shake", "jump"],
+  fill: ["bounce", "shake", "jump"],
+  pixelated: [],
+  glass: [],
+};
 
 const EASING_CUBIC: Record<string, [number, number, number, number]> = {
-  "ease-in":     [0.42, 0, 1, 1],
-  "ease-out":    [0, 0, 0.58, 1],
+  "ease-in": [0.42, 0, 1, 1],
+  "ease-out": [0, 0, 0.58, 1],
   "ease-in-out": [0.42, 0, 0.58, 1],
-  "linear":      [0, 0, 1, 1],
-  "custom":      [0.34, 1.56, 0.64, 1],
+  linear: [0, 0, 1, 1],
+  custom: [0.34, 1.56, 0.64, 1],
 };
 
 function easingCurvePoints(id: string, value: string): [number, number, number, number] {
   if (EASING_CUBIC[id]) return EASING_CUBIC[id];
-  const m = value.match(/cubic-bezier\(\s*([\d.+-]+)\s*,\s*([\d.+-]+)\s*,\s*([\d.+-]+)\s*,\s*([\d.+-]+)\s*\)/);
+  const m = value.match(
+    /cubic-bezier\(\s*([\d.+-]+)\s*,\s*([\d.+-]+)\s*,\s*([\d.+-]+)\s*,\s*([\d.+-]+)\s*\)/,
+  );
   if (m) return [parseFloat(m[1]), parseFloat(m[2]), parseFloat(m[3]), parseFloat(m[4])];
   return [0.42, 0, 0.58, 1];
 }
 
 function EasingCurve({ x1, y1, x2, y2 }: { x1: number; y1: number; x2: number; y2: number }) {
-  const S = 48;   // total svg size
-  const PAD = 6;  // padding inside
+  const S = 48; // total svg size
+  const PAD = 6; // padding inside
   const I = S - PAD * 2; // inner size
 
   const toSvg = (nx: number, ny: number) => ({
@@ -90,7 +103,12 @@ function EasingCurve({ x1, y1, x2, y2 }: { x1: number; y1: number; x2: number; y
   const end = toSvg(1, 1);
 
   return (
-    <svg width={S} height={S} viewBox={`0 0 ${S} ${S}`} className="pointer-events-none overflow-visible">
+    <svg
+      width={S}
+      height={S}
+      viewBox={`0 0 ${S} ${S}`}
+      className="pointer-events-none overflow-visible"
+    >
       <g stroke="currentColor" strokeOpacity="0.12" strokeWidth="0.5">
         {[0.25, 0.5, 0.75].map((f) => (
           <g key={f}>
@@ -99,64 +117,142 @@ function EasingCurve({ x1, y1, x2, y2 }: { x1: number; y1: number; x2: number; y
           </g>
         ))}
       </g>
-      <rect x={PAD} y={PAD} width={I} height={I} fill="none" stroke="currentColor" strokeOpacity="0.2" strokeWidth="0.5" />
-      <line x1={origin.sx} y1={origin.sy} x2={end.sx} y2={end.sy} stroke="currentColor" strokeOpacity="0.1" strokeWidth="0.5" strokeDasharray="2 2" />
+      <rect
+        x={PAD}
+        y={PAD}
+        width={I}
+        height={I}
+        fill="none"
+        stroke="currentColor"
+        strokeOpacity="0.2"
+        strokeWidth="0.5"
+      />
+      <line
+        x1={origin.sx}
+        y1={origin.sy}
+        x2={end.sx}
+        y2={end.sy}
+        stroke="currentColor"
+        strokeOpacity="0.1"
+        strokeWidth="0.5"
+        strokeDasharray="2 2"
+      />
       <g stroke="hsl(220 70% 65%)" strokeWidth="0.75" strokeOpacity="0.6">
         <line x1={origin.sx} y1={origin.sy} x2={p1.sx} y2={p1.sy} />
         <line x1={end.sx} y1={end.sy} x2={p2.sx} y2={p2.sy} />
       </g>
-      <path d={pts.join(" ")} fill="none" stroke="hsl(220 80% 65%)" strokeWidth="1.5" strokeLinecap="round" />
+      <path
+        d={pts.join(" ")}
+        fill="none"
+        stroke="hsl(220 80% 65%)"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
       <circle cx={origin.sx} cy={origin.sy} r={1.5} fill="currentColor" fillOpacity="0.4" />
       <circle cx={end.sx} cy={end.sy} r={1.5} fill="currentColor" fillOpacity="0.4" />
-      <circle cx={p1.sx} cy={p1.sy} r={2.5} fill="hsl(220 80% 65%)" stroke="currentColor" strokeWidth="0.75" strokeOpacity="0.4" />
-      <circle cx={p2.sx} cy={p2.sy} r={2.5} fill="hsl(220 80% 65%)" stroke="currentColor" strokeWidth="0.75" strokeOpacity="0.4" />
+      <circle
+        cx={p1.sx}
+        cy={p1.sy}
+        r={2.5}
+        fill="hsl(220 80% 65%)"
+        stroke="currentColor"
+        strokeWidth="0.75"
+        strokeOpacity="0.4"
+      />
+      <circle
+        cx={p2.sx}
+        cy={p2.sy}
+        r={2.5}
+        fill="hsl(220 80% 65%)"
+        stroke="currentColor"
+        strokeWidth="0.75"
+        strokeOpacity="0.4"
+      />
     </svg>
   );
 }
 
-
-
-const dashFlow = {
+const dashFlow = (reduceMotion: boolean | null) => ({
   animate: { strokeDashoffset: [0, -16] as [number, number] },
-  transition: { duration: 1, ease: "linear" as const, repeat: Infinity },
-};
+  transition: { duration: 1, ease: "linear" as const, repeat: reduceMotion ? 0 : Infinity },
+});
 
 function DrawPreview() {
+  const reduceMotion = useReducedMotion();
   return (
     <svg width="44" height="44" viewBox="0 0 80 109" fill="none">
       <motion.path
         d="M8.57031 92.6998V16.2633M63.4272 8.67383H15.9989C39.713 8.67375 63.8844 9.32435 65.7129 33.6106C66.4748 42.4649 62.0558 60.2821 38.2845 60.7158M34.2845 66.1368L59.4272 94.3262"
-        stroke="currentColor" strokeWidth="3" strokeLinecap="round"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
         initial={{ pathLength: 0 }}
         animate={{ pathLength: [0, 1] }}
-        transition={{ duration: 2.4, ease: "easeInOut", repeat: Infinity, repeatType: "reverse", repeatDelay: 0.5 }}
+        transition={{
+          duration: 2.4,
+          ease: "easeInOut",
+          repeat: reduceMotion ? 0 : Infinity,
+          repeatType: "reverse",
+          repeatDelay: 0.5,
+        }}
       />
-      <path d="M9.14258 92.5732C13.439 92.5732 16.7852 95.8587 16.7852 99.7471C16.7851 103.635 13.439 106.921 9.14258 106.921C4.84631 106.921 1.5001 103.635 1.5 99.7471C1.5 95.8587 4.84624 92.5734 9.14258 92.5732Z" stroke="currentColor" strokeWidth="3" />
-      <path d="M9.14258 1.5C13.439 1.5 16.7852 4.78541 16.7852 8.67383C16.7851 12.5622 13.439 15.8477 9.14258 15.8477C4.84631 15.8475 1.5001 12.5621 1.5 8.67383C1.5 4.78548 4.84624 1.50012 9.14258 1.5Z" stroke="currentColor" strokeWidth="3" />
-      <path d="M70.8574 1.5C75.1539 1.5 78.5 4.78541 78.5 8.67383C78.4999 12.5622 75.1538 15.8477 70.8574 15.8477C66.5612 15.8475 63.2149 12.5621 63.2148 8.67383C63.2148 4.78548 66.5611 1.50012 70.8574 1.5Z" stroke="currentColor" strokeWidth="3" />
-      <path d="M65.1406 92.5732C69.4371 92.5732 72.7832 95.8587 72.7832 99.7471C72.7831 103.635 69.437 106.921 65.1406 106.921C60.8444 106.921 57.4982 103.635 57.498 99.7471C57.498 95.8587 60.8443 92.5734 65.1406 92.5732Z" stroke="currentColor" strokeWidth="3" />
-      <path d="M30.8574 52.458C35.1539 52.458 38.5 55.7434 38.5 59.6318C38.4999 63.5202 35.1538 66.8057 30.8574 66.8057C26.5612 66.8055 23.2149 63.5201 23.2148 59.6318C23.2148 55.7435 26.5611 52.4581 30.8574 52.458Z" stroke="currentColor" strokeWidth="3" />
+      <path
+        d="M9.14258 92.5732C13.439 92.5732 16.7852 95.8587 16.7852 99.7471C16.7851 103.635 13.439 106.921 9.14258 106.921C4.84631 106.921 1.5001 103.635 1.5 99.7471C1.5 95.8587 4.84624 92.5734 9.14258 92.5732Z"
+        stroke="currentColor"
+        strokeWidth="3"
+      />
+      <path
+        d="M9.14258 1.5C13.439 1.5 16.7852 4.78541 16.7852 8.67383C16.7851 12.5622 13.439 15.8477 9.14258 15.8477C4.84631 15.8475 1.5001 12.5621 1.5 8.67383C1.5 4.78548 4.84624 1.50012 9.14258 1.5Z"
+        stroke="currentColor"
+        strokeWidth="3"
+      />
+      <path
+        d="M70.8574 1.5C75.1539 1.5 78.5 4.78541 78.5 8.67383C78.4999 12.5622 75.1538 15.8477 70.8574 15.8477C66.5612 15.8475 63.2149 12.5621 63.2148 8.67383C63.2148 4.78548 66.5611 1.50012 70.8574 1.5Z"
+        stroke="currentColor"
+        strokeWidth="3"
+      />
+      <path
+        d="M65.1406 92.5732C69.4371 92.5732 72.7832 95.8587 72.7832 99.7471C72.7831 103.635 69.437 106.921 65.1406 106.921C60.8444 106.921 57.4982 103.635 57.498 99.7471C57.498 95.8587 60.8443 92.5734 65.1406 92.5732Z"
+        stroke="currentColor"
+        strokeWidth="3"
+      />
+      <path
+        d="M30.8574 52.458C35.1539 52.458 38.5 55.7434 38.5 59.6318C38.4999 63.5202 35.1538 66.8057 30.8574 66.8057C26.5612 66.8055 23.2149 63.5201 23.2148 59.6318C23.2148 55.7435 26.5611 52.4581 30.8574 52.458Z"
+        stroke="currentColor"
+        strokeWidth="3"
+      />
     </svg>
   );
 }
 
 function StrokePreview() {
+  const reduceMotion = useReducedMotion();
+  const flow = dashFlow(reduceMotion);
   return (
     <svg width="44" height="44" viewBox="0 0 146 122" fill="none">
       <circle cx="9" cy="113" r="7.5" stroke="currentColor" strokeWidth="3" />
       <circle cx="137" cy="9" r="7.5" stroke="currentColor" strokeWidth="3" />
-      <path d="M17 113.5C38 117 81.9 112.3 89.5 65.5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+      <path
+        d="M17 113.5C38 117 81.9 112.3 89.5 65.5"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
       <motion.path
         d="M91.5 60C94 47 91.6303 18.6 128.43 11"
-        stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeDasharray="8 8"
-        animate={dashFlow.animate}
-        transition={dashFlow.transition}
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeDasharray="8 8"
+        animate={flow.animate}
+        transition={flow.transition}
       />
     </svg>
   );
 }
 
 function ShakePreview() {
+  const reduceMotion = useReducedMotion();
   return (
     <svg width="44" height="44" viewBox="0 0 97 109" fill="none" overflow="visible">
       <motion.path
@@ -164,30 +260,42 @@ function ShakePreview() {
         fill="currentColor"
         style={{ transformBox: "view-box", transformOrigin: "15px 108px" }}
         animate={{ rotate: [-10, 10, -10] }}
-        transition={{ duration: 1.6, ease: "easeInOut", repeat: Infinity }}
+        transition={{ duration: 1.6, ease: "easeInOut", repeat: reduceMotion ? 0 : Infinity }}
       />
     </svg>
   );
 }
 
 function JumpPreview() {
+  const reduceMotion = useReducedMotion();
+  const flow = dashFlow(reduceMotion);
   return (
     <svg width="44" height="44" viewBox="0 0 117 102" fill="none">
-      <path d="M105.599 49.5C100.999 49.5 94.1992 50 94.1992 51.7C94.1992 53.5 101.099 53.9 105.599 53.9C109.899 53.9 115.899 53.3 115.999 51.8C116.399 50.3 111.599 49.5 105.599 49.5Z" fill="currentColor" />
-      <path d="M16.5 97C8.1 97 0 97.6 0 99.3C0 101 8.5 101.7 16.5 101.7C24.5 101.7 33.8 101.2 33.8 99.4C33.8 97.8 27.5 97 16.5 97Z" fill="currentColor" />
+      <path
+        d="M105.599 49.5C100.999 49.5 94.1992 50 94.1992 51.7C94.1992 53.5 101.099 53.9 105.599 53.9C109.899 53.9 115.899 53.3 115.999 51.8C116.399 50.3 111.599 49.5 105.599 49.5Z"
+        fill="currentColor"
+      />
+      <path
+        d="M16.5 97C8.1 97 0 97.6 0 99.3C0 101 8.5 101.7 16.5 101.7C24.5 101.7 33.8 101.2 33.8 99.4C33.8 97.8 27.5 97 16.5 97Z"
+        fill="currentColor"
+      />
       <circle cx="16" cy="84.9023" r="7.5" stroke="currentColor" strokeWidth="3" />
       <circle cx="104" cy="33.9023" r="7.5" stroke="currentColor" strokeWidth="3" />
       <motion.path
         d="M20 75.8982C22.5 62.8982 75 -46.0977 102 25.8982"
-        stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeDasharray="8 8"
-        animate={dashFlow.animate}
-        transition={dashFlow.transition}
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeDasharray="8 8"
+        animate={flow.animate}
+        transition={flow.transition}
       />
     </svg>
   );
 }
 
 function BouncePreview() {
+  const reduceMotion = useReducedMotion();
   const circleRef = useRef<SVGCircleElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
 
@@ -197,10 +305,22 @@ function BouncePreview() {
     if (!circle || !path) return;
     const length = path.getTotalLength();
     gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
+    if (reduceMotion) {
+      gsap.set(path, { strokeDashoffset: 0 });
+      return;
+    }
     const tl = gsap.timeline({ repeat: -1, yoyo: true });
-    tl.to(circle, { motionPath: { path, align: path, alignOrigin: [0.5, 0.5] }, duration: 3, ease: "power1.inOut" }, 0);
+    tl.to(
+      circle,
+      {
+        motionPath: { path, align: path, alignOrigin: [0.5, 0.5] },
+        duration: 3,
+        ease: "power1.inOut",
+      },
+      0,
+    );
     tl.to(path, { strokeDashoffset: 0, duration: 3, ease: "power1.inOut" }, 0);
-  }, []);
+  }, [reduceMotion]);
 
   return (
     <svg width="44" height="44" viewBox="0 0 124 86" fill="none" overflow="visible">
@@ -219,12 +339,13 @@ function BouncePreview() {
 export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationSectionProps) {
   const motionState = state.motion;
   const isEnabled = motionState?.enabled ?? false;
-  const selectedPathIdx = motionState?.selectedPathIndex ?? -1;
-  const perPathOverrides = (motionState?.perPathAnimations ?? {}) as Record<string, PathAnimationOverride>;
+  const perPathOverrides = (motionState?.perPathAnimations ?? {}) as Record<
+    string,
+    PathAnimationOverride
+  >;
   const isPaused = motionState?.isPaused ?? false;
   const scrubProgress = motionState?.scrubProgress ?? null;
   const interactionMode = (motionState?.interactionMode ?? "animate") as InteractionMode;
-  const isPathAnim = (motionState?.animationType ?? "draw") === "draw" || motionState?.animationType === "stroke";
 
   const buildMotionState = useCallback(
     (updates: Partial<typeof state.motion>) => ({
@@ -242,7 +363,10 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
       pathStaggerDelay: motionState?.pathStaggerDelay ?? 0.12,
       pathReverse: motionState?.pathReverse ?? false,
       selectedPathIndex: motionState?.selectedPathIndex ?? -1,
-      perPathAnimations: (motionState?.perPathAnimations ?? {}) as Record<string, PathAnimationOverride>,
+      perPathAnimations: (motionState?.perPathAnimations ?? {}) as Record<
+        string,
+        PathAnimationOverride
+      >,
       isPaused: motionState?.isPaused ?? false,
       scrubProgress: motionState?.scrubProgress ?? null,
       presetId: motionState?.presetId ?? null,
@@ -256,10 +380,6 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
 
   const handleGlobalChange = (updates: Partial<typeof state.motion>) => {
     onChange({ motion: buildMotionState(updates) });
-  };
-
-  const handlePathSelect = (index: number) => {
-    handleGlobalChange({ selectedPathIndex: index });
   };
 
   const applyPreset = (preset: MotionPreset) => {
@@ -287,85 +407,37 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
     });
   };
 
-  const handleOverrideEnable = (index: number, enabled: boolean) => {
-    const nextOverrides = { ...perPathOverrides };
-    if (enabled) {
-      const staggeredDelay = motionState?.pathSequential
-        ? (motionState?.delay ?? 0) + index * (motionState?.pathStaggerDelay ?? 0.12)
-        : (motionState?.delay ?? 0);
-      nextOverrides[String(index)] = {
-        enabled: true,
-        animationType: motionState?.animationType ?? "draw",
-        duration: motionState?.duration ?? 2,
-        delay: staggeredDelay,
-        easingId: motionState?.easingId ?? "ease-in-out",
-        customCubic: motionState?.customCubic,
-        pathTrimStart: motionState?.pathTrimStart ?? 0,
-        pathTrimEnd: motionState?.pathTrimEnd ?? 100,
-        pathReverse: motionState?.pathReverse ?? false,
-      };
-    } else {
-      delete nextOverrides[String(index)];
-    }
-    handleGlobalChange({ perPathAnimations: nextOverrides });
-  };
-
-  const handlePathOverrideUpdate = (index: number, updates: Partial<PathAnimationOverride>) => {
-    const nextOverrides = { ...perPathOverrides };
-    if (nextOverrides[String(index)]) {
-      nextOverrides[String(index)] = { ...nextOverrides[String(index)], ...updates };
-      handleGlobalChange({ perPathAnimations: nextOverrides });
-    }
-  };
-
-  const handlePathVisibility = (index: number) => {
-    const nextOverrides = { ...perPathOverrides };
-    const existing = nextOverrides[String(index)] ?? {};
-    nextOverrides[String(index)] = { ...existing, enabled: true, hidden: !existing.hidden };
-    handleGlobalChange({ perPathAnimations: nextOverrides });
-  };
-
-  const activeOverride = selectedPathIdx >= 0 ? (perPathOverrides[String(selectedPathIdx)] ?? null) : null;
-
-  const totalDuration = useMemo(() => {
-    if (pathCount === 0) return motionState?.duration ?? 2;
-    return computeTotalDuration(pathCount, state);
-  }, [pathCount, state]);
-
-  const pathTimings = useMemo(() => {
-    if (!isPathAnim || pathCount === 0 || totalDuration <= 0) return [];
-    return Array.from({ length: pathCount }, (_, i) => {
-      const override = perPathOverrides[String(i)] || {};
-      const duration = override.duration ?? (motionState?.duration ?? 2);
-      const staggeredDelay = motionState?.pathSequential
-        ? (motionState?.delay ?? 0) + i * (motionState?.pathStaggerDelay ?? 0.12)
-        : (motionState?.delay ?? 0);
-      const delay = override.delay ?? staggeredDelay;
-      return {
-        delay,
-        duration,
-        leftPct: (delay / totalDuration) * 100,
-        widthPct: (duration / totalDuration) * 100,
-        hasOverride: !!perPathOverrides[String(i)],
-        hidden: !!(perPathOverrides[String(i)]?.hidden),
-      };
-    });
-  }, [isPathAnim, pathCount, perPathOverrides, motionState, totalDuration]);
-
   const currentEasingId = (motionState?.easingId ?? "ease-in-out") as EasingId;
   const isCustomEasing = currentEasingId === "custom";
 
   const ANIM_TYPES = [
-    { type: "draw" as const,   label: "Draw",   preview: <DrawPreview /> },
+    { type: "draw" as const, label: "Draw", preview: <DrawPreview /> },
     { type: "stroke" as const, label: "Stroke", preview: <StrokePreview /> },
     { type: "bounce" as const, label: "Bounce", preview: <BouncePreview /> },
-    { type: "shake" as const,  label: "Shake",  preview: <ShakePreview /> },
-    { type: "jump" as const,   label: "Jump",   preview: <JumpPreview /> },
+    { type: "shake" as const, label: "Shake", preview: <ShakePreview /> },
+    { type: "jump" as const, label: "Jump", preview: <JumpPreview /> },
   ] as const;
+
+  const allowedAnims =
+    pathCount === 0
+      ? (["bounce", "shake", "jump"] as const)
+      : (ALLOWED_ANIMATIONS[state.iconType] ?? ALLOWED_ANIMATIONS.normal);
+  const visibleAnimTypes = ANIM_TYPES.filter((a) => allowedAnims.includes(a.type));
+
+  useEffect(() => {
+    const current = motionState?.animationType ?? "draw";
+    if (
+      allowedAnims.length > 0 &&
+      !allowedAnims.includes(current as (typeof allowedAnims)[number])
+    ) {
+      handleGlobalChange({ animationType: allowedAnims[0], presetId: null });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.iconType]);
 
   return (
     <Section
-      title="Motion"
+      title="Animation"
       headerAction={
         <div className="flex items-center gap-1.5">
           {isEnabled && (
@@ -376,11 +448,19 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
                 aria-pressed={motionState?.loop ?? false}
                 onClick={() => handleGlobalChange({ loop: !motionState?.loop })}
                 className={cn(
-                  "h-5 px-1.5 rounded text-[9px] uppercase tracking-widest transition-colors flex items-center gap-1",
-                  motionState?.loop ? "text-foreground" : "text-foreground/30 hover:text-foreground/55"
+                  "flex h-5 items-center gap-1 rounded px-1.5 text-[9px] tracking-widest uppercase transition-colors",
+                  motionState?.loop
+                    ? "text-foreground"
+                    : "text-foreground/30 hover:text-foreground/55",
                 )}
               >
-                <span className={cn("h-1 w-1 rounded-full", motionState?.loop ? "bg-foreground" : "bg-foreground/20")} aria-hidden="true" />
+                <span
+                  className={cn(
+                    "h-1 w-1 rounded-full",
+                    motionState?.loop ? "bg-foreground" : "bg-foreground/20",
+                  )}
+                  aria-hidden="true"
+                />
                 Loop
               </button>
               <button
@@ -389,24 +469,57 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
                 title={isPaused ? "Push & Play" : "Pause"}
                 onClick={() => handleGlobalChange({ isPaused: !isPaused, scrubProgress: null })}
                 className={cn(
-                  "h-6 w-6 rounded-md flex items-center justify-center transition-all active:scale-90",
-                  isPaused ? "bg-foreground/8 text-foreground hover:bg-foreground/15" : "text-foreground/40 hover:text-foreground hover:bg-muted/15"
+                  "flex h-6 w-6 items-center justify-center rounded-md transition-all active:scale-90",
+                  isPaused
+                    ? "bg-foreground/8 text-foreground hover:bg-foreground/15"
+                    : "text-foreground/40 hover:bg-muted/15 hover:text-foreground",
                 )}
               >
                 {isPaused ? (
-                  <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                  <svg
+                    className="h-3 w-3"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
                 ) : (
-                  <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                  <svg
+                    className="h-3 w-3"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                  </svg>
                 )}
               </button>
               <button
                 type="button"
                 aria-label="Reset animation"
                 title="Reset"
-                onClick={() => handleGlobalChange({ replayNonce: (motionState?.replayNonce ?? 0) + 1, isPaused: false, scrubProgress: null, selectedPathIndex: -1 })}
-                className="h-6 w-6 rounded-md flex items-center justify-center text-foreground/40 hover:text-foreground hover:bg-muted/15 transition-all"
+                onClick={() =>
+                  handleGlobalChange({
+                    replayNonce: (motionState?.replayNonce ?? 0) + 1,
+                    isPaused: false,
+                    scrubProgress: null,
+                    selectedPathIndex: -1,
+                  })
+                }
+                className="flex h-6 w-6 items-center justify-center rounded-md text-foreground/40 transition-all hover:bg-muted/15 hover:text-foreground"
               >
-                <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+                <svg
+                  className="h-3 w-3"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  aria-hidden="true"
+                >
+                  <path d="M1 4v6h6M23 20v-6h-6" />
+                  <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
+                </svg>
               </button>
             </>
           )}
@@ -414,9 +527,7 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
             checked={isEnabled}
             onCheckedChange={(v) =>
               handleGlobalChange(
-                v
-                  ? { enabled: true, isPaused: false, scrubProgress: null }
-                  : { enabled: false }
+                v ? { enabled: true, isPaused: false, scrubProgress: null } : { enabled: false },
               )
             }
           />
@@ -476,6 +587,9 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
           75%     { transform: translateY(-8px) scaleX(0.9) scaleY(1.1); }
           90%,100%{ transform: translateY(0) scaleX(1.3) scaleY(0.6); }
         }
+        @media (prefers-reduced-motion: reduce) {
+          .motion-preview-line-draw, .motion-preview-line-base { animation: none !important; }
+        }
       `}</style>
 
       <AnimatePresence initial={false}>
@@ -488,214 +602,123 @@ export function MotionSection({ state, onChange, pathCount = 0 }: CustomizationS
             className="overflow-hidden"
           >
             <div className="space-y-4 pt-1 pb-2">
-
-              {selectedPathIdx === -1 && (
-                <div className="flex justify-between px-1 pt-0.5">
-                  {ANIM_TYPES.map(({ type, label, preview }) => {
-                    const isActive = (motionState?.animationType ?? "draw") === type;
-                    return (
-                      <button
-                        key={type}
-                        type="button"
-                        onClick={() => handleGlobalChange({ animationType: type, presetId: null })}
-                        className={cn(
-                          "flex flex-col items-center gap-2 transition-all",
-                          isActive ? "opacity-100" : "opacity-30 hover:opacity-60"
-                        )}
-                      >
-                        {preview}
-                        <div className={cn(
-                          "h-0.5 rounded-full transition-all duration-300",
-                          isActive ? "bg-foreground w-5" : "bg-foreground/15 w-1.5"
-                        )} />
-                        <span className={cn(
-                          "text-[8px] uppercase tracking-widest transition-colors",
-                          isActive ? "text-foreground/70" : "text-foreground/40"
-                        )}>{label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-
-              {isPathAnim && pathCount > 0 && (
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-foreground/35 px-1">
-                    <span>Paths</span>
-                    <span className="opacity-60 normal-case">{pathCount} layers</span>
-                  </div>
-                  <div className="rounded-sm border border-border/30 overflow-hidden">
-                    <button type="button" onClick={() => handlePathSelect(-1)}
-                      className={cn(
-                        "w-full flex items-center gap-2.5 px-3 py-2 text-left transition-all",
-                        selectedPathIdx === -1
-                          ? "bg-foreground/5 text-foreground"
-                          : "text-foreground/35 hover:bg-muted/8 hover:text-foreground/70"
-                      )}>
-                      <span className="h-1.5 w-1.5 rounded-full shrink-0 bg-foreground/20" />
-                      <span className="text-[10px] uppercase tracking-widest flex-1">Global</span>
-                      <span className="text-[9px] opacity-25">all paths</span>
-                    </button>
-
-                    {pathTimings.map((timing, i) => (
-                      <div key={i}
-                        className={cn(
-                          "flex items-center gap-2 px-3 py-1.5 border-t border-border/10 transition-all",
-                          selectedPathIdx === i ? "bg-foreground/5 text-foreground" : "text-foreground/35 hover:bg-muted/8 hover:text-foreground/70",
-                          timing.hidden && "opacity-30"
-                        )}>
-                        <button type="button" className="flex items-center gap-2 flex-1 min-w-0" onClick={() => handlePathSelect(i)}>
-                          <span className="h-1.5 w-1.5 rounded-full shrink-0" style={{ background: pathColor(i) }} />
-                          <span className="text-[10px] font-mono w-6 shrink-0">P{i}</span>
-                          <div className="flex-1 h-0.5 bg-foreground/8 rounded-full overflow-hidden">
-                            <div className="h-full rounded-full transition-all" style={{
-                              marginLeft: `${Math.min(timing.leftPct, 90)}%`,
-                              width: `${Math.max(timing.widthPct, 8)}%`,
-                              background: pathColor(i),
-                              opacity: 0.7,
-                            }} />
-                          </div>
-                          {timing.hasOverride && !timing.hidden && <span className="text-[9px] text-foreground/40 shrink-0">●</span>}
-                        </button>
-                        <button type="button" onClick={() => handlePathVisibility(i)}
-                          className="shrink-0 text-foreground/20 hover:text-foreground/60 transition-colors p-0.5"
-                          title={timing.hidden ? "Show path" : "Hide path"}>
-                          {timing.hidden ? (
-                            <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" /><line x1="1" y1="1" x2="23" y2="23" />
-                            </svg>
-                          ) : (
-                            <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
-                            </svg>
-                          )}
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {selectedPathIdx === -1 ? (
-                <div className="space-y-3">
-                  <div className="space-y-1.5">
-                    <div className="px-1">
-                      <span className="text-[10px] uppercase tracking-widest text-foreground/35">Easing</span>
-                    </div>
-                    <div className="grid grid-cols-4 gap-1 px-1">
-                      {EASING_SIMPLE.map((e) => {
-                        const isActive = currentEasingId === e.id;
-                        const [cx1, cy1, cx2, cy2] = easingCurvePoints(e.id, e.value);
-                        return (
-                          <button key={e.id} type="button"
-                            onClick={() => handleGlobalChange({ easingId: e.id, presetId: null })}
-                            className={cn(
-                              "h-20 rounded-sm flex flex-col items-center justify-center gap-1 transition-all",
-                              isActive ? "bg-foreground text-background" : "text-foreground/35 hover:text-foreground/70 hover:bg-muted/10"
-                            )}>
-                            <EasingCurve x1={cx1} y1={cy1} x2={cx2} y2={cy2} />
-                            <span className="text-[8px] uppercase tracking-tighter">{e.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                    {isCustomEasing && (
-                      <BezierEditor
-                        value={motionState?.customCubic ?? "cubic-bezier(0.34, 1.56, 0.64, 1)"}
-                        onChange={(v) => handleGlobalChange({ customCubic: v, easingId: "custom", presetId: null })}
-                      />
+              {allowedAnims.length === 0 ? null : (
+                <>
+                  <div
+                    className={cn(
+                      "flex px-1 pt-0.5",
+                      visibleAnimTypes.length > 3 ? "justify-between" : "justify-start gap-7",
                     )}
+                  >
+                    {visibleAnimTypes.map(({ type, label, preview }) => {
+                      const isActive = (motionState?.animationType ?? "draw") === type;
+                      return (
+                        <button
+                          key={type}
+                          type="button"
+                          onClick={() =>
+                            handleGlobalChange({ animationType: type, presetId: null })
+                          }
+                          className={cn(
+                            "flex flex-col items-center gap-2 transition-all",
+                            isActive ? "opacity-100" : "opacity-30 hover:opacity-60",
+                          )}
+                        >
+                          {preview}
+                          <div
+                            className={cn(
+                              "h-0.5 rounded-full transition-all duration-300",
+                              isActive ? "w-5 bg-foreground" : "w-1.5 bg-foreground/15",
+                            )}
+                          />
+                          <span
+                            className={cn(
+                              "text-[8px] tracking-widest uppercase transition-colors",
+                              isActive ? "text-foreground/70" : "text-foreground/40",
+                            )}
+                          >
+                            {label}
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
 
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between px-1 py-1.5 border-t border-border/20">
-                    <div className="flex items-center gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full" style={{ background: pathColor(selectedPathIdx) }} />
-                      <div>
-                        <div className="text-[10px] uppercase tracking-widest font-mono" style={{ color: pathColor(selectedPathIdx) }}>Path {selectedPathIdx}</div>
-                        <div className="text-[9px] uppercase tracking-tighter opacity-30">{activeOverride ? "Override active" : "Global settings"}</div>
-                      </div>
+                  <div className="space-y-3 px-1">
+                    <Scrubber
+                      label="Duration"
+                      min={0.5}
+                      max={5}
+                      step={0.1}
+                      value={motionState?.duration ?? 2}
+                      onChange={(val) =>
+                        handleGlobalChange({ duration: Math.round(val * 10) / 10, presetId: null })
+                      }
+                      showInput={false}
+                      rightSlot={
+                        <span className="text-[10px] tracking-widest text-foreground/70 uppercase">
+                          {(motionState?.duration ?? 2).toFixed(1)}s
+                        </span>
+                      }
+                    />
+                    <div className="flex w-full items-center justify-between px-2">
+                      <span className="ml-1 text-[10px] tracking-widest text-foreground/70 uppercase select-none">
+                        Loop
+                      </span>
+                      <Switch
+                        checked={motionState?.loop ?? true}
+                        onCheckedChange={(v) => handleGlobalChange({ loop: v, presetId: null })}
+                      />
                     </div>
-                    <Switch checked={!!activeOverride} onCheckedChange={(v) => handleOverrideEnable(selectedPathIdx, v)} />
                   </div>
 
-                  {activeOverride ? (
-                    <div className="space-y-3">
-                      <div className="space-y-1.5">
-                        <Scrubber label="Delay" value={activeOverride.delay ?? 0} onChange={(v) => handlePathOverrideUpdate(selectedPathIdx, { delay: v })} min={0} max={3} step={0.05} />
-                        <Scrubber label="Duration" value={activeOverride.duration ?? (motionState?.duration ?? 2)} onChange={(v) => handlePathOverrideUpdate(selectedPathIdx, { duration: v })} min={0.1} max={5} step={0.1} />
-                        {isPathAnim && (
-                          <Scrubber label="Progress" value={activeOverride.scrubProgress ?? 0} onChange={(v) => handlePathOverrideUpdate(selectedPathIdx, { scrubProgress: v === 0 ? null : v })} min={0} max={100} step={1} />
-                        )}
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <div className="px-1">
+                        <span className="text-[10px] tracking-widest text-foreground/35 uppercase">
+                          Easing
+                        </span>
                       </div>
-
                       <div className="grid grid-cols-4 gap-1 px-1">
                         {EASING_SIMPLE.map((e) => {
-                          const isActive = (activeOverride.easingId ?? motionState?.easingId) === e.id;
+                          const isActive = currentEasingId === e.id;
                           const [cx1, cy1, cx2, cy2] = easingCurvePoints(e.id, e.value);
                           return (
-                            <button key={e.id} type="button"
-                              onClick={() => handlePathOverrideUpdate(selectedPathIdx, { easingId: e.id })}
-                              className={cn("h-20 rounded-sm flex flex-col items-center justify-center gap-1 transition-all",
-                                isActive ? "bg-foreground text-background" : "text-foreground/35 hover:text-foreground/70 hover:bg-muted/10")}>
+                            <button
+                              key={e.id}
+                              type="button"
+                              onClick={() => handleGlobalChange({ easingId: e.id, presetId: null })}
+                              className={cn(
+                                "flex h-20 flex-col items-center justify-center gap-1 rounded-sm transition-all",
+                                isActive
+                                  ? "bg-foreground text-background"
+                                  : "text-foreground/35 hover:bg-muted/10 hover:text-foreground/70",
+                              )}
+                            >
                               <EasingCurve x1={cx1} y1={cy1} x2={cx2} y2={cy2} />
-                              <span className="text-[8px] uppercase tracking-tighter">{e.label}</span>
+                              <span className="text-[8px] tracking-tighter uppercase">
+                                {e.label}
+                              </span>
                             </button>
                           );
                         })}
                       </div>
-                      {activeOverride.easingId === "custom" && (
+                      {isCustomEasing && (
                         <BezierEditor
-                          value={activeOverride.customCubic ?? "cubic-bezier(0.34, 1.56, 0.64, 1)"}
-                          onChange={(v) => handlePathOverrideUpdate(selectedPathIdx, { customCubic: v })}
+                          value={motionState?.customCubic ?? "cubic-bezier(0.34, 1.56, 0.64, 1)"}
+                          onChange={(v) =>
+                            handleGlobalChange({
+                              customCubic: v,
+                              easingId: "custom",
+                              presetId: null,
+                            })
+                          }
                         />
                       )}
-
-                      <div className="space-y-0 pt-1 border-t border-border/20">
-                        {([
-                          { key: "loop", label: "Loop" },
-                          { key: "fillTransition", label: "Fill after draw" },
-                        ] as const).map(({ key, label }) => {
-                          const val = !!(activeOverride as Record<string, unknown>)[key];
-                          return (
-                            <div key={key} className="flex items-center justify-between h-8 px-1">
-                              <span className="text-[10px] uppercase tracking-widest text-foreground/50">{label}</span>
-                              <Switch checked={val} onCheckedChange={(v: boolean) => handlePathOverrideUpdate(selectedPathIdx, { [key]: v } as Partial<PathAnimationOverride>)} />
-                            </div>
-                          );
-                        })}
-                        {activeOverride.fillTransition && (
-                          <Scrubber label="Fill delay" value={activeOverride.fillDelay ?? 0.5} onChange={(v) => handlePathOverrideUpdate(selectedPathIdx, { fillDelay: v })} min={0} max={2} step={0.05} />
-                        )}
-                      </div>
-                      <div className="space-y-1.5 pt-1 border-t border-border/20">
-                        <div className="text-[10px] uppercase tracking-widest text-foreground/35 px-1">Trigger</div>
-                        <div className="grid grid-cols-4 gap-1 px-1">
-                          {(["auto", "once", "hover", "click"] as const).map((t) => (
-                            <button key={t} type="button"
-                              onClick={() => handlePathOverrideUpdate(selectedPathIdx, { trigger: t })}
-                              className={cn("h-7 rounded-sm text-[9px] uppercase tracking-tighter transition-all",
-                                (activeOverride.trigger ?? "auto") === t ? "bg-foreground text-background" : "text-foreground/35 hover:text-foreground/70 hover:bg-muted/10")}>
-                              {t}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
                     </div>
-                  ) : (
-                    <div className="py-6 text-center space-y-3">
-                      <p className="text-[10px] uppercase tracking-widest opacity-25">Global settings active</p>
-                      <Button variant="secondary" size="sm" className="h-7 text-[9px] uppercase tracking-widest px-4"
-                        onClick={() => handleOverrideEnable(selectedPathIdx, true)}>
-                        Enable Override
-                      </Button>
-                    </div>
-                  )}
-                </div>
+                  </div>
+                </>
               )}
-
             </div>
           </motion.div>
         )}
