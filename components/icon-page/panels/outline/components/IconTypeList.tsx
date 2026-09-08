@@ -72,6 +72,8 @@ export function IconTypeList({
       if (e.key === "ArrowDown") nextIndex = currentIndex + 3;
       if (e.key === "ArrowUp") nextIndex = currentIndex - 3;
     }
+    if (e.key === "Home") nextIndex = 0;
+    if (e.key === "End") nextIndex = buttons.length - 1;
     if (nextIndex >= 0 && nextIndex < buttons.length) {
       e.preventDefault();
       buttons[nextIndex].focus();

@@ -29,7 +29,6 @@ export function useIconLibrary(
     ...customIcons.map((ci) => ({
       id: ci.id,
       name: ci.name,
-      icon: null as any,
       url: ci.url,
       category: "custom" as const,
       tags: ["custom", "upload"],
