@@ -71,8 +71,17 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "Rune Icons",
     locale: "en_US",
+    url: SITE_URL,
     title: "Rune Icons: open-source icons in five styles",
     description: DESCRIPTION,
+    images: [
+      {
+        url: `${SITE_URL}/opengraph-image`,
+        width: 1200,
+        height: 630,
+        alt: "Rune Icons",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
@@ -80,6 +89,7 @@ export const metadata: Metadata = {
     creator: "@RuneIcon",
     title: "Rune Icons: open-source icons in five styles",
     description: DESCRIPTION,
+    images: [`${SITE_URL}/opengraph-image`],
   },
   robots: {
     index: true,
