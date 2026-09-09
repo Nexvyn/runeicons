@@ -1,23 +1,19 @@
 import { useMemo } from "react";
+
 import { CustomizationState } from "@/lib/types";
 
 export function useCanvasStyles(state: CustomizationState) {
   const transform = useMemo(
     () =>
       `scale(${state.scale}) translateX(${state.translateX}px) translateY(${state.translateY}px) rotate(${state.rotation}deg) ${state.flipH ? "scaleX(-1)" : ""} ${state.flipV ? "scaleY(-1)" : ""}`.trim(),
-    [
-      state.scale,
-      state.translateX,
-      state.translateY,
-      state.rotation,
-      state.flipH,
-      state.flipV,
-    ],
+    [state.flipH, state.flipV, state.rotation, state.scale, state.translateX, state.translateY],
   );
 
-  const background = useMemo(() => {
-    return state.colors[0] || "#ffffff";
-  }, [state.colors]);
+  const rotateFlipTransform = useMemo(
+    () =>
+      `rotate(${state.rotation}deg) ${state.flipH ? "scaleX(-1)" : ""} ${state.flipV ? "scaleY(-1)" : ""}`.trim(),
+    [state.flipH, state.flipV, state.rotation],
+  );
 
   const boxShadow = useMemo(
     () =>
@@ -34,27 +30,38 @@ export function useCanvasStyles(state: CustomizationState) {
     ],
   );
 
+  const dropShadow = useMemo(
+    () =>
+      state.shadow.enabled && !state.shadow.inner && state.shadow.opacity > 0
+        ? `drop-shadow(${state.shadow.offsetX}px ${state.shadow.offsetY}px ${state.shadow.blur}px rgba(0, 0, 0, ${state.shadow.opacity / 100}))`
+        : "",
+    [
+      state.shadow.enabled,
+      state.shadow.inner,
+      state.shadow.opacity,
+      state.shadow.offsetX,
+      state.shadow.offsetY,
+      state.shadow.blur,
+    ],
+  );
+
   const supportsFilter = useMemo(
     () =>
       typeof CSS !== "undefined" &&
-      CSS.supports &&
+      typeof CSS.supports === "function" &&
       CSS.supports("filter", "blur(1px)"),
     [],
   );
 
-  const blurFilter = useMemo(
-    () => (state.blur > 0 ? `url(#inner-blur)` : ""),
-    [state.blur],
-  );
-
-  const noiseFilter = "";
+  const blurFilter = useMemo(() => (state.blur > 0 ? `url(#inner-blur)` : ""), [state.blur]);
 
   return {
     transform,
-    background,
+    rotateFlipTransform,
     boxShadow,
+    dropShadow,
     supportsFilter,
-    noiseFilter,
+    noiseFilter: "",
     blurFilter,
   };
 }

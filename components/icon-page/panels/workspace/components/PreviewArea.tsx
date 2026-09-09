@@ -23,7 +23,7 @@ export function PreviewArea({
   showGrid,
 }: PreviewAreaProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
-  const { boxShadow, supportsFilter, noiseFilter, blurFilter } =
+  const { dropShadow, supportsFilter, noiseFilter, blurFilter } =
     useCanvasStyles(state);
 
   return (
@@ -43,7 +43,7 @@ export function PreviewArea({
         ref={canvasRef}
         state={state}
         selectedIcon={selectedIcon}
-        boxShadow={boxShadow}
+        dropShadow={dropShadow}
         supportsFilter={supportsFilter}
         noiseFilter={noiseFilter}
         blurFilter={blurFilter}
