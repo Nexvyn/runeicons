@@ -139,8 +139,9 @@ export const BlossomColorPicker = ({
 
   useEffect(() => {
     if (!instanceRef.current || value === undefined) return;
+    const currentHue = instanceRef.current.getValue().hue;
     instanceRef.current.setValue(
-      hexToPickerValue(normalizeHexColor(value, '#007aff')),
+      hexToPickerValue(normalizeHexColor(value, '#007aff'), 100, currentHue),
     );
   }, [value]);
 
