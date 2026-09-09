@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Github, Heart } from "lucide-react";
 import { motion } from "motion/react";
-import { HeaderLogo } from "@/components/icons/HeaderLogo";
+import LightLogo from "@/components/landing/svg/light";
 import { Button } from "@/components/ui/button";
 import { LightDarkMode } from "@/components/ui/light-dark-mode";
 import { cn } from "@/lib/utils";
@@ -36,7 +36,9 @@ export function HeaderPanel({ className }: HeaderPanelProps) {
           href="/"
           className="group flex h-full w-12 shrink-0 cursor-pointer items-center justify-center border-r border-border transition-colors duration-150 ease-out hover:bg-muted/50"
         >
-          <HeaderLogo className="h-8 w-8 transition-transform duration-150 ease-out group-hover:scale-[1.02]" />
+          <span className="flex h-8 w-8 items-center justify-center transition-transform duration-150 ease-out group-hover:scale-[1.02]">
+            <LightLogo />
+          </span>
         </Link>
         <div className="hidden lg:flex h-full w-[320px] shrink-0 items-center border-r border-border px-5" />
         <div className="hidden sm:flex h-full flex-1 min-w-0 items-center justify-center lg:justify-end border-r border-border px-4 lg:px-6">
@@ -77,7 +79,7 @@ export function HeaderPanel({ className }: HeaderPanelProps) {
         </div>
         <div className="flex h-full shrink-0 items-center justify-end gap-2 px-3 lg:w-85 lg:gap-2.5 lg:px-6">
           <Link
-            href="https://github.com/rune-icon/runeicons"
+            href="https://github.com/Nexvyn/runeicons"
             target="_blank"
             rel="noopener noreferrer"
             className="hidden sm:block"

@@ -7,7 +7,7 @@ export function useGitHubStars() {
     let controls: any;
     const fetchStars = async () => {
       try {
-        const response = await fetch("https://api.github.com/repos/rune-icon/runeicons");
+        const response = await fetch("https://api.github.com/repos/Nexvyn/runeicons");
         if (response.ok) {
           const data = await response.json();
           const stars = data.stargazers_count;

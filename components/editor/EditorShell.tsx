@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HeaderPanel } from "@/components/icon-page/panels/header";
 import { ToolRail } from "@/components/icon-page/panels/outline";
 import { KeyboardShortcutsModal } from "@/components/icon-page/panels/outline/components/keyboard-shortcuts-modal";
@@ -40,7 +40,8 @@ export function EditorShell({ assets }: EditorShellProps) {
   const editorIconType = resolveEditorIconType(state.iconType);
 
   const hasInitRef = useRef(false);
-  if (!hasInitRef.current) {
+  useEffect(() => {
+    if (hasInitRef.current) return;
     hasInitRef.current = true;
     const initialAssets = assets.filter(
       (asset) => asset.variant === editorIconType,
@@ -50,7 +51,7 @@ export function EditorShell({ assets }: EditorShellProps) {
       selectedAssetId: seedAssets[0]?.id ?? null,
       trayAssetIds: seedAssets.slice(0, MAX_TRAY_ITEMS).map((a) => a.id),
     });
-  }
+  }, [assets, editorIconType]);
 
   const selectedAssetId = useEditorSelectionStore((s) => s.selectedAssetId);
 
