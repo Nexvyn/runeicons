@@ -1,7 +1,13 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, ReactNode } from "react";
-
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 
 const DEFAULT_TUNING = {
   buttonPressScale: 0.97,
@@ -43,69 +49,114 @@ type TuningValues = typeof DEFAULT_TUNING;
 
 interface TuningContextType {
   values: TuningValues;
-  updateValue: <K extends keyof TuningValues>(key: K, value: TuningValues[K]) => void;
+  updateValue: <K extends keyof TuningValues>(
+    key: K,
+    value: TuningValues[K],
+  ) => void;
   resetAll: () => void;
   getEaseOut: () => [number, number, number, number];
-  getSpring: (override?: { stiffness?: number; damping?: number; bounce?: number }) => { type: "spring"; stiffness: number; damping: number; bounce?: number };
-  getFastTransition: () => { duration: number; ease: [number, number, number, number] };
-  getMediumTransition: () => { duration: number; ease: [number, number, number, number] };
-  getSlowTransition: () => { duration: number; ease: [number, number, number, number] };
+  getSpring: (override?: {
+    stiffness?: number;
+    damping?: number;
+    bounce?: number;
+  }) => {
+    type: "spring";
+    stiffness: number;
+    damping: number;
+    bounce?: number;
+  };
+  getFastTransition: () => {
+    duration: number;
+    ease: [number, number, number, number];
+  };
+  getMediumTransition: () => {
+    duration: number;
+    ease: [number, number, number, number];
+  };
+  getSlowTransition: () => {
+    duration: number;
+    ease: [number, number, number, number];
+  };
 }
 
 const TuningContext = createContext<TuningContextType | null>(null);
-
 const STORAGE_KEY = "rune-animation-tuning";
 
 export function TuningProvider({ children }: { children: ReactNode }) {
-  const [values, setValues] = useState<TuningValues>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try {
-          return { ...DEFAULT_TUNING, ...JSON.parse(saved) };
-        } catch {}
-      }
-    }
-    return DEFAULT_TUNING;
-  });
+  const [values, setValues] = useState<TuningValues>(DEFAULT_TUNING);
 
-  const updateValue = useCallback(<K extends keyof TuningValues>(key: K, value: TuningValues[K]) => {
-    setValues((prev) => {
-      const next = { ...prev, [key]: value };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      return next;
-    });
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return;
+      const parsed = JSON.parse(saved) as Partial<TuningValues>;
+      setValues({ ...DEFAULT_TUNING, ...parsed });
+    } catch (error) {
+      console.warn("Failed to restore animation tuning:", error);
+    }
   }, []);
+
+  const updateValue = useCallback(
+    <K extends keyof TuningValues>(key: K, value: TuningValues[K]) => {
+      setValues((previous) => {
+        const next = { ...previous, [key]: value };
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        } catch (error) {
+          console.warn("Failed to save animation tuning:", error);
+        }
+        return next;
+      });
+    },
+    [],
+  );
 
   const resetAll = useCallback(() => {
     setValues(DEFAULT_TUNING);
-    localStorage.removeItem(STORAGE_KEY);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      console.warn("Failed to clear animation tuning:", error);
+    }
   }, []);
 
-  const getEaseOut = useCallback(() => {
-    return [values.easeOutX1, values.easeOutY1, values.easeOutX2, values.easeOutY2] as [number, number, number, number];
-  }, [values]);
+  const getEaseOut = useCallback(
+    () =>
+      [
+        values.easeOutX1,
+        values.easeOutY1,
+        values.easeOutX2,
+        values.easeOutY2,
+      ] as [number, number, number, number],
+    [values],
+  );
 
-  const getSpring = useCallback((override?: { stiffness?: number; damping?: number; bounce?: number }) => {
-    return {
+  const getSpring = useCallback(
+    (override?: {
+      stiffness?: number;
+      damping?: number;
+      bounce?: number;
+    }) => ({
       type: "spring" as const,
       stiffness: override?.stiffness ?? values.springStiffness,
       damping: override?.damping ?? values.springDamping,
       bounce: override?.bounce ?? values.springBounce,
-    };
-  }, [values]);
+    }),
+    [values],
+  );
 
-  const getFastTransition = useCallback(() => {
-    return { duration: values.fastDuration, ease: getEaseOut() };
-  }, [values, getEaseOut]);
-
-  const getMediumTransition = useCallback(() => {
-    return { duration: values.mediumDuration, ease: getEaseOut() };
-  }, [values, getEaseOut]);
-
-  const getSlowTransition = useCallback(() => {
-    return { duration: values.slowDuration, ease: getEaseOut() };
-  }, [values, getEaseOut]);
+  const getFastTransition = useCallback(
+    () => ({ duration: values.fastDuration, ease: getEaseOut() }),
+    [values.fastDuration, getEaseOut],
+  );
+  const getMediumTransition = useCallback(
+    () => ({ duration: values.mediumDuration, ease: getEaseOut() }),
+    [values.mediumDuration, getEaseOut],
+  );
+  const getSlowTransition = useCallback(
+    () => ({ duration: values.slowDuration, ease: getEaseOut() }),
+    [values.slowDuration, getEaseOut],
+  );
 
   return (
     <TuningContext.Provider

@@ -38,7 +38,7 @@ export function WorkspacePanel({
     <>
       <SvgDefinitions state={state} />
       <main
-        className="flex-1 flex flex-col relative min-h-0"
+        className="flex-1 flex flex-col relative min-h-0 min-w-[360px]"
         aria-label="Preview area"
       >
         <PreviewArea
@@ -56,9 +56,7 @@ export function WorkspacePanel({
           className="absolute bottom-9.5 left-1/2 -translate-x-1/2 z-40 will-change-transform"
         >
           <WorkspaceActionBar
-            onDownload={() => {}}
             onReset={onReset}
-            onCode={() => {}}
             onUndo={onUndo}
             onRedo={onRedo}
             canUndo={canUndo}

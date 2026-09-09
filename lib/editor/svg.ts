@@ -16,6 +16,7 @@ const KNOWN_VARIANTS: readonly EditorVariant[] = [
 import type { CustomizationState } from "@/lib/types";
 import { STROKE_STYLE_MAP, type StrokeStyle } from "@/lib/stroke-style";
 import { normalizeEditorPathData } from "./path-data";
+import { buildConicSegments } from "@/lib/gradient-utils";
 
 type StackEntry = {
   inDefs: boolean;
@@ -252,9 +253,9 @@ export function parseEditorAsset(
   const viewBox = viewBoxMatch?.[1] ?? "0 0 24 24";
   const defs = extractDefs(sanitizedSvg);
 
-  const relativePath = filePath
-    .split("/public/")[1]
-    ?.replace(/\\/g, "/") ?? filePath;
+  const normalizedFilePath = filePath.replace(/\\/g, "/");
+  const relativePath =
+    normalizedFilePath.split("/public/")[1] ?? normalizedFilePath;
   const pathParts = relativePath.split("/");
   const category = pathParts[pathParts.length - 2] ?? "misc";
   const baseName = pathParts[pathParts.length - 1]?.replace(/\.svg$/i, "") ?? "Icon";
@@ -388,36 +389,97 @@ function serializePathAttributes(
   return attributes.join(" ");
 }
 
-function buildGradientDefs(state: CustomizationState) {
+function buildGradientDefs(
+  state: CustomizationState,
+  vbX: number,
+  vbY: number,
+  vbW: number,
+  vbH: number,
+) {
   if (!state.iconGradient || state.gradient.stops.length === 0) {
     return "";
   }
 
-  const angleInRadians = (state.gradient.angle * Math.PI) / 180;
-  const x2 = ((Math.cos(angleInRadians) + 1) / 2).toFixed(3);
-  const y2 = ((Math.sin(angleInRadians) + 1) / 2).toFixed(3);
-  const stops = state.gradient.stops
+  // Mirrors the gradient coordinate math in lib/svg-export-utils.ts
+  // (generateStandaloneSvg) and components/icon-page/panels/workspace/
+  // components/SvgDefinitions.tsx (live preview), scaled to this
+  // document's own viewBox instead of a hardcoded 24x24 canvas, and
+  // switched on gradient.type instead of always emitting a linear
+  // gradient in objectBoundingBox units.
+  const centreX = vbX + vbW / 2;
+  const centreY = vbY + vbH / 2;
+  const stops = [...state.gradient.stops]
+    .sort((a, b) => a.position - b.position)
     .map(
       (stop) =>
-        `<stop offset="${stop.position}%" stop-color="${stop.color}" />`,
+        `<stop offset="${stop.position}%" stop-color="${stop.color || "#000000"}" />`,
     )
     .join("");
+  const spreadMethod = state.gradient.spreadMethod ?? "pad";
 
-  return `<linearGradient id="editor-gradient" x1="0" y1="0" x2="${x2}" y2="${y2}">${stops}</linearGradient>`;
+  if (state.gradient.type === "radial") {
+    const cx = vbX + ((state.gradient.cx ?? 50) / 100) * vbW;
+    const cy = vbY + ((state.gradient.cy ?? 50) / 100) * vbH;
+    const r = ((state.gradient.r ?? 50) / 100) * vbW;
+    return `<radialGradient id="icon-gradient" cx="${cx.toFixed(3)}" cy="${cy.toFixed(3)}" r="${r.toFixed(3)}" gradientUnits="userSpaceOnUse" spreadMethod="${spreadMethod}">${stops}</radialGradient>`;
+  }
+
+  if (state.gradient.type === "angular") {
+    const cx = vbX + ((state.gradient.cx ?? 50) / 100) * vbW;
+    const cy = vbY + ((state.gradient.cy ?? 50) / 100) * vbH;
+    const segs = buildConicSegments(state.gradient.stops, state.gradient.angle, cx, cy, 17);
+    const polys = segs.map((s) => `<polygon points="${s.points}" fill="${s.color}"/>`).join("");
+    return `<pattern id="icon-gradient" width="${vbW}" height="${vbH}" patternUnits="userSpaceOnUse">${polys}</pattern>`;
+  }
+
+  const angleInRadians = (state.gradient.angle * Math.PI) / 180;
+  const x1 = (centreX - (vbW / 2) * Math.sin(angleInRadians)).toFixed(3);
+  const y1 = (centreY + (vbH / 2) * Math.cos(angleInRadians)).toFixed(3);
+  const x2 = (centreX + (vbW / 2) * Math.sin(angleInRadians)).toFixed(3);
+  const y2 = (centreY - (vbH / 2) * Math.cos(angleInRadians)).toFixed(3);
+
+  return `<linearGradient id="icon-gradient" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" gradientUnits="userSpaceOnUse" spreadMethod="${spreadMethod}">${stops}</linearGradient>`;
 }
 
 function buildExportFilter(state: CustomizationState) {
-  if (!state.blur && !state.shadow.opacity) {
+  const shadowActive = state.shadow.enabled && state.shadow.opacity > 0;
+  if (!state.blur && !shadowActive) {
     return "";
   }
 
   const blur = state.blur > 0 ? `<feGaussianBlur stdDeviation="${state.blur}" />` : "";
-  const shadow =
-    state.shadow.opacity > 0
-      ? `<feDropShadow dx="${state.shadow.offsetX}" dy="${state.shadow.offsetY}" stdDeviation="${state.shadow.blur}" flood-color="black" flood-opacity="${Math.max(0, Math.min(1, state.shadow.opacity / 100))}" />`
-      : "";
+  const shadow = shadowActive
+    ? `<feDropShadow dx="${state.shadow.offsetX}" dy="${state.shadow.offsetY}" stdDeviation="${state.shadow.blur}" flood-color="black" flood-opacity="${Math.max(0, Math.min(1, state.shadow.opacity / 100))}" />`
+    : "";
 
   return `<filter id="editor-export-filter" x="-50%" y="-50%" width="200%" height="200%">${blur}${shadow}</filter>`;
+}
+
+const SECONDARY_TONES = new Set(["#dddddd", "#f3f3f3"]);
+const PRIMARY_TONES = new Set(["#a4a5a6", "#1c1f21"]);
+
+function nativeSecondaryPaint(iconType?: string): string {
+  return iconType === "duotone" || iconType === "fill" ? "#DDDDDD" : "currentColor";
+}
+
+function toneSlot(
+  paint: string | undefined,
+  iconType?: string,
+): "primary" | "secondary" | "raw" {
+  const normalized = normalizeEditorPaintValue(paint);
+  if (!normalized || normalized === "none" || normalized === "transparent") {
+    return "raw";
+  }
+  if (
+    SECONDARY_TONES.has(normalized) &&
+    (iconType === "duotone" || iconType === "fill")
+  ) {
+    return "secondary";
+  }
+  if (PRIMARY_TONES.has(normalized) || isDefaultEditorPaint(paint)) {
+    return "primary";
+  }
+  return "raw";
 }
 
 export function resolveEditorPathPaint(
@@ -435,19 +497,28 @@ export function resolveEditorPathPaint(
       stateColor && !isDefaultEditorPaint(stateColor)
         ? stateColor
         : "currentColor";
+    const secondaryRaw = state.colors[1];
+    const secondaryPaint =
+      secondaryRaw && secondaryRaw.trim().length > 0
+        ? secondaryRaw
+        : nativeSecondaryPaint(state.iconType);
 
     return {
       stroke:
         path.stroke && path.stroke !== "none"
-          ? applyToStroke
-            ? gradientPaint
-            : fallbackPaint
+          ? toneSlot(path.stroke, state.iconType) === "secondary"
+            ? secondaryPaint
+            : applyToStroke
+              ? gradientPaint
+              : fallbackPaint
           : path.stroke ?? "none",
       fill:
         path.fill && path.fill !== "none"
-          ? applyToFill
-            ? gradientPaint
-            : fallbackPaint
+          ? toneSlot(path.fill, state.iconType) === "secondary"
+            ? secondaryPaint
+            : applyToFill
+              ? gradientPaint
+              : fallbackPaint
           : path.fill ?? "none",
     };
   }
@@ -455,16 +526,22 @@ export function resolveEditorPathPaint(
   const stateColor = state?.colors[0];
   const defaultPaint =
     stateColor && !isDefaultEditorPaint(stateColor) ? stateColor : "currentColor";
+  const secondaryRaw = state?.colors[1];
+  const secondaryPaint =
+    secondaryRaw && secondaryRaw.trim().length > 0
+      ? secondaryRaw
+      : nativeSecondaryPaint(state?.iconType);
+  const paintFor = (value: string | undefined): string => {
+    if (!value || value === "none") return value ?? "none";
+    const slot = toneSlot(value, state?.iconType);
+    if (slot === "secondary") return secondaryPaint;
+    if (slot === "primary") return defaultPaint;
+    return value;
+  };
 
   return {
-    stroke:
-      path.stroke && path.stroke !== "none" && isDefaultEditorPaint(path.stroke)
-        ? defaultPaint
-        : path.stroke ?? "none",
-    fill:
-      path.fill && path.fill !== "none" && isDefaultEditorPaint(path.fill)
-        ? defaultPaint
-        : path.fill ?? "none",
+    stroke: paintFor(path.stroke),
+    fill: paintFor(path.fill),
   };
 }
 
@@ -563,16 +640,44 @@ export function createEditorSvgMarkup(
   document: EditorDocument,
   state: CustomizationState,
 ) {
-  const gradientDefs = buildGradientDefs(state);
+  // Anchor rotation/flip at the viewBox centre so they pivot about the icon
+  // rather than the origin. `state.scale` is deliberately not applied here:
+  // the editor preview does not apply it either, and honouring it would make
+  // every export diverge from what the canvas shows.
+  const [vbX, vbY, vbW, vbH] = (() => {
+    const parts = (document.viewBox || "0 0 24 24").split(/\s+/).map(Number);
+    return [
+      parts[0] || 0,
+      parts[1] || 0,
+      parts[2] || 24,
+      parts[3] || 24,
+    ] as const;
+  })();
+  const gradientDefs = buildGradientDefs(state, vbX, vbY, vbW, vbH);
   const exportFilter = buildExportFilter(state);
   const defs = [document.defs, gradientDefs, exportFilter].filter(Boolean).join("");
-  const transformParts = [
-    `translate(${state.translateX} ${state.translateY})`,
-    `scale(${state.flipH ? -state.scale : state.scale} ${state.flipV ? -state.scale : state.scale})`,
-    state.rotation ? `rotate(${state.rotation})` : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const centreX = vbX + vbW / 2;
+  const centreY = vbY + vbH / 2;
+  const flipScaleX = state.flipH ? -1 : 1;
+  const flipScaleY = state.flipV ? -1 : 1;
+  const hasTransform =
+    state.translateX !== 0 ||
+    state.translateY !== 0 ||
+    state.rotation !== 0 ||
+    state.flipH ||
+    state.flipV;
+  const transformParts = hasTransform
+    ? [
+        `translate(${centreX + state.translateX} ${centreY + state.translateY})`,
+        state.rotation ? `rotate(${state.rotation})` : "",
+        flipScaleX !== 1 || flipScaleY !== 1
+          ? `scale(${flipScaleX} ${flipScaleY})`
+          : "",
+        `translate(${-centreX} ${-centreY})`,
+      ]
+        .filter(Boolean)
+        .join(" ")
+    : "";
   const groupAttributes = [
     transformParts ? `transform="${transformParts}"` : "",
     exportFilter ? `filter="url(#editor-export-filter)"` : "",
@@ -588,10 +693,35 @@ export function createEditorSvgMarkup(
     })
     .join("");
 
+  // The live editor canvas (EditorCanvasStage) wraps the SVG in a container
+  // that applies padding, a background fill and a corner radius from state.
+  // Mirror that here so the exported markup matches what the canvas shows,
+  // the same way generateStandaloneSvg does for the /icons route.
+  const paddingVB = state.width > 0 ? (state.padding / state.width) * vbW : 0;
+  const iconScaleFactor = vbW > 0 ? (vbW - 2 * paddingVB) / vbW : 1;
+  const hasPadding = paddingVB !== 0 && iconScaleFactor !== 1;
+  const rx = ((state.cornerRadius / Math.max(state.width, 1)) * vbW).toFixed(3);
+  const backgroundFill = (state.backgroundColor || "transparent").replace(
+    /[&"<>]/g,
+    (character) =>
+      ({ "&": "&amp;", '"': "&quot;", "<": "&lt;", ">": "&gt;" })[character] ||
+      character,
+  );
+  const hasBackground =
+    backgroundFill !== "transparent" && backgroundFill !== "none";
+
+  const iconGroup = `<g ${groupAttributes}>${visiblePaths}</g>`;
+  const paddedContent = hasPadding
+    ? `<g transform="translate(${(vbX + paddingVB).toFixed(3)}, ${(vbY + paddingVB).toFixed(3)}) scale(${iconScaleFactor.toFixed(6)})">${iconGroup}</g>`
+    : iconGroup;
+
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${state.width}" height="${state.height}" viewBox="${document.viewBox}" fill="none">`,
     defs ? `<defs>${defs.replace(/^<defs\b[^>]*>|<\/defs>$/g, "")}</defs>` : "",
-    `<g ${groupAttributes}>${visiblePaths}</g>`,
+    hasBackground
+      ? `<rect x="${vbX}" y="${vbY}" width="${vbW}" height="${vbH}" rx="${rx}" ry="${rx}" fill="${backgroundFill}"/>`
+      : "",
+    paddedContent,
     "</svg>",
   ]
     .filter(Boolean)

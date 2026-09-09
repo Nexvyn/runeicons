@@ -1,7 +1,73 @@
-import { CustomizationState, IconData } from "@/lib/types";
 import { getIconDataById } from "@/lib/icons";
+import { CustomizationState, IconData } from "@/lib/types";
 
 export const MAX_TRAY_ITEMS = 6;
+
+// Native palettes baked into each icon style's SVG files.
+// colors[0] -> light/primary tone, colors[1] -> dark/secondary tone
+// (see colorizeSvgContent replacements). Empty = theme-adaptive currentColor.
+export const DUOTONE_SECONDARY_DEFAULT = "#9DB4F5";
+export const TYPE_DEFAULT_COLORS: Record<string, [string, string]> = {
+  normal: ["", ""],
+  pixelated: ["", ""],
+  glass: ["", ""],
+  duotone: ["#3859FD", DUOTONE_SECONDARY_DEFAULT],
+  fill: ["#DDDDDD", "#1C1F21"],
+};
+
+export interface IconTypeEffectSupport {
+  color: boolean;
+  motion: boolean;
+  roundness: boolean;
+  flipRotate: boolean;
+  shadow: boolean;
+  noise: boolean;
+  texture: boolean;
+  blur: boolean;
+}
+
+const FULL_SUPPORT: IconTypeEffectSupport = {
+  color: true,
+  motion: true,
+  roundness: true,
+  flipRotate: true,
+  shadow: true,
+  noise: true,
+  texture: true,
+  blur: true,
+};
+
+export const TYPE_EFFECT_SUPPORT: Record<string, IconTypeEffectSupport> = {
+  normal: FULL_SUPPORT,
+  duotone: FULL_SUPPORT,
+  fill: FULL_SUPPORT,
+  pixelated: {
+    ...FULL_SUPPORT,
+    motion: false,
+    roundness: false,
+    flipRotate: false,
+    shadow: false,
+    noise: false,
+    texture: false,
+  },
+  glass: {
+    ...FULL_SUPPORT,
+    color: false,
+    motion: false,
+    roundness: false,
+    shadow: false,
+    noise: false,
+    texture: false,
+  },
+};
+
+export function resolveEffectiveIconType(
+  selectedIcon: IconData | null,
+  stateIconType: CustomizationState["iconType"],
+): CustomizationState["iconType"] {
+  if (selectedIcon?.category === "custom") return "normal";
+  return (selectedIcon?.iconType as CustomizationState["iconType"] | undefined) ?? stateIconType;
+}
 
 export const DEFAULT_STATE: CustomizationState = {
   colors: ["", ""],
@@ -28,6 +94,8 @@ export const DEFAULT_STATE: CustomizationState = {
     interactionMode: "animate" as const,
     trigger: "auto" as const,
     autoReverse: false,
+    selectedPathIndex: -1,
+    perPathAnimations: {},
   },
   translateX: 0,
   translateY: 0,

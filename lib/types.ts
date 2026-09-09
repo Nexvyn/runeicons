@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
-import type { IconType } from "./icons";
+
 import type { EASING_PRESETS } from "./editor/animation-engine";
+import type { IconType } from "./icons";
 
 export interface PathAnimationOverride {
   delay?: number;
@@ -100,6 +101,7 @@ export interface IconData {
   category: IconCategory;
   tags: string[];
   iconType?: IconType;
+  pathCount?: number;
 }
 
 export type IconCategory =
@@ -132,4 +134,3 @@ export type IconCategory =
   | "users"
   | "weather";
 export type Collection = "all" | "favorites" | "recent";
-
