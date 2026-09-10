@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { Caveat, Geist, Geist_Mono, Gemunu_Libre, Inter, Inter_Tight } from "next/font/google";
 
 import { Toaster } from "@/components/ui/sonner";
@@ -154,6 +155,7 @@ export default function RootLayout({
             >
               {children}
               <Toaster position="top-center" />
+              <Analytics />
             </ThemeProvider>
           </ShapeProvider>
         </MotionProvider>
