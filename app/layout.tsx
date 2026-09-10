@@ -117,7 +117,7 @@ const ORG_JSON_LD = {
       name: "Rune Icons",
       url: SITE_URL,
       logo: `${SITE_URL}/icon`,
-      sameAs: ["https://x.com/RuneIcon", "https://github.com/Nexvyn/runeicons"],
+      sameAs: ["https://x.com/nexvyn", "https://github.com/Nexvyn/runeicons"],
     },
     {
       "@type": "WebSite",
