@@ -4,7 +4,8 @@ import { getEditorAssets } from "@/lib/editor/assets";
 import { TuningProvider } from "@/components/icon-page/tuning";
 
 export const metadata: Metadata = {
-  title: "Editor | RuneIcons",
+  title: "Editor",
+  alternates: { canonical: "/editor" },
   description: "Create and edit custom SVG icons with the RuneIcons editor.",
 };
 

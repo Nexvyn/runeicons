@@ -1,17 +1,18 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
 import { useTheme } from "next-themes";
+
+import { DEFAULT_STATE, TYPE_DEFAULT_COLORS } from "@/constants/workspace";
 import { useHistory } from "@/hooks/use-history";
 import { CustomizationState } from "@/lib/types";
-import { DEFAULT_STATE } from "@/constants/workspace";
 
 interface UseWorkspaceStateOptions {
   enableKeyboardShortcuts?: boolean;
 }
 
-function createAdaptiveState(theme?: string): CustomizationState {
+function createAdaptiveState(): CustomizationState {
   return {
     ...DEFAULT_STATE,
-    colors: ["", ""],
     gradient: {
       ...DEFAULT_STATE.gradient,
       stops: [
@@ -33,36 +34,22 @@ function areGradientStopsEqual(
 ) {
   return (
     a.length === b.length &&
-    a.every(
-      (stop, index) =>
-        stop.color === b[index]?.color && stop.position === b[index]?.position,
-    )
+    a.every((stop, index) => stop.color === b[index]?.color && stop.position === b[index]?.position)
   );
 }
 
-function areGradientsEqual(
-  a: CustomizationState["gradient"],
-  b: CustomizationState["gradient"],
-) {
-  return (
-    a.type === b.type &&
-    a.angle === b.angle &&
-    areGradientStopsEqual(a.stops, b.stops)
-  );
+function areGradientsEqual(a: CustomizationState["gradient"], b: CustomizationState["gradient"]) {
+  return a.type === b.type && a.angle === b.angle && areGradientStopsEqual(a.stops, b.stops);
 }
 
-export function useWorkspaceState(
-  options: UseWorkspaceStateOptions = {},
-) {
+export function useWorkspaceState(options: UseWorkspaceStateOptions = {}) {
   const { enableKeyboardShortcuts = true } = options;
   const { resolvedTheme } = useTheme();
   const [state, setState] = useState<CustomizationState>(DEFAULT_STATE);
   const [hasInitializedTheme, setHasInitializedTheme] = useState(false);
   const [hasLoadedFromStorage, setHasLoadedFromStorage] = useState(false);
   const colorsManuallySetRef = useRef(false);
-  const customIconsRef = useRef<
-    Array<{ id: string; name: string; url: string }>
-  >([]);
+  const customIconsRef = useRef<Array<{ id: string; name: string; url: string }>>([]);
   const lastResolvedThemeRef = useRef<string | undefined>(undefined);
 
   const { history, historyIndex, handleUndo, handleRedo, pushState, canUndo, canRedo } =
@@ -91,6 +78,17 @@ export function useWorkspaceState(
           noise: { ...DEFAULT_STATE.noise, ...(parsed.noise ?? {}) },
           texture: { ...DEFAULT_STATE.texture, ...(parsed.texture ?? {}) },
           gradient: { ...DEFAULT_STATE.gradient, ...(parsed.gradient ?? {}) },
+          customIcons: Array.isArray(parsed.customIcons)
+            ? parsed.customIcons.filter(
+                (icon: unknown) =>
+                  typeof icon === "object" &&
+                  icon !== null &&
+                  typeof (icon as { id?: unknown }).id === "string" &&
+                  typeof (icon as { name?: unknown }).name === "string" &&
+                  typeof (icon as { url?: unknown }).url === "string" &&
+                  !(icon as { url: string }).url.startsWith("blob:"),
+              )
+            : [],
         });
       }
     } catch (error) {
@@ -107,7 +105,14 @@ export function useWorkspaceState(
       try {
         localStorage.setItem("rune_workspace_state", JSON.stringify(state));
       } catch (error) {
-        console.error("Failed to save state to storage:", error);
+        // Data-URL uploads can blow the ~5MB localStorage budget. Retry
+        // without them so the rest of the settings still persist.
+        try {
+          const { customIcons: _omitted, ...rest } = state;
+          localStorage.setItem("rune_workspace_state", JSON.stringify(rest));
+        } catch {
+          console.error("Failed to save state to storage:", error);
+        }
       }
     }, 1000);
 
@@ -141,7 +146,9 @@ export function useWorkspaceState(
   const isMountedRef = useRef(false);
   useEffect(() => {
     isMountedRef.current = true;
-    return () => { isMountedRef.current = false; };
+    return () => {
+      isMountedRef.current = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -155,14 +162,28 @@ export function useWorkspaceState(
   }, [resolvedTheme, hasInitializedTheme]);
 
   useEffect(() => {
-    const multiColorTypes = new Set(["duotone", "fill"]);
-    if (multiColorTypes.has(state.iconType) && state.colors.length < 2) {
-      setState((prev: CustomizationState) => ({
-        ...prev,
-        colors: [prev.colors[0] || "#000000", prev.colors[0] || "#000000"],
-      }));
-    }
-  }, [state.iconType, state.colors.length]);
+    const defaults = TYPE_DEFAULT_COLORS[state.iconType];
+    if (!defaults) return;
+    setState((prev: CustomizationState) => {
+      if (colorsManuallySetRef.current) {
+        const multiColorTypes = new Set(["duotone", "fill"]);
+        if (multiColorTypes.has(prev.iconType) && prev.colors.length < 2) {
+          return {
+            ...prev,
+            colors: [prev.colors[0] || defaults[0], prev.colors[1] || defaults[1]],
+          };
+        }
+      }
+      const isKnownDefault = Object.values(TYPE_DEFAULT_COLORS).some(
+        (palette) => palette[0] === (prev.colors[0] ?? "") && palette[1] === (prev.colors[1] ?? ""),
+      );
+      if (!isKnownDefault) return prev;
+      if (prev.colors[0] === defaults[0] && prev.colors[1] === defaults[1]) {
+        return prev;
+      }
+      return { ...prev, colors: [...defaults] };
+    });
+  }, [state.iconType]);
 
   const handleChange = useCallback((updates: Partial<CustomizationState>) => {
     if ("colors" in updates || "gradient" in updates) {
@@ -173,8 +194,16 @@ export function useWorkspaceState(
 
   const handleReset = useCallback(() => {
     colorsManuallySetRef.current = false;
-    setState(createAdaptiveState(resolvedTheme));
-  }, [resolvedTheme]);
+    setState((prev: CustomizationState) => {
+      const base = createAdaptiveState();
+      const defaults = TYPE_DEFAULT_COLORS[prev.iconType];
+      return {
+        ...base,
+        iconType: prev.iconType,
+        colors: defaults ? [...defaults] : base.colors,
+      };
+    });
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -194,5 +223,6 @@ export function useWorkspaceState(
     handleRedo,
     canUndo,
     canRedo,
+    hasLoadedFromStorage,
   };
 }

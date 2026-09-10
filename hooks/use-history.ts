@@ -22,18 +22,8 @@ export function useHistory<T>(
   options: UseHistoryOptions = {},
 ): UseHistoryReturn<T> {
   const { maxHistory = 50, enableKeyboardShortcuts = true } = options;
-
-  function isRedoShortcut(event: KeyboardEvent) {
-    return (
-      (event.metaKey || event.ctrlKey) &&
-      (event.key.toLowerCase() === "y" ||
-        (event.key.toLowerCase() === "z" && event.shiftKey))
-    );
-  }
-
   const [history, setHistory] = useState<T[]>([initialState]);
   const [historyIndex, setHistoryIndex] = useState(0);
-  const isUndoRedoRef = useRef(false);
   const historyIndexRef = useRef(0);
   const historyRef = useRef<T[]>([initialState]);
 
@@ -47,59 +37,49 @@ export function useHistory<T>(
 
   const pushState = useCallback(
     (newState: T) => {
-      if (isUndoRedoRef.current) {
-        isUndoRedoRef.current = false;
-        return;
-      }
-
-      setHistory((prev) => {
-        const newHistory = prev.slice(0, historyIndexRef.current + 1);
-        newHistory.push(newState);
-        return newHistory.slice(-maxHistory);
+      const nextIndex = Math.min(historyIndexRef.current + 1, maxHistory - 1);
+      setHistory((previous) => {
+        const branchedHistory = previous.slice(0, historyIndexRef.current + 1);
+        branchedHistory.push(newState);
+        const cappedHistory = branchedHistory.slice(-maxHistory);
+        historyRef.current = cappedHistory;
+        return cappedHistory;
       });
-      setHistoryIndex((prev) => Math.min(prev + 1, maxHistory - 1));
+      historyIndexRef.current = nextIndex;
+      setHistoryIndex(nextIndex);
     },
     [maxHistory],
   );
 
   const handleUndo = useCallback(() => {
-    if (historyIndexRef.current > 0) {
-      isUndoRedoRef.current = true;
-      setHistoryIndex((prev) => prev - 1);
-    }
+    if (historyIndexRef.current <= 0) return;
+    const nextIndex = historyIndexRef.current - 1;
+    historyIndexRef.current = nextIndex;
+    setHistoryIndex(nextIndex);
   }, []);
 
   const handleRedo = useCallback(() => {
-    if (historyIndexRef.current < historyRef.current.length - 1) {
-      isUndoRedoRef.current = true;
-      setHistoryIndex((prev) => prev + 1);
-    }
+    if (historyIndexRef.current >= historyRef.current.length - 1) return;
+    const nextIndex = historyIndexRef.current + 1;
+    historyIndexRef.current = nextIndex;
+    setHistoryIndex(nextIndex);
   }, []);
 
   useEffect(() => {
-    if (!enableKeyboardShortcuts) {
-      return;
-    }
+    if (!enableKeyboardShortcuts) return;
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (isEditableKeyboardTarget(e.target)) {
-        return;
-      }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (isEditableKeyboardTarget(event.target)) return;
 
-      const key = (e.key || "").toLowerCase();
-      const isZ = key === "z";
-      const isY = key === "y";
-      const hasMod = e.metaKey || e.ctrlKey;
+      const key = (event.key || "").toLowerCase();
+      const hasModifier = event.metaKey || event.ctrlKey;
+      if (!hasModifier) return;
 
-      if (hasMod && isZ) {
-        e.preventDefault();
-        if (e.shiftKey) {
-          handleRedo();
-        } else {
-          handleUndo();
-        }
-      } else if (hasMod && isY) {
-        e.preventDefault();
+      if (key === "z") {
+        event.preventDefault();
+        event.shiftKey ? handleRedo() : handleUndo();
+      } else if (key === "y") {
+        event.preventDefault();
         handleRedo();
       }
     };
@@ -120,14 +100,11 @@ export function useHistory<T>(
 }
 
 export function isEditableKeyboardTarget(target: EventTarget | null) {
-  if (!(target instanceof HTMLElement)) {
-    return false;
-  }
+  if (!(target instanceof HTMLElement)) return false;
 
   if (target.isContentEditable || target.closest('[contenteditable="true"]')) {
     return true;
   }
 
-  const editableTagNames = new Set(["INPUT", "TEXTAREA", "SELECT"]);
-  return editableTagNames.has(target.tagName);
+  return new Set(["INPUT", "TEXTAREA", "SELECT"]).has(target.tagName);
 }

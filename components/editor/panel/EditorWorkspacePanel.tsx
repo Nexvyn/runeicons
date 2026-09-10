@@ -328,6 +328,7 @@ export function EditorWorkspacePanel({
                     <EditorCanvasStage
                       state={state}
                       className="absolute inset-0 z-10"
+                      applyZoomPan={false}
                     >
                       {editorCanvas}
                     </EditorCanvasStage>

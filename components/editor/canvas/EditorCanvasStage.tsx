@@ -10,6 +10,7 @@ interface EditorCanvasStageProps {
   children: ReactNode;
   className?: string;
   applyContainerBox?: boolean;
+  applyZoomPan?: boolean;
 }
 
 export const EditorCanvasStage = memo(function EditorCanvasStage({
@@ -17,8 +18,9 @@ export const EditorCanvasStage = memo(function EditorCanvasStage({
   children,
   className,
   applyContainerBox = true,
+  applyZoomPan = true,
 }: EditorCanvasStageProps) {
-  const { transform, boxShadow, blurFilter, noiseFilter } =
+  const { transform, rotateFlipTransform, boxShadow, blurFilter, noiseFilter } =
     useCanvasStyles(state);
 
   const innerFilter =
@@ -54,7 +56,7 @@ export const EditorCanvasStage = memo(function EditorCanvasStage({
       <div
         className="flex h-full w-full items-center justify-center"
         style={{
-          transform,
+          transform: applyZoomPan ? transform : rotateFlipTransform,
           transformOrigin: "center center",
           filter: innerFilter,
         }}

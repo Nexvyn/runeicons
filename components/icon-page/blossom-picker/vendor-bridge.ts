@@ -12,8 +12,18 @@ import {
 } from '@/components/icon-page/blossom-vendor/utils';
 import { HexColor } from '@/lib/color-utils';
 
-export function hexToPickerValue(hex: HexColor, alpha = 100): BlossomColorPickerValue {
-  const { h, l } = hexToHsl(hex);
+export function hexToPickerValue(
+  hex: HexColor,
+  alpha = 100,
+  fallbackHue?: number,
+): BlossomColorPickerValue {
+  const { h: rawH, s, l } = hexToHsl(hex);
+  // Near-white/near-black/gray hex values carry no real hue information
+  // (hexToHsl degenerates to h=0, which collides with the red petal). When
+  // the caller already knows the picker's hue, keep it instead of snapping
+  // to whatever petal happens to sit nearest to that meaningless h=0.
+  const h = s < 2 && fallbackHue !== undefined ? fallbackHue : rawH;
+  const achromatic = s < 2;
   let closest = DEFAULT_COLORS[0];
   let closestIdx = 0;
   let minHueDist = Infinity;
@@ -32,7 +42,7 @@ export function hexToPickerValue(hex: HexColor, alpha = 100): BlossomColorPicker
     hue: closest.h,
     saturation: lightnessToSliderValue(l),
     lightness: l,
-    originalSaturation: closest.s,
+    originalSaturation: achromatic ? 0 : closest.s,
     alpha,
     layer: closestIdx < INNER_COLORS.length ? 'inner' : 'outer',
   };

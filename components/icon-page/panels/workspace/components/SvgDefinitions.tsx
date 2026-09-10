@@ -1,6 +1,7 @@
 import { memo, useMemo } from "react";
-import { CustomizationState } from "@/lib/types";
+
 import { buildConicSegments } from "@/lib/gradient-utils";
+import { CustomizationState } from "@/lib/types";
 
 interface SvgDefinitionsProps {
   state: CustomizationState;
@@ -10,7 +11,7 @@ export const SvgDefinitions = memo(function SvgDefinitions({ state }: SvgDefinit
   const spreadMethod = (state.gradient.spreadMethod ?? "pad") as "pad" | "reflect" | "repeat";
   const gCx = ((state.gradient.cx ?? 50) / 100) * 24;
   const gCy = ((state.gradient.cy ?? 50) / 100) * 24;
-  const gR  = ((state.gradient.r  ?? 50) / 100) * 24;
+  const gR = ((state.gradient.r ?? 50) / 100) * 24;
 
   const sortedStops = useMemo(
     () => [...state.gradient.stops].sort((a, b) => a.position - b.position),
@@ -26,12 +27,7 @@ export const SvgDefinitions = memo(function SvgDefinitions({ state }: SvgDefinit
   );
 
   return (
-    <svg
-      width="0"
-      height="0"
-      className="absolute invisible pointer-events-none"
-      aria-hidden="true"
-    >
+    <svg width="0" height="0" className="pointer-events-none invisible absolute" aria-hidden="true">
       <defs>
         {state.gradient.type === "linear" && (
           <linearGradient
@@ -47,7 +43,8 @@ export const SvgDefinitions = memo(function SvgDefinitions({ state }: SvgDefinit
               <stop
                 key={`stop-${i}-${stop.position}`}
                 offset={`${Math.max(0, Math.min(100, stop.position))}%`}
-                stopColor={stop.color || "#000000"} stopOpacity={1}
+                stopColor={stop.color || "#000000"}
+                stopOpacity={1}
               />
             ))}
           </linearGradient>
@@ -66,7 +63,8 @@ export const SvgDefinitions = memo(function SvgDefinitions({ state }: SvgDefinit
               <stop
                 key={`stop-${i}-${stop.position}`}
                 offset={`${Math.max(0, Math.min(100, stop.position))}%`}
-                stopColor={stop.color || "#000000"} stopOpacity={1}
+                stopColor={stop.color || "#000000"}
+                stopOpacity={1}
               />
             ))}
           </radialGradient>
@@ -86,17 +84,57 @@ export const SvgDefinitions = memo(function SvgDefinitions({ state }: SvgDefinit
         </filter>
 
         <filter id="inner-shadow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur in="SourceAlpha" stdDeviation={state.shadow.blur} result="blur" />
-          <feComposite operator="out" in="SourceAlpha" in2="blur" result="inverse" />
+          <feGaussianBlur
+            in="SourceAlpha"
+            stdDeviation={(state.shadow.blur / state.width) * 24}
+            result="blur"
+          />
+          <feOffset
+            in="blur"
+            dx={(state.shadow.offsetX / state.width) * 24}
+            dy={(state.shadow.offsetY / state.height) * 24}
+            result="offsetBlur"
+          />
+          <feComposite operator="out" in="SourceAlpha" in2="offsetBlur" result="inverse" />
           <feFlood floodColor="black" floodOpacity={state.shadow.opacity / 100} result="color" />
           <feComposite operator="in" in="color" in2="inverse" result="shadow" />
           <feComposite operator="over" in="shadow" in2="SourceGraphic" />
         </filter>
 
-        <filter id="noise-filter" x="-10%" y="-10%" width="120%" height="120%" colorInterpolationFilters="sRGB">
-          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="4" stitchTiles="stitch" result="noise" />
+        {state.shadow.enabled &&
+          !state.shadow.inner &&
+          state.shadow.opacity > 0 &&
+          state.iconType !== "pixelated" &&
+          state.iconType !== "glass" && (
+            <filter id="drop-shadow" x="-60%" y="-60%" width="220%" height="220%">
+              <feDropShadow
+                dx={(state.shadow.offsetX / Math.max(state.width, 1)) * 24}
+                dy={(state.shadow.offsetY / Math.max(state.height, 1)) * 24}
+                stdDeviation={(state.shadow.blur / Math.max(state.width, 1)) * 24}
+                floodColor="black"
+                floodOpacity={state.shadow.opacity / 100}
+              />
+            </filter>
+          )}
+
+        <filter
+          id="noise-filter"
+          x="-10%"
+          y="-10%"
+          width="120%"
+          height="120%"
+          colorInterpolationFilters="sRGB"
+        >
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.65"
+            numOctaves="4"
+            stitchTiles="stitch"
+            result="noise"
+          />
+          <feColorMatrix in="noise" type="saturate" values="0" result="grayNoise" />
           <feColorMatrix
-            in="noise"
+            in="grayNoise"
             type="matrix"
             values={`0.33 0.33 0.33 0 0  0.33 0.33 0.33 0 0  0.33 0.33 0.33 0 0  0 0 0 ${(state.noise.intensity / 100).toFixed(3)} 0`}
             result="colorNoise"
@@ -119,18 +157,13 @@ export const SvgDefinitions = memo(function SvgDefinitions({ state }: SvgDefinit
         )}
 
         {state.texture.enabled && state.texture.selected !== "none" && (
-          <pattern
-            id="texture-pattern"
-            width="256"
-            height="256"
-            patternUnits="userSpaceOnUse"
-          >
+          <pattern id="texture-pattern" width="24" height="24" patternUnits="userSpaceOnUse">
             <image
               href={`/textures/${state.texture.selected}.png`}
-              width="256"
-              height="256"
+              width="24"
+              height="24"
               opacity={state.texture.opacity / 100}
-              preserveAspectRatio="none"
+              preserveAspectRatio="xMidYMid slice"
             />
           </pattern>
         )}

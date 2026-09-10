@@ -35,14 +35,14 @@ const BentoCard = ({
           : "pointer-events-none absolute inset-x-0 bottom-0 z-10 p-4 md:px-8 md:pb-6"
       }
     >
-      <h3 className="md:text-md mb-1 text-sm font-semibold">{title}</h3>
-      <p className="md:text-md text-sm text-muted-foreground">{description}</p>
+      <h3 className="mb-1 text-sm font-semibold md:text-base">{title}</h3>
+      <p className="text-sm text-muted-foreground md:text-base">{description}</p>
     </div>
   );
 
   return (
     <div
-      className={`relative flex min-h-0 flex-col overflow-hidden rounded-2xl border border-border ${transparentBg ? "bg-transparent" : "bg-card"} text-card-foreground transition-all duration-300 hover:shadow-lg md:rounded-3xl ${className}`}
+      className={`relative flex min-h-0 flex-col overflow-hidden rounded-2xl border border-border ${transparentBg ? "bg-transparent" : "bg-card"} ease text-card-foreground transition-shadow duration-150 hover:shadow-lg md:rounded-3xl ${className}`}
     >
       <div
         className={
@@ -61,11 +61,11 @@ const BentoCard = ({
 const Bento = () => {
   return (
     <section className="w-full">
-      <div className="mx-auto grid min-h-[50vh] w-full grid-cols-1 gap-2 max-sm:h-full md:gap-4 lg:h-[90vh] lg:grid-cols-12">
+      <div className="mx-auto grid min-h-[60vh] w-full grid-cols-1 gap-2 max-sm:h-full md:gap-4 lg:h-[calc(100vh-104px)] lg:grid-cols-12">
         <div className="grid min-h-0 grid-cols-1 gap-2 md:gap-4 lg:col-span-4 lg:grid-rows-[6fr_4fr]">
           <BentoCard
             title="Five styles, one library"
-            description="From clean outlines to glossy 3D, every icon comes in five distinct flavors."
+            description="Outline, duotone, fill, pixel, glass. The same glyph, drawn five ways."
             className="flex h-full items-center justify-center"
             inlineLabel
             transparentBg
@@ -73,8 +73,8 @@ const Bento = () => {
             <RocketInteractive />
           </BentoCard>
           <BentoCard
-            title="Interactive SVG Editing"
-            description="Drag points, reshape paths, and customize vectors directly in the browser."
+            title="Edit in the browser"
+            description="Grab a point, drag it, watch the path bend. No Figma round-trip."
             className="h-full"
             inlineLabel
             transparentBg
@@ -84,8 +84,8 @@ const Bento = () => {
         </div>
 
         <BentoCard
-          title="Modular by design"
-          description="Composable shapes that snap into any layout without breaking your grid."
+          title="Snaps to your grid"
+          description="Built on a 24px grid so nothing lands half a pixel off."
           className="h-full min-h-0 max-sm:p-5 lg:col-span-3"
           inlineLabel
           transparentBg
@@ -95,18 +95,18 @@ const Bento = () => {
 
         <div className="grid min-h-0 grid-cols-1 gap-2 md:gap-4 lg:col-span-5 lg:grid-rows-[5fr_5fr]">
           <BentoCard
-            title="Tweak every detail"
-            description="Stroke, size, color, animation, dial each icon in until it fits your brand."
+            title="Tune every detail"
+            description="Stroke, size, color, motion. Dial each icon in until it fits."
             className="h-full"
-            graphicClassName="!p-0"
+            graphicClassName="p-0!"
             inlineLabel
             transparentBg
           >
             <IconCarousel />
           </BentoCard>
           <BentoCard
-            title="Crafted line by line"
-            description="Hand-tuned strokes and perfect curves that scale to any size without losing detail."
+            title="Drawn by hand"
+            description="Every curve was placed on purpose. They stay sharp at any size."
             className="h-full max-lg:aspect-square"
             fullBackgroundGraphic
             transparentBg

@@ -53,6 +53,17 @@ const GLASS_BY_ID = new Map<string, GlassIconEntry>(
   GLASS_ICONS_MANIFEST.map((e) => [e.id, e]),
 );
 
+export const TOTAL_ICON_COUNT =
+  NORMAL_ICONS_MANIFEST.reduce(
+    (sum, e) =>
+      sum +
+      (e.availability.normal ? 1 : 0) +
+      (e.availability.duotone ? 1 : 0) +
+      (e.availability.fill ? 1 : 0) +
+      (e.availability.pixelated ? 1 : 0),
+    0,
+  ) + GLASS_ICONS_MANIFEST.length;
+
 function toIconData(e: NormalIconEntry, iconType: Exclude<IconType, "glass">): IconData {
   return {
     id: e.id,

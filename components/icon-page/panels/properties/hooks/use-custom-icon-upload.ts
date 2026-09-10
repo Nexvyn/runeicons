@@ -1,163 +1,160 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { CustomizationState } from "@/lib/types";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const MAX_PERSISTED_DATA_SIZE = 3.5 * 1024 * 1024;
 const MAX_CUSTOM_ICONS = 10;
+
+interface CustomIcon {
+  id: string;
+  name: string;
+  url: string;
+}
+
+function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error ?? new Error("File read failed"));
+    reader.readAsDataURL(blob);
+  });
+}
 
 export function useCustomIconUpload(
   state: CustomizationState,
   onChange: (updates: Partial<CustomizationState>) => void,
-  onDeleteIcon?: (id: string) => void
+  onDeleteIcon?: (id: string) => void,
 ) {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  const blobUrlsRef = useRef<Set<string>>(new Set());
-
-  useEffect(() => {
-    return () => {
-      blobUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
-      blobUrlsRef.current.clear();
-    };
-  }, []);
-
-  const validateFile = (file: File): string | null => {
+  const validateFile = useCallback((file: File, nextCount: number) => {
     if (file.size > MAX_FILE_SIZE) {
-      return `File "${file.name}" exceeds 5MB limit`;
+      return `File "${file.name}" exceeds the 5MB limit`;
     }
 
-    const validTypes = [
-      "image/svg+xml",
-      "image/png",
-      "image/jpeg",
-      "image/jpg",
-    ];
+    const validTypes = ["image/svg+xml", "image/png", "image/jpeg"];
     if (!validTypes.includes(file.type)) {
       return `File "${file.name}" must be SVG, PNG, or JPG`;
     }
 
-    if (state.customIcons.length >= MAX_CUSTOM_ICONS) {
+    if (nextCount >= MAX_CUSTOM_ICONS) {
       return `Maximum ${MAX_CUSTOM_ICONS} icons allowed`;
     }
 
     return null;
-  };
+  }, []);
 
-  const sanitizeSVG = async (svgContent: string): Promise<string> => {
+  const sanitizeSvg = useCallback(async (svgContent: string) => {
     const { default: DOMPurify } = await import("dompurify");
     return DOMPurify.sanitize(svgContent, {
       USE_PROFILES: { svg: true, svgFilters: true },
     });
-  };
+  }, []);
 
-  const processUploadedFile = useCallback(
-    async (file: File): Promise<boolean> => {
-      const error = validateFile(file);
-      if (error) {
-        setUploadError(error);
-        return false;
+  const processFile = useCallback(
+    async (file: File, nextCount: number): Promise<CustomIcon> => {
+      const validationError = validateFile(file, nextCount);
+      if (validationError) throw new Error(validationError);
+
+      let url: string;
+      if (file.type === "image/svg+xml") {
+        const sanitized = await sanitizeSvg(await file.text());
+        url = await blobToDataUrl(
+          new Blob([sanitized], { type: "image/svg+xml" }),
+        );
+      } else {
+        url = await blobToDataUrl(file);
       }
+
+      return {
+        id: `${Date.now()}-${crypto.randomUUID()}`,
+        name: file.name,
+        url,
+      };
+    },
+    [sanitizeSvg, validateFile],
+  );
+
+  const processFiles = useCallback(
+    async (files: File[]) => {
+      if (files.length === 0) return;
+      setUploadError(null);
+      setIsUploading(true);
 
       try {
-        let url: string;
-        if (file.type === "image/svg+xml") {
-          const text = await file.text();
-          const sanitized = await sanitizeSVG(text);
-          const blob = new Blob([sanitized], { type: "image/svg+xml" });
-          url = URL.createObjectURL(blob);
-        } else {
-          url = URL.createObjectURL(file);
-        }
-        blobUrlsRef.current.add(url);
+        const additions: CustomIcon[] = [];
+        let persistedSize = state.customIcons.reduce(
+          (total, icon) => total + icon.url.length,
+          0,
+        );
 
-        const newIcon = {
-          id: `${Date.now()}-${Math.random().toString(36)}`,
-          name: file.name,
-          url,
-        };
-        onChange({
-          customIcons: [...state.customIcons, newIcon],
-        });
-        return true;
+        for (const file of files) {
+          const icon = await processFile(
+            file,
+            state.customIcons.length + additions.length,
+          );
+          persistedSize += icon.url.length;
+          if (persistedSize > MAX_PERSISTED_DATA_SIZE) {
+            throw new Error(
+              "Uploads are too large to save reliably. Use smaller SVG or image files.",
+            );
+          }
+          additions.push(icon);
+        }
+
+        onChange({ customIcons: [...state.customIcons, ...additions] });
+        toast.success(
+          additions.length === 1
+            ? "Icon uploaded successfully"
+            : `${additions.length} icons uploaded successfully`,
+        );
       } catch (error) {
-        console.error("Icon upload failed:", error);
-        setUploadError(`Failed to upload "${file.name}"`);
-        return false;
+        const message =
+          error instanceof Error ? error.message : "Icon upload failed";
+        setUploadError(message);
+      } finally {
+        setIsUploading(false);
       }
     },
-    [state.customIcons, onChange],
+    [onChange, processFile, state.customIcons],
   );
 
   const handleFileUpload = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = e.target.files;
-      if (!files) return;
-
-      setUploadError(null);
-      setIsUploading(true);
-
-      for (const file of Array.from(files)) {
-        const success = await processUploadedFile(file);
-        if (!success) {
-          setIsUploading(false);
-          return;
-        }
-      }
-
-      setIsUploading(false);
-      e.target.value = "";
-      toast.success("Icon uploaded successfully");
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const files = Array.from(event.target.files ?? []);
+      await processFiles(files);
+      event.target.value = "";
     },
-    [processUploadedFile],
+    [processFiles],
   );
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
+  const handleDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
     setIsDragging(true);
   }, []);
 
-  const handleDragLeave = useCallback(() => {
-    setIsDragging(false);
-  }, []);
+  const handleDragLeave = useCallback(() => setIsDragging(false), []);
 
   const handleDrop = useCallback(
-    async (e: React.DragEvent) => {
-      e.preventDefault();
+    async (event: React.DragEvent) => {
+      event.preventDefault();
       setIsDragging(false);
-      setUploadError(null);
-      setIsUploading(true);
-
-      for (const file of Array.from(e.dataTransfer.files)) {
-        const success = await processUploadedFile(file);
-        if (!success) {
-          setIsUploading(false);
-          return;
-        }
-      }
-
-      setIsUploading(false);
-      toast.success("Icon uploaded successfully");
+      await processFiles(Array.from(event.dataTransfer.files));
     },
-    [processUploadedFile],
+    [processFiles],
   );
 
   const deleteIcon = useCallback(
     (id: string) => {
-      const icon = state.customIcons.find((i) => i.id === id);
-      if (icon && icon.url.startsWith("blob:")) {
-        URL.revokeObjectURL(icon.url);
-        blobUrlsRef.current.delete(icon.url);
-      }
-
       onDeleteIcon?.(id);
-
       onChange({
         customIcons: state.customIcons.filter((icon) => icon.id !== id),
       });
     },
-    [state.customIcons, onChange, onDeleteIcon],
+    [onChange, onDeleteIcon, state.customIcons],
   );
 
   return {

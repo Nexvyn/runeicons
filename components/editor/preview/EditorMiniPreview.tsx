@@ -21,7 +21,7 @@ export const EditorMiniPreview = memo(function EditorMiniPreview({
 
   return (
     <div className="w-full h-full bg-background border border-border shadow-md flex items-center justify-center p-[12%] pointer-events-auto">
-      <EditorCanvasStage state={state} applyContainerBox={false}>
+      <EditorCanvasStage state={state} applyContainerBox={false} applyZoomPan={false}>
         <EditorSvgPreview
           document={document}
           state={state}

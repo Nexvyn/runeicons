@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { MessageCircle } from "lucide-react";
 
 import {
@@ -23,35 +25,35 @@ const faqItems: FAQItem[] = [
     number: "01",
     question: "What formats are the icons available in?",
     answer:
-      "All Rune Icons are available as optimized SVGs, React components, and Vue components. Each icon is tree-shakeable and can be imported individually to keep your bundle size minimal.",
+      "Optimized SVG, plus React and Vue components. Each one is tree-shakeable, so importing a single icon does not drag the whole set into your bundle.",
   },
   {
     id: "item-2",
     number: "02",
     question: "Can I customize the icon size and color?",
     answer:
-      "Absolutely! Every Rune Icon supports custom sizing, stroke width, and color via props or CSS. They inherit currentColor by default, so they naturally adapt to your design system.",
+      "Yes. Size, stroke width, and color are all controllable through props or plain CSS. Icons use currentColor by default, so they pick up whatever color their parent already has.",
   },
   {
     id: "item-3",
     number: "03",
     question: "Is Rune Icons free to use commercially?",
     answer:
-      "Yes! Rune Icons is open-source and licensed under the MIT License. You can use them in personal, commercial, and client projects without any attribution required.",
+      "It is licensed under Apache 2.0. Use it in personal work, client projects, or anything you sell. No attribution needed, though a star on GitHub never hurts.",
   },
   {
     id: "item-4",
     number: "04",
     question: "How do I request a new icon?",
     answer:
-      "You can submit icon requests through our GitHub repository by opening an issue. Our team reviews requests weekly and we prioritize icons based on community votes and demand.",
+      "Open an issue on the GitHub repo. I go through requests most weeks and build the ones people actually vote for first.",
   },
 ];
 
 export default function Faq() {
   return (
-    <section className="w-full py-24">
-      <div className="relative w-full overflow-hidden px-4 py-8 sm:px-10 sm:py-14 lg:px-16 lg:py-16">
+    <section className="w-full">
+      <div className="relative w-full overflow-hidden px-4 py-6 sm:px-10 sm:py-8 lg:px-16 lg:py-10">
         <div className="relative z-10 flex flex-col gap-10 lg:flex-row lg:gap-20">
           <div className="flex shrink-0 flex-col gap-8 lg:w-[440px]">
             <div className="flex flex-col gap-2">
@@ -62,9 +64,11 @@ export default function Faq() {
               <p className="text-sm text-muted-foreground">
                 Can’t find the answer you’re looking for? <br /> I’m here to help.
               </p>
-              <Button className="mt-6 w-fit">
-                Contact us <MessageCircle />
-              </Button>
+              <Link href="https://x.com/RuneIcon" target="_blank" rel="noopener noreferrer">
+                <Button className="mt-6 w-fit">
+                  Contact us <MessageCircle />
+                </Button>
+              </Link>
             </div>
           </div>
 

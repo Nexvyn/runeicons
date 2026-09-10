@@ -1,18 +1,15 @@
 "use client";
-import { memo, useEffect, useRef } from "react";
-import { motion } from "motion/react";
-import { IconData, CustomizationState } from "@/lib/types";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
+
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+
 import type { IconType } from "@/lib/icons";
-import { cn } from "@/lib/utils";
 import { STROKE_STYLE_MAP } from "@/lib/stroke-style";
-const iconVariants = {
-  initial: { y: 0, scale: 1 },
-  hover: { y: -12, scale: 0.92 },
-};
-const labelVariants = {
-  initial: { opacity: 0, y: 4, scale: 0.94 },
-  hover: { opacity: 1, y: 0, scale: 1 },
-};
+import { CustomizationState, IconData } from "@/lib/types";
+import { cn } from "@/lib/utils";
+
+import { IconNameTag } from "./IconNameTag";
+
 interface IconGridProps {
   icons: IconData[];
   selectedIconId: string | null;
@@ -21,9 +18,255 @@ interface IconGridProps {
   iconType: IconType;
   customizationState?: CustomizationState;
 }
-function IconGridInner({ icons, selectedIconId, onIconClick, isSearching, iconType, customizationState }: IconGridProps) {
+
+interface GridTileProps {
+  icon: IconData;
+  isSelected: boolean;
+  isSearching?: boolean;
+  invertInDark: boolean;
+  customizationState?: CustomizationState;
+  reduceMotion: boolean;
+  onShowTag: (icon: IconData, index: number, el: HTMLButtonElement) => void;
+  onTrackMove: (icon: IconData, el: HTMLButtonElement, x: number, y: number) => void;
+  onHideTag: () => void;
+  onSelect: (icon: IconData) => void;
+}
+
+const GridTile = memo(function GridTile({
+  icon,
+  isSelected,
+  isSearching,
+  invertInDark,
+  customizationState,
+  reduceMotion,
+  onShowTag,
+  onTrackMove,
+  onHideTag,
+  onSelect,
+}: GridTileProps) {
+  const Icon = icon.icon;
+
+  return (
+    <div className="relative w-full">
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute top-0 left-0 z-20 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+      >
+        <span className="absolute h-2.5 w-px bg-border" />
+        <span className="absolute h-px w-2.5 bg-border" />
+      </span>
+      <motion.button
+        onClick={() => onSelect(icon)}
+        onMouseEnter={(e) => onTrackMove(icon, e.currentTarget, e.clientX, e.clientY)}
+        onMouseMove={(e) => onTrackMove(icon, e.currentTarget, e.clientX, e.clientY)}
+        onMouseLeave={onHideTag}
+        onFocus={(e) => onShowTag(icon, -1, e.currentTarget)}
+        onBlur={onHideTag}
+        initial="initial"
+        whileTap={reduceMotion ? undefined : { scale: 0.96 }}
+        className={cn(
+          "group relative flex aspect-square w-full cursor-pointer items-center justify-center overflow-hidden border-r border-b border-border transition-colors duration-200 ease-out outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset",
+          isSelected ? "bg-accent" : "bg-transparent hover:bg-muted focus-visible:bg-muted",
+        )}
+        style={
+          isSelected && customizationState?.backgroundColor
+            ? { backgroundColor: customizationState.backgroundColor }
+            : undefined
+        }
+        type="button"
+        aria-label={`${icon.name} icon`}
+        tabIndex={0}
+      >
+        <div className="relative z-10 flex items-center justify-center p-3">
+          {(() => {
+            if (isSelected && customizationState && Icon) {
+              const s = customizationState;
+              const stroke = STROKE_STYLE_MAP[s.strokeStyle ?? "round"];
+              const color = s.colors[0] || "currentColor";
+              const fillSelected = s.iconType === "fill";
+              const duotoneSelected = s.iconType === "duotone";
+              return (
+                <Icon
+                  className="h-5 w-5"
+                  strokeWidth={stroke.strokeWidth}
+                  strokeLinecap={stroke.strokeLinecap}
+                  strokeLinejoin={stroke.strokeLinejoin}
+                  stroke={color}
+                  fill={fillSelected ? color : duotoneSelected ? `${color}33` : "none"}
+                  aria-hidden="true"
+                />
+              );
+            }
+            if (Icon) {
+              return (
+                <Icon
+                  className={cn(
+                    "h-5 w-5 transition-colors duration-200",
+                    isSearching
+                      ? "text-foreground"
+                      : "text-muted-foreground group-hover:text-foreground",
+                  )}
+                  strokeWidth={1.5}
+                  aria-hidden="true"
+                />
+              );
+            }
+            return (
+              <img
+                src={icon.url}
+                alt=""
+                aria-hidden="true"
+                draggable={false}
+                loading="lazy"
+                decoding="async"
+                className={cn("h-5 w-5 select-none", invertInDark && "dark:invert")}
+              />
+            );
+          })()}
+        </div>
+      </motion.button>
+    </div>
+  );
+});
+
+interface ActiveTag {
+  id: string;
+  label: string;
+  left?: number;
+  right?: number;
+  top: number;
+  above: boolean;
+  align: "center" | "left" | "right";
+}
+
+function IconGridInner({
+  icons,
+  selectedIconId,
+  onIconClick,
+  isSearching,
+  iconType,
+  customizationState,
+}: IconGridProps) {
   const invertInDark = iconType === "normal" || iconType === "pixelated";
   const containerRef = useRef<HTMLDivElement>(null);
+  const reduceMotion = useReducedMotion();
+  const [activeTag, setActiveTag] = useState<ActiveTag | null>(null);
+  const activeTagRef = useRef<ActiveTag | null>(null);
+  const tagTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastMoveRef = useRef({ x: 0, y: 0, t: 0 });
+  const COLS = 5;
+  const DWELL_MS = 280;
+  const MOVE_TOLERANCE = 6;
+
+  const clearTagTimer = useCallback(() => {
+    if (tagTimer.current) clearTimeout(tagTimer.current);
+    tagTimer.current = null;
+  }, []);
+
+  const measureTag = useCallback(
+    (icon: IconData, el: HTMLButtonElement): ActiveTag | null => {
+      const container = containerRef.current;
+      if (!container) return null;
+      const gridBox = container.getBoundingClientRect();
+      const tileBox = el.getBoundingClientRect();
+      const index = icons.findIndex((entry) => entry.id === icon.id);
+      const col = index % COLS;
+      const above = index >= icons.length - COLS;
+      const align = col === 0 ? "left" : col === COLS - 1 ? "right" : ("center" as const);
+      const tag: ActiveTag = {
+        id: icon.id,
+        label: icon.name,
+        top: above ? tileBox.top - gridBox.top : tileBox.top - gridBox.top + tileBox.height,
+        above,
+        align,
+      };
+      if (align === "center") tag.left = tileBox.left - gridBox.left + tileBox.width / 2;
+      else if (align === "left") tag.left = tileBox.left - gridBox.left + 4;
+      else tag.right = gridBox.right - tileBox.right + 4;
+      return tag;
+    },
+    [icons],
+  );
+
+  const showTag = useCallback(
+    (icon: IconData, _index: number, el: HTMLButtonElement) => {
+      if (tagTimer.current) clearTimeout(tagTimer.current);
+      tagTimer.current = null;
+      const now = performance.now();
+      const still = now - lastMoveRef.current.t;
+      const place = () => {
+        const next = measureTag(icon, el);
+        if (!next) return;
+        activeTagRef.current = next;
+        setActiveTag(next);
+      };
+      if (activeTagRef.current !== null || still >= DWELL_MS) {
+        place();
+        return;
+      }
+      tagTimer.current = setTimeout(() => {
+        if (performance.now() - lastMoveRef.current.t < DWELL_MS) return;
+        place();
+      }, DWELL_MS - still);
+    },
+    [measureTag],
+  );
+
+  const trackMove = useCallback(
+    (icon: IconData, el: HTMLButtonElement, x: number, y: number) => {
+      const last = lastMoveRef.current;
+      if (Math.hypot(x - last.x, y - last.y) > MOVE_TOLERANCE) {
+        lastMoveRef.current = { x, y, t: performance.now() };
+      }
+      if (activeTagRef.current === null) {
+        showTag(icon, -1, el);
+      } else if (activeTagRef.current.id !== icon.id) {
+        const next = measureTag(icon, el);
+        if (next) {
+          activeTagRef.current = next;
+          setActiveTag(next);
+        }
+      }
+    },
+    [measureTag],
+  );
+
+  const hideTag = useCallback(() => {
+    if (tagTimer.current) clearTimeout(tagTimer.current);
+    tagTimer.current = null;
+    tagTimer.current = setTimeout(() => {
+      activeTagRef.current = null;
+      setActiveTag(null);
+    }, 120);
+  }, []);
+
+  useEffect(() => {
+    const timer = tagTimer.current;
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, []);
+
+  useEffect(() => {
+    const hideNow = () => {
+      if (tagTimer.current) clearTimeout(tagTimer.current);
+      tagTimer.current = null;
+      activeTagRef.current = null;
+      setActiveTag(null);
+    };
+    window.addEventListener("blur", hideNow);
+    window.addEventListener("resize", hideNow);
+    return () => {
+      window.removeEventListener("blur", hideNow);
+      window.removeEventListener("resize", hideNow);
+    };
+  }, []);
+
+  useEffect(() => {
+    activeTagRef.current = null;
+    setActiveTag(null);
+  }, [icons]);
+
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -33,9 +276,12 @@ function IconGridInner({ icons, selectedIconId, onIconClick, isSearching, iconTy
       const buttons = Array.from(container.querySelectorAll("button"));
       const currentIndex = buttons.indexOf(active as HTMLButtonElement);
       if (currentIndex === -1) return;
-      const cols = 5;
       let nextIndex = -1;
       switch (e.key) {
+        case "Escape":
+          hideTag();
+          (active as HTMLElement).blur();
+          return;
         case "ArrowRight":
           nextIndex = currentIndex + 1;
           break;
@@ -43,10 +289,10 @@ function IconGridInner({ icons, selectedIconId, onIconClick, isSearching, iconTy
           nextIndex = currentIndex - 1;
           break;
         case "ArrowDown":
-          nextIndex = currentIndex + cols;
+          nextIndex = currentIndex + COLS;
           break;
         case "ArrowUp":
-          nextIndex = currentIndex - cols;
+          nextIndex = currentIndex - COLS;
           break;
         case "Home":
           nextIndex = 0;
@@ -62,106 +308,43 @@ function IconGridInner({ icons, selectedIconId, onIconClick, isSearching, iconTy
     };
     container.addEventListener("keydown", handleKeyDown);
     return () => container.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [hideTag]);
+
   return (
     <div
-      className="grid grid-cols-5 border-b border-border outline-none"
+      key={iconType}
+      className="grid-fade relative grid grid-cols-5 border-b border-border outline-none"
       ref={containerRef}
       tabIndex={-1}
     >
-      {icons.map((icon) => {
-        const Icon = icon.icon;
-        const isSelected = selectedIconId === icon.id;
-        return (
-          <div key={icon.id} className="relative w-full">
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute top-0 left-0 z-20 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
-            >
-              <span className="absolute h-2.5 w-px bg-border" />
-              <span className="absolute h-px w-2.5 bg-border" />
-            </span>
-            <motion.button
-              onClick={() => onIconClick(icon)}
-              initial="initial"
-              whileHover="hover"
-              whileTap={{ scale: 0.96 }}
-              className={cn(
-                "group relative flex aspect-square w-full cursor-pointer items-center justify-center overflow-hidden border-r border-b border-border transition-colors duration-200 ease-out outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset",
-                isSelected ? "bg-accent" : "bg-transparent hover:bg-muted focus-visible:bg-muted",
-              )}
-              style={
-                isSelected && customizationState?.backgroundColor
-                  ? { backgroundColor: customizationState.backgroundColor }
-                  : undefined
-              }
-              type="button"
-              aria-label={`${icon.name.split(' ')[0]} icon`}
-              title={icon.name}
-              tabIndex={0}
-            >
-              <motion.div
-                className="relative z-10 flex items-center justify-center p-3 will-change-transform"
-                variants={iconVariants}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-              >
-                {(() => {
-                  if (isSelected && customizationState && Icon) {
-                    const s = customizationState;
-                    const stroke = STROKE_STYLE_MAP[s.strokeStyle ?? "round"];
-                    const color = s.colors[0] || "currentColor";
-                    const isFill = s.iconType === "fill";
-                    const isDuotone = s.iconType === "duotone";
-                    return (
-                      <Icon
-                        className="h-5 w-5"
-                        strokeWidth={stroke.strokeWidth}
-                        strokeLinecap={stroke.strokeLinecap}
-                        strokeLinejoin={stroke.strokeLinejoin}
-                        stroke={color}
-                        fill={isFill ? color : isDuotone ? `${color}33` : "none"}
-                        aria-hidden="true"
-                      />
-                    );
-                  }
-                  if (Icon) {
-                    return (
-                      <Icon
-                        className={cn(
-                          "h-5 w-5 transition-colors duration-200",
-                          isSearching
-                            ? "text-foreground"
-                            : "text-muted-foreground group-hover:text-foreground",
-                        )}
-                        strokeWidth={1.5}
-                        aria-hidden="true"
-                      />
-                    );
-                  }
-                  return (
-                    <img
-                      src={icon.url}
-                      alt=""
-                      aria-hidden="true"
-                      draggable={false}
-                      className={cn("h-5 w-5 select-none", invertInDark && "dark:invert")}
-                    />
-                  );
-                })()}
-              </motion.div>
-              <motion.div
-                className="pointer-events-none absolute right-0 bottom-1 left-0 z-10 px-1.5 text-center"
-                variants={labelVariants}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-              >
-                <span className="block truncate text-[8.5px] leading-[1.1] font-bold tracking-[0.04em] text-muted-foreground/80 uppercase">
-                  {icon.name}
-                </span>
-              </motion.div>
-            </motion.button>
-          </div>
-        );
-      })}
+      {icons.map((icon) => (
+        <GridTile
+          key={icon.id}
+          icon={icon}
+          isSelected={selectedIconId === icon.id}
+          isSearching={isSearching}
+          invertInDark={invertInDark}
+          customizationState={customizationState}
+          reduceMotion={reduceMotion === true}
+          onShowTag={showTag}
+          onTrackMove={trackMove}
+          onHideTag={hideTag}
+          onSelect={onIconClick}
+        />
+      ))}
+      <AnimatePresence>
+        {activeTag && (
+          <IconNameTag
+            label={activeTag.label}
+            above={activeTag.above}
+            align={activeTag.align}
+            left={activeTag.left}
+            right={activeTag.right}
+            top={activeTag.top}
+            reduceMotion={reduceMotion === true}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -1,18 +1,53 @@
 "use client";
 
-import { useWorkspaceState } from "@/hooks/use-workspace-state";
-import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+
 import { IconLibraryPanel } from "@/components/icon-page/panels/icon-library";
+import { KeyboardShortcutsModal } from "@/components/icon-page/panels/outline/components/keyboard-shortcuts-modal";
 import { ToolRail } from "@/components/icon-page/panels/outline";
 import { PropertiesPanel } from "@/components/icon-page/panels/properties";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { useWorkspaceState } from "@/hooks/use-workspace-state";
+import {
+  getIconDataById,
+  resolveLibraryIconType,
+  type StateIconType,
+} from "@/lib/icons";
+import { fetchSvgInnerContentRaw, generateStandaloneSvg } from "@/lib/svg-export-utils";
+import type { IconCategory, IconData } from "@/lib/types";
+
 import { WorkspacePanel } from "./WorkspacePanel";
 import { useWorkspaceSelection } from "./hooks/use-workspace-selection";
-import { KeyboardShortcutsModal } from "@/components/icon-page/panels/outline/components/keyboard-shortcuts-modal";
-import { generateStandaloneSvg } from "@/lib/svg-export-utils";
-import { resolveLibraryIconType } from "@/lib/icons";
-import { IconData } from "@/lib/types";
-import { toast } from "sonner";
-import { useCallback, useState } from "react";
+
+const CATEGORIES: IconCategory[] = [
+  "all",
+  "action",
+  "accessibility",
+  "commerce",
+  "communication",
+  "dev",
+  "feedback",
+  "files",
+  "hardware",
+  "layout",
+  "media",
+  "metrics",
+  "misc",
+  "navigation",
+  "time",
+  "users",
+  "weather",
+  "custom",
+];
+
+const ICON_TYPES: StateIconType[] = [
+  "normal",
+  "duotone",
+  "fill",
+  "pixelated",
+  "glass",
+];
 
 export function WorkspaceShell() {
   const {
@@ -23,20 +58,33 @@ export function WorkspaceShell() {
     handleRedo,
     canUndo,
     canRedo,
-  } = useWorkspaceState();
+    hasLoadedFromStorage,
+  } = useWorkspaceState({ enableKeyboardShortcuts: false });
 
   const {
     activeCategory,
     setActiveCategory,
     selectedIcon,
+    setSelectedIcon,
     trayIcons,
     handleIconSelect,
     handleRemoveFromTray,
     handleRemoveById,
-  } = useWorkspaceSelection(state.customIcons, resolveLibraryIconType(state.iconType));
+  } = useWorkspaceSelection(
+    state.customIcons,
+    resolveLibraryIconType(state.iconType),
+    hasLoadedFromStorage,
+  );
 
   const handleIconSelectWithTypeSync = useCallback(
     (icon: IconData) => {
+      if (icon.category === "custom") {
+        if (state.iconType !== "normal") {
+          handleChange({ iconType: "normal" });
+        }
+        handleIconSelect({ ...icon, iconType: "normal" });
+        return;
+      }
       if (icon.iconType && icon.iconType !== state.iconType) {
         handleChange({ iconType: icon.iconType });
       }
@@ -45,21 +93,94 @@ export function WorkspaceShell() {
     [handleChange, handleIconSelect, state.iconType],
   );
 
+  const handleTypeChange = useCallback(
+    (nextType: StateIconType) => {
+      const customIcon = selectedIcon
+        ? state.customIcons.find((icon) => icon.id === selectedIcon.id)
+        : undefined;
+      if (customIcon || selectedIcon?.category === "custom") {
+        if (state.iconType !== "normal") {
+          handleChange({ iconType: "normal" });
+        }
+        if (selectedIcon) {
+          handleIconSelect({
+            ...selectedIcon,
+            url: customIcon?.url ?? selectedIcon.url,
+            iconType: "normal",
+          });
+        }
+        return;
+      }
+      handleChange({ iconType: nextType });
+      if (!selectedIcon) return;
+
+      const libraryType = resolveLibraryIconType(nextType);
+      const nextIcon = getIconDataById(selectedIcon.id, libraryType);
+      if (nextIcon) {
+        handleIconSelect(nextIcon);
+      } else {
+        setSelectedIcon(null);
+        toast.info("That icon is not available in this style");
+      }
+    },
+    [
+      handleChange,
+      handleIconSelect,
+      selectedIcon,
+      setSelectedIcon,
+      state.customIcons,
+    ],
+  );
+
+  const [selectedPathCount, setSelectedPathCount] = useState(0);
+  useEffect(() => {
+    let cancelled = false;
+    if (!selectedIcon?.url) {
+      setSelectedPathCount(selectedIcon?.pathCount ?? 0);
+      return;
+    }
+
+    fetchSvgInnerContentRaw(selectedIcon.url)
+      .then(({ content }) => {
+        if (cancelled) return;
+        const count =
+          content.match(
+            /<(path|circle|rect|ellipse|line|polyline|polygon)\b/gi,
+          )?.length ?? 0;
+        setSelectedPathCount(count);
+      })
+      .catch(() => {
+        if (!cancelled) setSelectedPathCount(0);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedIcon?.pathCount, selectedIcon?.url]);
+
+  const selectedIconForPanel = useMemo(
+    () =>
+      selectedIcon
+        ? { ...selectedIcon, pathCount: selectedPathCount }
+        : null,
+    [selectedIcon, selectedPathCount],
+  );
+
   const [showGrid, setShowGrid] = useState(true);
 
-  const handleExport = () => {
-    const configJSON = JSON.stringify(state, null, 2);
-    const blob = new Blob([configJSON], { type: "application/json" });
+  const handleExport = useCallback(() => {
+    const configJson = JSON.stringify(state, null, 2);
+    const blob = new Blob([configJson], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `customization-${Date.now()}.json`;
-    a.click();
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `customization-${Date.now()}.json`;
+    anchor.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     toast.success("Configuration exported");
-  };
+  }, [state]);
 
-  const handleCopySvg = async () => {
+  const handleCopySvg = useCallback(async () => {
     if (!selectedIcon) {
       toast.error("Select an icon first");
       return;
@@ -71,9 +192,7 @@ export function WorkspaceShell() {
     } catch {
       toast.error("Failed to copy SVG");
     }
-  };
-
-
+  }, [selectedIcon, state]);
 
   const { showHelp, setShowHelp } = useKeyboardShortcuts({
     onCopySvg: handleCopySvg,
@@ -81,55 +200,44 @@ export function WorkspaceShell() {
     onReset: handleReset,
     onUndo: handleUndo,
     onRedo: handleRedo,
-    onToggleGrid: () => setShowGrid((prev) => !prev),
+    onToggleGrid: () => setShowGrid((previous) => !previous),
     onNextCategory: () => {
-      const categories: any[] = [
-        "all", "action", "accessibility", "commerce", "communication",
-        "dev", "feedback", "files", "hardware", "layout", "media",
-        "metrics", "misc", "navigation", "time", "users", "weather", "custom",
-      ];
-      const currentIndex = categories.indexOf(activeCategory);
-      const nextIndex = (currentIndex + 1) % categories.length;
-      setActiveCategory(categories[nextIndex]);
+      const currentIndex = CATEGORIES.indexOf(activeCategory);
+      setActiveCategory(CATEGORIES[(currentIndex + 1) % CATEGORIES.length]);
     },
     onPrevCategory: () => {
-      const categories: any[] = [
-        "all", "action", "accessibility", "commerce", "communication",
-        "dev", "feedback", "files", "hardware", "layout", "media",
-        "metrics", "misc", "navigation", "time", "users", "weather", "custom",
-      ];
-      const currentIndex = categories.indexOf(activeCategory);
-      const prevIndex = (currentIndex - 1 + categories.length) % categories.length;
-      setActiveCategory(categories[prevIndex]);
+      const currentIndex = CATEGORIES.indexOf(activeCategory);
+      setActiveCategory(
+        CATEGORIES[(currentIndex - 1 + CATEGORIES.length) % CATEGORIES.length],
+      );
     },
     onNextType: () => {
-      const types: any[] = ["normal", "duotone", "fill", "pixelated", "glass"];
-      const currentIndex = types.indexOf(state.iconType);
-      const nextIndex = (currentIndex + 1) % types.length;
-      handleChange({ iconType: types[nextIndex] });
+      const currentIndex = ICON_TYPES.indexOf(state.iconType);
+      handleTypeChange(ICON_TYPES[(currentIndex + 1) % ICON_TYPES.length]);
     },
     onPrevType: () => {
-      const types: any[] = ["normal", "duotone", "fill", "pixelated", "glass"];
-      const currentIndex = types.indexOf(state.iconType);
-      const prevIndex = (currentIndex - 1 + types.length) % types.length;
-      handleChange({ iconType: types[prevIndex] });
+      const currentIndex = ICON_TYPES.indexOf(state.iconType);
+      handleTypeChange(
+        ICON_TYPES[(currentIndex - 1 + ICON_TYPES.length) % ICON_TYPES.length],
+      );
     },
     onSelectTraySlot: (index) => {
-      if (trayIcons[index]) {
-        handleIconSelectWithTypeSync(trayIcons[index]);
-        toast.success(`Selected ${trayIcons[index].name}`);
-      }
+      const icon = trayIcons[index];
+      if (!icon) return;
+      handleIconSelectWithTypeSync(icon);
+      toast.success(`Selected ${icon.name}`);
     },
     trayIcons,
     canCopy: !!selectedIcon,
   });
 
   return (
-    <div className="flex flex-1 overflow-hidden">
+    <>
+      <div className="hidden flex-1 overflow-x-auto overflow-y-hidden lg:flex">
       <aside className="relative z-[100] w-12 shrink-0" aria-label="Tool rail">
         <ToolRail
           activeType={state.iconType}
-          onTypeChange={(type) => handleChange({ iconType: type })}
+          onTypeChange={handleTypeChange}
           onHelpClick={() => setShowHelp(true)}
         />
       </aside>
@@ -142,6 +250,7 @@ export function WorkspaceShell() {
           onCategoryChange={setActiveCategory}
           customIcons={state.customIcons}
           iconType={resolveLibraryIconType(state.iconType)}
+          customizationState={state}
         />
       </aside>
 
@@ -158,23 +267,23 @@ export function WorkspaceShell() {
         canRedo={canRedo}
         onChange={handleChange}
         showGrid={showGrid}
-        onGridToggle={() => setShowGrid(!showGrid)}
+        onGridToggle={() => setShowGrid((previous) => !previous)}
       />
 
       <aside
-        className="w-[341px] shrink-0 border-l border-border bg-workspace-pattern overflow-y-auto relative"
+        className="relative w-[341px] shrink-0 overflow-y-auto border-l border-border bg-workspace-pattern"
         aria-label="Customization controls"
       >
-        <div className="absolute inset-0 bg-background/80 pointer-events-none" />
+        <div className="pointer-events-none absolute inset-0 bg-background/80" />
         <div className="relative z-10">
           <PropertiesPanel
             state={state}
-            selectedIcon={selectedIcon}
+            selectedIcon={selectedIconForPanel}
             onIconSelect={handleIconSelectWithTypeSync}
             onDeleteIcon={handleRemoveById}
             onChange={handleChange}
             onReset={handleReset}
-            />
+          />
         </div>
       </aside>
 
@@ -183,5 +292,6 @@ export function WorkspaceShell() {
         onClose={() => setShowHelp(false)}
       />
     </div>
+    </>
   );
 }

@@ -30,9 +30,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
-  generateReactSnippet,
-} from "@/lib/code-snippets";
-import {
   buildComponentName,
   generateJsxComponent,
   generatePng,
@@ -341,7 +338,7 @@ export function WorkspaceActionBar({
             </TooltipContent>
           </Tooltip>
         </div>
-        <div className="flex items-center rounded-[10px] bg-[#1d1d1f] p-[3px] shadow-[inset_0_1px_1px_rgba(0,0,0,0.4),0_0_0_1px_rgba(0,0,0,0.5)]">
+        <div className="flex items-center gap-1 rounded-[10px] bg-[#1d1d1f] p-[3px] shadow-[inset_0_1px_1px_rgba(0,0,0,0.4),0_0_0_1px_rgba(0,0,0,0.5)]">
           <button
             disabled={isPending}
             onClick={isAnimated && !hideAdvancedExports ? async () => {
@@ -520,7 +517,7 @@ export function WorkspaceActionBar({
                       className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-[11px] font-medium transition-colors focus:bg-white/10 focus:text-white"
                       onClick={() => {
                         if (selectedIcon && state) {
-                          generateReactSnippet(selectedIcon, state).then(code =>
+                          generateJsxComponent(selectedIcon, state).then(code =>
                             copyToClipboard(code, "React Component")
                           );
                         }

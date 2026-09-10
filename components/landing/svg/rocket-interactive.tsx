@@ -1,12 +1,14 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+
 import { RotateCcw } from "lucide-react";
+
 import {
-  parseSvgPath,
-  pointsToSvgPath,
   addControlPointsToAllAnchors,
   type ControlPoint,
+  parseSvgPath,
+  pointsToSvgPath,
 } from "@/components/editor/utils/svg-path-utils";
 
 const ROCKET_PATHS = [
@@ -63,37 +65,40 @@ export default function RocketInteractive() {
     setIsModified(false);
   };
 
-  const onMouseMove = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
-    const drag = dragRef.current;
-    if (!drag) return;
-    const coord = toSvgCoords(e);
-    if (!coord || Number.isNaN(coord.x) || Number.isNaN(coord.y)) return;
+  const onMouseMove = useCallback(
+    (e: React.MouseEvent<SVGSVGElement>) => {
+      const drag = dragRef.current;
+      if (!drag) return;
+      const coord = toSvgCoords(e);
+      if (!coord || Number.isNaN(coord.x) || Number.isNaN(coord.y)) return;
 
-    setPaths((prev) => {
-      const next = [...prev];
-      const entry = next[drag.pathIdx];
-      const pts = clonePoints(entry.points);
-      const pt = pts[drag.ptIdx];
-      if (!pt) return prev;
+      setPaths((prev) => {
+        const next = [...prev];
+        const entry = next[drag.pathIdx];
+        const pts = clonePoints(entry.points);
+        const pt = pts[drag.ptIdx];
+        if (!pt) return prev;
 
-      const dx = coord.x - pt.x;
-      const dy = coord.y - pt.y;
-      pts[drag.ptIdx] = { ...pt, x: coord.x, y: coord.y };
+        const dx = coord.x - pt.x;
+        const dy = coord.y - pt.y;
+        pts[drag.ptIdx] = { ...pt, x: coord.x, y: coord.y };
 
-      if (!pt.isControl) {
-        for (const offset of [-2, -1, 1, 2]) {
-          const neighbor = pts[drag.ptIdx + offset];
-          if (neighbor?.isControl) {
-            pts[drag.ptIdx + offset] = { ...neighbor, x: neighbor.x + dx, y: neighbor.y + dy };
+        if (!pt.isControl) {
+          for (const offset of [-2, -1, 1, 2]) {
+            const neighbor = pts[drag.ptIdx + offset];
+            if (neighbor?.isControl) {
+              pts[drag.ptIdx + offset] = { ...neighbor, x: neighbor.x + dx, y: neighbor.y + dy };
+            }
           }
         }
-      }
 
-      next[drag.pathIdx] = { d: pointsToSvgPath(pts), points: pts };
-      return next;
-    });
-    setIsModified(true);
-  }, [toSvgCoords]);
+        next[drag.pathIdx] = { d: pointsToSvgPath(pts), points: pts };
+        return next;
+      });
+      setIsModified(true);
+    },
+    [toSvgCoords],
+  );
 
   const onMouseUp = useCallback(() => {
     dragRef.current = null;
@@ -102,40 +107,48 @@ export default function RocketInteractive() {
   const viewBox = `${VB.x} ${VB.y} ${VB.w} ${VB.h}`;
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center lg:p-8 xl:p-12">
+    <div className="relative flex h-full w-full items-center justify-center p-2">
       {isModified && (
         <button
           type="button"
           onClick={onReset}
-          className="absolute top-2 right-2 z-10 p-1.5 rounded-lg bg-background/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors duration-150 ease-out"
+          className="absolute -top-1 -right-1 z-10 rounded-md border border-border bg-background p-1 text-muted-foreground shadow-sm transition-colors duration-150 ease-out hover:bg-muted hover:text-foreground"
           aria-label="Reset rocket"
         >
-          <RotateCcw className="w-3.5 h-3.5" />
+          <RotateCcw className="h-3 w-3" />
         </button>
       )}
 
       <svg
         ref={svgRef}
         viewBox={viewBox}
-        className="w-full h-full max-w-full max-h-full"
+        className="h-full max-h-full w-full max-w-full"
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}
         onMouseLeave={onMouseUp}
         style={{ touchAction: "none" }}
         preserveAspectRatio="xMidYMid meet"
       >
-        {paths.map((entry, pathIdx) => (
-          <path
-            key={pathIdx}
-            d={entry.d}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={pathIdx <= 2 ? 2.33 : 2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="text-foreground"
-          />
-        ))}
+        {paths.map((entry, pathIdx) => {
+          const fills: Record<number, string> = {
+            0: "#dbeafe",
+            3: "#bfdbfe",
+            4: "#fed7aa",
+            5: "#fecaca",
+          };
+
+          return (
+            <path
+              key={pathIdx}
+              d={entry.d}
+              fill={fills[pathIdx] || "none"}
+              stroke="#000000"
+              strokeWidth={pathIdx <= 2 ? 1.5 : 1.2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          );
+        })}
 
         {paths.map((entry, pathIdx) =>
           entry.points.map((pt, i) => {
@@ -145,11 +158,17 @@ export default function RocketInteractive() {
             let anchorIdx = -1;
             if (pt.isControl) {
               for (let c = i - 1; c >= 0; c--) {
-                if (!pts[c].isControl) { anchorIdx = c; break; }
+                if (!pts[c].isControl) {
+                  anchorIdx = c;
+                  break;
+                }
               }
               if (anchorIdx === -1) {
                 for (let c = i + 1; c < pts.length; c++) {
-                  if (!pts[c].isControl) { anchorIdx = c; break; }
+                  if (!pts[c].isControl) {
+                    anchorIdx = c;
+                    break;
+                  }
                 }
               }
             }
@@ -173,6 +192,7 @@ export default function RocketInteractive() {
                   fill={isAnchor ? "#2563eb" : "#ff4d4f"}
                   stroke="white"
                   strokeWidth={0.8 * SCALE}
+                  className="origin-center transition-transform duration-150 transform-fill hover:scale-150"
                   style={{ cursor: "move" }}
                   onMouseDown={(e) => onPointDown(pathIdx, i, e)}
                 />
