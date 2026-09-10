@@ -128,15 +128,15 @@ const loadSvg = async (url: string) => {
 };
 
 const fillClass = (fill: string | null) =>
-  fill === "#DDDDDD" ? "fill-[#DDDDDD] dark:fill-zinc-700" : "";
+  fill === "#DDDDDD" ? "fill-muted-foreground" : "";
 
 const strokeProps = (p: ParsedPath) => {
   if (!p.stroke) return { stroke: undefined, className: "" };
-  if (p.stroke === "black" || p.stroke === "#1C1F21") {
+  if (p.stroke === "black" || p.stroke === "#1C1F21" || p.stroke === "#A4A5A6") {
     return { stroke: "currentColor", className: "" };
   }
-  if (p.stroke === "#DDDDDD") {
-    return { stroke: undefined, className: "stroke-[#c9c9c9] dark:stroke-[#DDDDDD]" };
+  if (p.stroke === "#DDDDDD" || p.stroke === "#F3F3F3") {
+    return { stroke: undefined, className: "stroke-muted-foreground" };
   }
   return { stroke: p.stroke, className: "" };
 };
@@ -346,7 +346,15 @@ const SpecimenPlate = ({ iconType, onChange, paused, icon }: SpecimenPlateProps)
                 exit={shouldReduceMotion ? undefined : { opacity: 0, scale: 1.06 }}
                 transition={{ duration: 0.3, ease: EASE_OUT_QUART }}
               >
-                <image href={view.url} x="0" y="0" width="24" height="24" className="dark:invert" />
+                <rect
+                  x="-4"
+                  y="-4"
+                  width="32"
+                  height="32"
+                  rx="7"
+                  className="fill-black/[0.05] stroke-current stroke-opacity-10 stroke-[0.5] dark:fill-white/[0.06]"
+                />
+                <image href={view.url} x="0" y="0" width="24" height="24" />
               </m.g>
             ) : iconType === "pixelated" ? (
               <m.g
@@ -385,8 +393,18 @@ const SpecimenPlate = ({ iconType, onChange, paused, icon }: SpecimenPlateProps)
                       <path
                         key={`b-${i}`}
                         d={p.d}
-                        stroke={p.stroke === "white" ? undefined : (p.stroke ?? undefined)}
-                        className={p.stroke === "white" ? "stroke-background" : undefined}
+                        stroke={
+                          p.stroke === "white" || p.stroke === "#A4A5A6"
+                            ? undefined
+                            : (p.stroke ?? undefined)
+                        }
+                        className={
+                          p.stroke === "white"
+                            ? "stroke-background"
+                            : p.stroke === "#A4A5A6"
+                              ? "stroke-foreground"
+                              : undefined
+                        }
                         strokeWidth={p.strokeWidth ?? undefined}
                         strokeLinecap="round"
                         strokeLinejoin="round"

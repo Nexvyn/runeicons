@@ -6,7 +6,8 @@ import { TuningProvider } from "@/components/icon-page/tuning";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export const metadata: Metadata = {
-  title: "Icons | RuneIcons",
+  title: "Browse icons",
+  alternates: { canonical: "/icons" },
   description: "Browse and customize 1000+ beautiful icons.",
 };
 

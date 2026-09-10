@@ -25,28 +25,28 @@ const faqItems: FAQItem[] = [
     number: "01",
     question: "What formats are the icons available in?",
     answer:
-      "All Rune Icons are available as optimized SVGs and React components. Each icon is tree-shakeable and can be imported individually to keep your bundle size minimal.",
+      "Optimized SVG, plus React and Vue components. Each one is tree-shakeable, so importing a single icon does not drag the whole set into your bundle.",
   },
   {
     id: "item-2",
     number: "02",
     question: "Can I customize the icon size and color?",
     answer:
-      "Every Rune Icon supports custom sizing, stroke width, and color via props or CSS. They inherit currentColor by default, so they naturally adapt to your design system.",
+      "Yes. Size, stroke width, and color are all controllable through props or plain CSS. Icons use currentColor by default, so they pick up whatever color their parent already has.",
   },
   {
     id: "item-3",
     number: "03",
     question: "Is Rune Icons free to use commercially?",
     answer:
-      "Rune Icons is open-source and licensed under the Apache License 2.0. You can use them in personal, commercial, and client projects.",
+      "It is licensed under Apache 2.0. Use it in personal work, client projects, or anything you sell. No attribution needed, though a star on GitHub never hurts.",
   },
   {
     id: "item-4",
     number: "04",
     question: "How do I request a new icon?",
     answer:
-      "You can submit icon requests through our GitHub repository by opening an issue. Our team reviews requests weekly and we prioritize icons based on community votes and demand.",
+      "Open an issue on the GitHub repo. I go through requests most weeks and build the ones people actually vote for first.",
   },
 ];
 

@@ -15,6 +15,7 @@ import { PixelatedIcon } from "../../icons/PixelatedIcon";
 import { Button } from "../../ui/button";
 import HeroSvg from "../svg/hero";
 import Mascot from "../svg/mascot";
+import { TOTAL_ICON_COUNT } from "@/lib/icons";
 
 const browseIconTypes = [
   { Icon: NormalIcon, label: "Normal" },
@@ -32,11 +33,11 @@ const HeroSection = () => {
   const [iconCount, setIconCount] = useState(0);
 
   useEffect(() => {
-    setIconCount(900);
+    setIconCount(Math.floor(TOTAL_ICON_COUNT / 100) * 100);
   }, []);
 
   return (
-    <div className="grid min-h-[60vh] grid-cols-1 lg:h-[calc(100vh-104px)] lg:grid-cols-2">
+    <div className="grid min-h-[60vh] grid-cols-1 gap-10 lg:h-[calc(100vh-104px)] lg:max-h-[780px] lg:grid-cols-2 lg:gap-6">
       <div className="flex h-full flex-col justify-center py-8 lg:py-0">
         <div className="flex w-fit -rotate-2 items-center gap-2 rounded-md border p-0.5 pl-2.5 text-xs">
           <span className="flex items-center font-semibold">
@@ -53,12 +54,13 @@ const HeroSection = () => {
           <span className="text-blue-700">system</span> for products
         </div>
         <div className="mt-4 max-w-lg text-xs leading-tight text-muted-foreground sm:text-sm sm:leading-5 md:text-base">
-          217 glyphs, drawn five ways. Copy any of them straight into your project.
+          One glyph, five moods: outline, duotone, fill, pixel, and glass. Tune it
+          in your browser, paste it as SVG or JSX.
         </div>
 
-        <div className="mt-8 flex flex-wrap gap-2 sm:gap-4 lg:mt-14">
+        <div className="mt-8 flex flex-wrap gap-2 sm:gap-4">
           <Link href="/icons" className="group relative inline-block">
-            <Button className="py-5">Browse Icons</Button>
+            <Button className="bg-brand py-5 text-white hover:bg-brand/90">Browse Icons</Button>
             <span
               aria-hidden="true"
               className="pointer-events-none absolute bottom-full left-1/2 block h-0 w-0 translate-y-10"
@@ -71,7 +73,7 @@ const HeroSection = () => {
                 return (
                   <span
                     key={label}
-                    className="absolute top-0 left-0 block h-6 w-6 opacity-0 transition-[offset-distance,opacity] delay-(--fan-delay) duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] [offset-distance:0%] [offset-rotate:0deg] group-hover:opacity-100 group-hover:duration-380 group-hover:[offset-distance:100%] motion-reduce:transition-opacity motion-reduce:delay-0 motion-reduce:duration-200 motion-reduce:ease-out motion-reduce:[offset-distance:100%]"
+                    className="fan-dot absolute top-0 left-0 block h-6 w-6"
                     style={
                       {
                         offsetPath: `path('M 0 0 Q 0 -${FAN_RADIUS}, ${endX} ${endY}')`,
