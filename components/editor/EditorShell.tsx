@@ -115,12 +115,17 @@ export function EditorShell({ assets }: EditorShellProps) {
   }, [selectedAssetId, selectedPathCount]);
 
   const handleDeleteCustomIcon = useCallback((_id: string) => {
-    // Custom uploads are not yet registered as editor assets (Phase 1).
-    // The upload hook itself prunes state.customIcons; nothing else to do here.
   }, []);
 
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <>
+      <div className="flex h-screen flex-col items-center justify-center gap-2 bg-background px-8 text-center lg:hidden">
+        <p className="text-lg font-medium text-foreground">Please switch to a laptop</p>
+        <p className="max-w-xs text-sm text-muted-foreground">
+          This needs a bigger screen to work properly.
+        </p>
+      </div>
+      <div className="hidden h-screen flex-col bg-background lg:flex">
       <HeaderPanel />
       <div className="flex flex-1 overflow-hidden">
         <aside className="w-12 shrink-0" aria-label="Tool rail">
@@ -175,5 +180,6 @@ export function EditorShell({ assets }: EditorShellProps) {
         />
       </div>
     </div>
+    </>
   );
 }

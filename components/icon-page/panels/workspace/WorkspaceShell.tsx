@@ -232,7 +232,8 @@ export function WorkspaceShell() {
   });
 
   return (
-    <div className="flex flex-1 overflow-x-auto overflow-y-hidden">
+    <>
+      <div className="hidden flex-1 overflow-x-auto overflow-y-hidden lg:flex">
       <aside className="relative z-[100] w-12 shrink-0" aria-label="Tool rail">
         <ToolRail
           activeType={state.iconType}
@@ -291,5 +292,6 @@ export function WorkspaceShell() {
         onClose={() => setShowHelp(false)}
       />
     </div>
+    </>
   );
 }
