@@ -92,7 +92,7 @@ export function HeaderPanel({ className }: HeaderPanelProps) {
               <Github className="size-3.5" /> {displayCount}
             </Button>
           </Link>
-          <Link href="/sponsor" rel="noopener noreferrer">
+          {/* <Link href="/sponsor" rel="noopener noreferrer">
             <Button
               variant="outline"
               className="h-8 gap-2 border-pink-500/40 bg-[#fff5f7] px-3 text-[11px] font-medium text-pink-500 opacity-100 shadow-none dark:border-pink-900 dark:bg-[#1f1114]"
@@ -100,7 +100,7 @@ export function HeaderPanel({ className }: HeaderPanelProps) {
             >
               <Heart className="size-3.5" /> Sponsor
             </Button>
-          </Link>
+          </Link> */}
           <div className="flex h-8 w-8 items-center justify-center rounded-md border border-border bg-white dark:bg-[#1a1a1a]">
             <LightDarkMode className="size-4 border-none bg-transparent text-muted-foreground shadow-none transition-colors duration-150 ease-out hover:text-foreground" />
           </div>

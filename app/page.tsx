@@ -22,7 +22,7 @@ const Page = async () => {
           showDashedBorder
           links={[
             { href: "/about", label: "About dev" },
-            { href: "/sponsor", label: "Sponsor" },
+            // { href: "/sponsor", label: "Sponsor" },
           ]}
         />
       </div>
