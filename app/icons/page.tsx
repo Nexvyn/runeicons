@@ -15,7 +15,7 @@ export default function Home() {
   return (
     <TuningProvider>
       <div className="flex h-screen flex-col bg-background">
-        <div className="hidden lg:contents">
+        <div>
           <HeaderPanel />
         </div>
         <div className="flex min-h-0 flex-1 flex-col">

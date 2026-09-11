@@ -11,14 +11,10 @@ import { PropertiesPanel } from "@/components/icon-page/panels/properties";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useWorkspaceState } from "@/hooks/use-workspace-state";
 import { getIconDataById, resolveLibraryIconType, type StateIconType } from "@/lib/icons";
-import {
-  buildComponentName,
-  fetchSvgInnerContentRaw,
-  generateJsxComponent,
-  generateStandaloneSvg,
-} from "@/lib/svg-export-utils";
+import { fetchSvgInnerContentRaw, generateStandaloneSvg } from "@/lib/svg-export-utils";
 import type { IconCategory, IconData } from "@/lib/types";
 
+import { WorkspaceActionBar } from "./components/WorkspaceActionBar";
 import { useWorkspaceSelection } from "./hooks/use-workspace-selection";
 import { WorkspacePanel } from "./WorkspacePanel";
 
@@ -123,40 +119,6 @@ export function WorkspaceShell() {
   );
 
   const [selectedPathCount, setSelectedPathCount] = useState(0);
-  const [isMobileExporting, setIsMobileExporting] = useState(false);
-
-  const handleMobileExport = useCallback(async () => {
-    if (!selectedIcon || isMobileExporting) {
-      if (!selectedIcon) toast.error("Select an icon first");
-      return;
-    }
-    setIsMobileExporting(true);
-    try {
-      if (state.motion?.enabled === true) {
-        const code = await generateJsxComponent(selectedIcon, state);
-        const url = URL.createObjectURL(new Blob([code], { type: "text/javascript" }));
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${buildComponentName(selectedIcon.name)}.jsx`;
-        a.click();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-        toast.success("JSX downloaded");
-      } else {
-        const svg = await generateStandaloneSvg(selectedIcon, state);
-        const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" }));
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${selectedIcon.name.toLowerCase().replace(/\s+/g, "-")}.svg`;
-        a.click();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-        toast.success("SVG downloaded");
-      }
-    } catch {
-      toast.error("Export failed");
-    } finally {
-      setIsMobileExporting(false);
-    }
-  }, [isMobileExporting, selectedIcon, state]);
   useEffect(() => {
     let cancelled = false;
     if (!selectedIcon?.url) {
@@ -249,32 +211,7 @@ export function WorkspaceShell() {
   return (
     <>
       <div className="flex min-h-0 flex-1 flex-col lg:hidden">
-        <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
-          <span className="text-sm font-semibold">Rune Icons</span>
-          <button
-            type="button"
-            onClick={handleMobileExport}
-            disabled={!selectedIcon || isMobileExporting}
-            className="flex items-center gap-1.5 rounded-md bg-foreground px-3 py-1.5 text-xs font-medium text-background disabled:opacity-40"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              className="h-3.5 w-3.5"
-              aria-hidden="true"
-            >
-              <path
-                d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            {isMobileExporting ? "Saving…" : "Export SVG"}
-          </button>
-        </div>
-        <div className="flex min-h-0 flex-1">
+        <div className="relative flex min-h-0 flex-1">
           <aside className="w-12 shrink-0" aria-label="Icon style">
             <ToolRail
               activeType={state.iconType}
@@ -293,6 +230,20 @@ export function WorkspaceShell() {
               customizationState={state}
             />
           </div>
+          <WorkspaceActionBar
+            exportOnly
+            className="absolute bottom-4 left-1/2 z-10 w-fit -translate-x-1/2"
+            onReset={handleReset}
+            onUndo={handleUndo}
+            onRedo={handleRedo}
+            canUndo={canUndo}
+            canRedo={canRedo}
+            selectedIcon={selectedIcon}
+            state={state}
+            onChange={handleChange}
+            showGrid={showGrid}
+            onGridToggle={() => setShowGrid((previous) => !previous)}
+          />
         </div>
       </div>
       <div className="hidden flex-1 overflow-x-auto overflow-y-hidden lg:flex">

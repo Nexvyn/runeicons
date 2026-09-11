@@ -1,15 +1,20 @@
 "use client";
 import { useEffect, useState } from "react";
+
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+
 import { Github, Heart } from "lucide-react";
 import { motion } from "motion/react";
+
 import LightLogo from "@/components/landing/svg/light";
 import { Button } from "@/components/ui/button";
 import { LightDarkMode } from "@/components/ui/light-dark-mode";
 import { cn } from "@/lib/utils";
+
 import { useGitHubStars } from "./hooks/use-github-stars";
+
 interface HeaderPanelProps {
   className?: string;
 }
@@ -40,8 +45,8 @@ export function HeaderPanel({ className }: HeaderPanelProps) {
             <LightLogo />
           </span>
         </Link>
-        <div className="hidden lg:flex h-full w-[320px] shrink-0 items-center border-r border-border px-5" />
-        <div className="hidden sm:flex h-full flex-1 min-w-0 items-center justify-center lg:justify-end border-r border-border px-4 lg:px-6">
+        <div className="hidden h-full w-[320px] shrink-0 items-center border-r border-border px-5 lg:flex" />
+        <div className="hidden h-full min-w-0 flex-1 items-center justify-center border-r border-border px-4 sm:flex lg:justify-end lg:px-6">
           <div className="relative flex h-8 items-center gap-1 rounded-md border border-border bg-[#f5f5f5] p-1 dark:bg-[#1a1a1a]">
             <Link
               href="/icons"
@@ -77,7 +82,7 @@ export function HeaderPanel({ className }: HeaderPanelProps) {
             </Link>
           </div>
         </div>
-        <div className="flex h-full shrink-0 items-center justify-end gap-2 px-3 lg:w-85 lg:gap-2.5 lg:px-6">
+        <div className="ml-auto flex h-full shrink-0 items-center justify-end gap-2 px-3 lg:w-85 lg:gap-2.5 lg:px-6">
           <Link
             href="https://github.com/Nexvyn/runeicons"
             target="_blank"

@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useRef, useState, type ReactNode } from "react";
+import { type ReactNode, useCallback, useRef, useState } from "react";
+
 import {
   Braces,
   Check,
@@ -20,6 +21,7 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
+
 import { useTuning } from "@/components/icon-page/tuning";
 import {
   DropdownMenu,
@@ -38,6 +40,7 @@ import {
 } from "@/lib/svg-export-utils";
 import { CustomizationState, IconData } from "@/lib/types";
 import { cn } from "@/lib/utils";
+
 export interface WorkspaceActionBarProps {
   onDownload?: () => void;
   onReset?: () => void;
@@ -55,6 +58,7 @@ export interface WorkspaceActionBarProps {
   onGetSvgContent?: () => Promise<string>;
   hideAdvancedExports?: boolean;
   additionalDropdownItems?: ReactNode;
+  exportOnly?: boolean;
 }
 export function WorkspaceActionBar({
   onDownload,
@@ -73,6 +77,7 @@ export function WorkspaceActionBar({
   onGetSvgContent,
   hideAdvancedExports = false,
   additionalDropdownItems,
+  exportOnly = false,
 }: WorkspaceActionBarProps) {
   const [isPending, setIsPending] = useState(false);
   const isAnimated = state?.motion?.enabled === true;
@@ -173,7 +178,9 @@ export function WorkspaceActionBar({
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     toast.success("SVG downloaded successfully");
     if (isAnimated) {
-      toast.info("Animations play when SVG is opened directly in browser or inlined in HTML", { duration: 5000 });
+      toast.info("Animations play when SVG is opened directly in browser or inlined in HTML", {
+        duration: 5000,
+      });
     }
     onDownload?.();
   };
@@ -213,152 +220,176 @@ export function WorkspaceActionBar({
     <TooltipProvider delayDuration={400}>
       <div
         className={cn(
-          "flex h-[46px] items-stretch gap-1.5 rounded-[14px] p-1 border border-black/5 dark:border-white/10 shadow-[inset_0_2px_4px_rgba(0,0,0,0.15)]",
+          "flex h-[46px] items-stretch gap-1.5 rounded-[14px] border border-black/5 p-1 shadow-[inset_0_2px_4px_rgba(0,0,0,0.15)] dark:border-white/10",
           "bg-[#f5f5f5] dark:bg-[#1a1a1a]",
+          exportOnly &&
+            "border-transparent bg-transparent shadow-none dark:border-transparent dark:bg-transparent",
           className,
         )}
       >
-        <div className="flex items-center gap-1 rounded-[10px] bg-[#1d1d1f] p-[3px] shadow-[inset_0_1px_1px_rgba(0,0,0,0.4),0_0_0_1px_rgba(0,0,0,0.5)]">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={onUndo}
-                disabled={!canUndo}
-                className="flex h-9 w-9 items-center justify-center rounded-[7px] text-[#c9c9cb] transition-all hover:bg-white/5 hover:text-white active:translate-y-[0.5px] disabled:cursor-not-allowed disabled:text-[#4f4f51]"
-              >
-                <Undo className="h-3.5 w-3.5" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="top">
-              <p>Undo <span className="ml-1 opacity-50 text-[10px]">⌘Z</span></p>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={onRedo}
-                disabled={!canRedo}
-                className="flex h-9 w-9 items-center justify-center rounded-[7px] text-[#c9c9cb] transition-all hover:bg-white/5 hover:text-white active:translate-y-[0.5px] disabled:cursor-not-allowed disabled:text-[#4f4f51]"
-              >
-                <Redo className="h-3.5 w-3.5" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="top">
-              <p>Redo <span className="ml-1 opacity-50 text-[10px]">⌘Y</span></p>
-            </TooltipContent>
-          </Tooltip>
-          <div className="relative">
-            <Tooltip
-              open={!isResetArmed && resetTooltipOpen}
-              onOpenChange={setResetTooltipOpen}
-            >
-              <TooltipTrigger asChild>
-                <button
-                  onClick={handleResetClick}
-                  className={cn(
-                    "flex h-9 w-9 items-center justify-center rounded-[7px] transition-all active:translate-y-[0.5px]",
-                    isResetArmed
-                      ? "bg-white text-black"
-                      : "text-[#c9c9cb] hover:bg-white/5 hover:text-white"
+        {!exportOnly && (
+          <>
+            <div className="flex items-center gap-1 rounded-[10px] bg-[#1d1d1f] p-[3px] shadow-[inset_0_1px_1px_rgba(0,0,0,0.4),0_0_0_1px_rgba(0,0,0,0.5)]">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={onUndo}
+                    disabled={!canUndo}
+                    className="flex h-9 w-9 items-center justify-center rounded-[7px] text-[#c9c9cb] transition-all hover:bg-white/5 hover:text-white active:translate-y-[0.5px] disabled:cursor-not-allowed disabled:text-[#4f4f51]"
+                  >
+                    <Undo className="h-3.5 w-3.5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <p>
+                    Undo <span className="ml-1 text-[10px] opacity-50">⌘Z</span>
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={onRedo}
+                    disabled={!canRedo}
+                    className="flex h-9 w-9 items-center justify-center rounded-[7px] text-[#c9c9cb] transition-all hover:bg-white/5 hover:text-white active:translate-y-[0.5px] disabled:cursor-not-allowed disabled:text-[#4f4f51]"
+                  >
+                    <Redo className="h-3.5 w-3.5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <p>
+                    Redo <span className="ml-1 text-[10px] opacity-50">⌘Y</span>
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+              <div className="relative">
+                <Tooltip
+                  open={!isResetArmed && resetTooltipOpen}
+                  onOpenChange={setResetTooltipOpen}
+                >
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={handleResetClick}
+                      className={cn(
+                        "flex h-9 w-9 items-center justify-center rounded-[7px] transition-all active:translate-y-[0.5px]",
+                        isResetArmed
+                          ? "bg-white text-black"
+                          : "text-[#c9c9cb] hover:bg-white/5 hover:text-white",
+                      )}
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p>Reset</p>
+                  </TooltipContent>
+                </Tooltip>
+                <AnimatePresence>
+                  {isResetArmed && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, y: -80, scale: 1 }}
+                      exit={{ opacity: 0, y: 0, scale: 0.95 }}
+                      className="absolute left-1/2 z-[100] flex -translate-x-1/2 items-center gap-1 rounded-[9px] bg-[#2c2c2e] p-1 whitespace-nowrap shadow-[0_20px_50px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.1)]"
+                    >
+                      <button
+                        onClick={handleConfirmReset}
+                        className="flex h-7 items-center gap-2 rounded-[6px] bg-white px-3 text-[10px] font-bold text-black shadow-sm transition-all hover:bg-white/90"
+                      >
+                        <Check className="h-3.5 w-3.5" />
+                        <span>Reset</span>
+                        <span className="font-mono text-[9px] font-bold text-[#10b981] tabular-nums">
+                          {timeLeft}s
+                        </span>
+                      </button>
+                      <button
+                        onClick={disarmReset}
+                        className="flex h-7 w-7 items-center justify-center rounded-[6px] text-white/50 transition-all hover:bg-white/5 hover:text-white"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                      <div className="absolute -bottom-1 left-1/2 z-[-1] h-2 w-2 -translate-x-1/2 rotate-45 border-r border-b border-white/10 bg-[#2c2c2e]" />
+                    </motion.div>
                   )}
-                >
-                  <RotateCcw className="h-3.5 w-3.5" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="top"><p>Reset</p></TooltipContent>
-            </Tooltip>
-            <AnimatePresence>
-              {isResetArmed && (
-                <motion.div
-                  initial={{ opacity: 0, y: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, y: -80, scale: 1 }}
-                  exit={{ opacity: 0, y: 0, scale: 0.95 }}
-                  className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1 rounded-[9px] bg-[#2c2c2e] p-1 shadow-[0_20px_50px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.1)] z-[100] whitespace-nowrap"
-                >
-                  <button
-                    onClick={handleConfirmReset}
-                    className="flex h-7 px-3 items-center gap-2 rounded-[6px] bg-white text-black hover:bg-white/90 transition-all font-bold text-[10px] shadow-sm"
-                  >
-                    <Check className="h-3.5 w-3.5" />
-                    <span>Reset</span>
-                    <span className="font-mono text-[9px] tabular-nums text-[#10b981] font-bold">{timeLeft}s</span>
+                </AnimatePresence>
+              </div>
+            </div>
+            <div className="flex items-center rounded-[10px] bg-[#1d1d1f] p-[3px] shadow-[inset_0_1px_1px_rgba(0,0,0,0.4),0_0_0_1px_rgba(0,0,0,0.5)]">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="group flex h-full min-w-[64px] items-center justify-center gap-1.5 rounded-[7px] px-2 text-[#c9c9cb] transition-all hover:bg-white/5 hover:text-white focus:outline-none">
+                    <span className="font-mono text-[11px] font-bold tracking-tighter">
+                      {state?.width}px
+                    </span>
+                    <ChevronDown className="h-4 w-4 opacity-50 transition-opacity group-hover:opacity-100" />
                   </button>
-                  <button
-                    onClick={disarmReset}
-                    className="flex h-7 w-7 items-center justify-center rounded-[6px] text-white/50 hover:bg-white/5 hover:text-white transition-all"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#2c2c2e] border-r border-b border-white/10 rotate-45 z-[-1]" />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-        <div className="flex items-center rounded-[10px] bg-[#1d1d1f] p-[3px] shadow-[inset_0_1px_1px_rgba(0,0,0,0.4),0_0_0_1px_rgba(0,0,0,0.5)]">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="group flex h-full min-w-[64px] items-center justify-center gap-1.5 rounded-[7px] px-2 text-[#c9c9cb] transition-all hover:bg-white/5 hover:text-white focus:outline-none">
-                <span className="font-mono text-[11px] font-bold tracking-tighter">{state?.width}px</span>
-                <ChevronDown className="h-4 w-4 opacity-50 transition-opacity group-hover:opacity-100" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="center"
-              className="w-[85px] border-white/10 bg-[#2c2c2e] p-1 text-white shadow-xl"
-            >
-              {[16, 20, 24, 28, 32, 48, 64, 96, 128].map((size) => (
-                <DropdownMenuItem
-                  key={size}
-                  className="flex cursor-pointer items-center justify-between rounded-md px-2 py-1 text-[11px] font-medium transition-colors focus:bg-white/10 focus:text-white"
-                  onClick={() => onChange?.({ width: size, height: size })}
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="center"
+                  className="w-[85px] border-white/10 bg-[#2c2c2e] p-1 text-white shadow-xl"
                 >
-                  <span>{size}px</span>
-                  {state?.width === size && <Check className="h-2.5 w-2.5 text-white/50" />}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={onGridToggle}
-                className={cn(
-                  "flex h-full w-9 items-center justify-center rounded-[7px] transition-all active:translate-y-[0.5px]",
-                  showGrid
-                    ? "bg-[#1d1d1f] text-white shadow-[inset_0_0_0_1.5px_rgba(255,255,255,0.95),0_1px_2px_rgba(0,0,0,0.4)]"
-                    : "text-[#c9c9cb] hover:bg-white/5 hover:text-white",
-                )}
-              >
-                <Grid3X3 className="h-3.5 w-3.5" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="top">
-              <p>{showGrid ? "Hide Grid" : "Show Grid"}</p>
-            </TooltipContent>
-          </Tooltip>
-        </div>
+                  {[16, 20, 24, 28, 32, 48, 64, 96, 128].map((size) => (
+                    <DropdownMenuItem
+                      key={size}
+                      className="flex cursor-pointer items-center justify-between rounded-md px-2 py-1 text-[11px] font-medium transition-colors focus:bg-white/10 focus:text-white"
+                      onClick={() => onChange?.({ width: size, height: size })}
+                    >
+                      <span>{size}px</span>
+                      {state?.width === size && <Check className="h-2.5 w-2.5 text-white/50" />}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={onGridToggle}
+                    className={cn(
+                      "flex h-full w-9 items-center justify-center rounded-[7px] transition-all active:translate-y-[0.5px]",
+                      showGrid
+                        ? "bg-[#1d1d1f] text-white shadow-[inset_0_0_0_1.5px_rgba(255,255,255,0.95),0_1px_2px_rgba(0,0,0,0.4)]"
+                        : "text-[#c9c9cb] hover:bg-white/5 hover:text-white",
+                    )}
+                  >
+                    <Grid3X3 className="h-3.5 w-3.5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <p>{showGrid ? "Hide Grid" : "Show Grid"}</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          </>
+        )}
         <div className="flex items-center gap-1 rounded-[10px] bg-[#1d1d1f] p-[3px] shadow-[inset_0_1px_1px_rgba(0,0,0,0.4),0_0_0_1px_rgba(0,0,0,0.5)]">
           <button
             disabled={isPending}
-            onClick={isAnimated && !hideAdvancedExports ? async () => {
-              if (!selectedIcon || !state) return;
-              await withPending(async () => {
-                try {
-                  const code = await generateJsxComponent(selectedIcon, state);
-                  downloadFile(code, getComponentFilename("jsx"), "text/javascript");
-                  toast.success("JSX component downloaded");
-                } catch {
-                  toast.error("Failed to generate JSX component");
-                }
-              });
-            } : downloadSvg}
+            onClick={
+              isAnimated && !hideAdvancedExports
+                ? async () => {
+                    if (!selectedIcon || !state) return;
+                    await withPending(async () => {
+                      try {
+                        const code = await generateJsxComponent(selectedIcon, state);
+                        downloadFile(code, getComponentFilename("jsx"), "text/javascript");
+                        toast.success("JSX component downloaded");
+                      } catch {
+                        toast.error("Failed to generate JSX component");
+                      }
+                    });
+                  }
+                : downloadSvg
+            }
             className="group relative flex h-full flex-1 items-center justify-center gap-2 overflow-hidden rounded-[7px] bg-white px-4 text-center transition-all hover:bg-white/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 dark:bg-white dark:text-black"
           >
             <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-black/5 to-transparent transition-transform duration-500 ease-out group-hover:translate-x-full" />
             <Download className="h-3.5 w-3.5" />
             <span className="text-[10px] font-bold tracking-tight">
-              {isPending ? "Exporting..." : isAnimated && !hideAdvancedExports ? "Export JSX" : "Export SVG"}
+              {isPending
+                ? "Exporting..."
+                : isAnimated && !hideAdvancedExports
+                  ? "Export JSX"
+                  : "Export SVG"}
             </span>
           </button>
           <DropdownMenu>
@@ -517,8 +548,8 @@ export function WorkspaceActionBar({
                       className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-[11px] font-medium transition-colors focus:bg-white/10 focus:text-white"
                       onClick={() => {
                         if (selectedIcon && state) {
-                          generateJsxComponent(selectedIcon, state).then(code =>
-                            copyToClipboard(code, "React Component")
+                          generateJsxComponent(selectedIcon, state).then((code) =>
+                            copyToClipboard(code, "React Component"),
                           );
                         }
                       }}
