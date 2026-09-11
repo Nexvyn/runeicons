@@ -21,6 +21,7 @@ interface IconGridProps {
 
 interface GridTileProps {
   icon: IconData;
+  index: number;
   isSelected: boolean;
   isSearching?: boolean;
   invertInDark: boolean;
@@ -34,6 +35,7 @@ interface GridTileProps {
 
 const GridTile = memo(function GridTile({
   icon,
+  index,
   isSelected,
   isSearching,
   invertInDark,
@@ -117,7 +119,8 @@ const GridTile = memo(function GridTile({
                 alt=""
                 aria-hidden="true"
                 draggable={false}
-                loading="lazy"
+                loading={index < 15 ? "eager" : "lazy"}
+                fetchPriority={index < 15 ? "high" : "auto"}
                 decoding="async"
                 className={cn("h-5 w-5 select-none", invertInDark && "dark:invert")}
               />
@@ -312,15 +315,15 @@ function IconGridInner({
 
   return (
     <div
-      key={iconType}
       className="grid-fade relative grid grid-cols-5 border-b border-border outline-none"
       ref={containerRef}
       tabIndex={-1}
     >
-      {icons.map((icon) => (
+      {icons.map((icon, index) => (
         <GridTile
           key={icon.id}
           icon={icon}
+          index={index}
           isSelected={selectedIconId === icon.id}
           isSearching={isSearching}
           invertInDark={invertInDark}
