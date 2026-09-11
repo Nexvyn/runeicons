@@ -179,8 +179,7 @@ const CTA = () => {
           transition={{ duration: ENTRANCE_DURATION, ease: EASE_OUT_QUART, delay: 0.3 }}
           className="mt-8 max-w-md text-sm text-white/70"
         >
-          I started Rune because every icon set I liked only shipped one style.
-          So I drew mine five ways and made them editable.
+          Every set I liked had one style. Mine has five, all editable.
           <span className="mt-2 block font-medium text-white/85">Nexvyn</span>
         </m.p>
       </div>

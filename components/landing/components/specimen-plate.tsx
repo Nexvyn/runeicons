@@ -250,7 +250,7 @@ const SpecimenPlate = ({ iconType, onChange, paused, icon }: SpecimenPlateProps)
   const notePos = NOTE_POS[iconType];
   const noteText =
     iconType === "normal"
-      ? `${view.kind === "vector" ? view.anchors.length : 16} anchors — grab & drag any of them`
+      ? `${view.kind === "vector" ? view.anchors.length : 16} anchors, grab & drag any of them`
       : iconType === "duotone"
         ? "two layers: base + a 40% tint"
         : iconType === "fill"
@@ -311,7 +311,7 @@ const SpecimenPlate = ({ iconType, onChange, paused, icon }: SpecimenPlateProps)
                 {activeName}
               </m.span>
             </AnimatePresence>{" "}
-            <span className="text-muted-foreground">— same glyph, five moods</span>
+            <span className="text-muted-foreground">, same glyph, five moods</span>
           </p>
           <p className="mt-1 text-sm text-muted-foreground/80">
             {isDefault

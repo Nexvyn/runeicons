@@ -63,7 +63,7 @@ const IconCarousel = () => {
   return (
     <div className="flex h-full w-full flex-col gap-4 self-stretch">
       <div className="no-scrollbar flex h-12 items-center gap-2 overflow-x-auto mask-r-from-90% mask-l-from-90% px-4">
-        <div className="flex h-8 shrink-0 items-center rounded-md border shadow-sm">
+        <div className="flex h-8 shrink-0 items-center overflow-hidden rounded-md border shadow-sm">
           <Select value={animation} onValueChange={setAnimation}>
             <SelectTrigger className="h-full w-24 shrink-0 justify-between gap-1 rounded-none border-none px-3 text-[10px] shadow-none transition-colors hover:bg-accent focus:ring-0 sm:text-xs">
               <SelectValue placeholder="Anim" />
@@ -77,7 +77,7 @@ const IconCarousel = () => {
           </Select>
         </div>
 
-        <div className="flex h-8 shrink-0 items-center rounded-md border bg-background shadow-sm">
+        <div className="flex h-8 shrink-0 items-center overflow-hidden rounded-md border bg-background shadow-sm">
           <Button
             variant="ghost"
             size="icon"
@@ -137,6 +137,7 @@ const IconCarousel = () => {
             {iconSize}
           </span>
         </div>
+        <div className="w-1 shrink-0" aria-hidden="true" />
       </div>
 
       <div

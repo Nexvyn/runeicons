@@ -291,7 +291,7 @@ const FooterWordmark = () => {
         style={{ fontFamily: "var(--font-caveat)" }}
         className="pointer-events-none absolute -top-6 right-[3%] -rotate-2 text-base text-muted-foreground/70 sm:text-lg"
       >
-        touch one — it multiplies
+        touch one, it multiplies
       </span>
       <svg
         ref={svgRef}

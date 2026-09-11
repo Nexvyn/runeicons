@@ -11,9 +11,9 @@ An open-source icon library where every glyph comes in five styles: outline, duo
 
 ## Features
 
-- **Five styles per icon** — normal (outline), duotone, fill, pixelated, and glass.
-- **Reshape in the browser** — tweak any path in the built-in editor, then copy it out as SVG or JSX.
-- **Search and filter** — find icons by name, category, or tag.
+- **Five styles per icon**: normal (outline), duotone, fill, pixelated, and glass.
+- **Reshape in the browser**: tweak any path in the built-in editor, then copy it out as SVG or JSX.
+- **Search and filter**: find icons by name, category, or tag.
 - **Free for commercial and personal use** under the [Apache 2.0 License](LICENSE).
 
 ## Quick start
@@ -51,5 +51,3 @@ See the [contribution guidelines](CONTRIBUTING.md) for setup, repository structu
 ## License
 
 Rune Icons is free for commercial and personal use, licensed under the [Apache 2.0 License](LICENSE).
-
-Copyright (c) 2026 Nexvyn 

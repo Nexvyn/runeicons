@@ -88,11 +88,8 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-border/40 pt-5">
-          <p className="text-xs text-muted-foreground">
-            Copyright © {new Date().getFullYear()} Rune. All rights reserved.
-          </p>
-          <div className="flex items-center gap-5 text-xs">
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-4 border-t border-border/40 pt-5">
+          <div className="flex items-center justify-center gap-5 text-xs">
             {legalLinks.map((item) => (
               <Link
                 key={item.title}
