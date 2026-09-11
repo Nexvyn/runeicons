@@ -12,5 +12,9 @@ export async function GET(
     return NextResponse.json({ error: "Asset not found" }, { status: 404 });
   }
 
-  return NextResponse.json(asset);
+  return NextResponse.json(asset, {
+    headers: {
+      "Cache-Control": "public, max-age=3600, s-maxage=86400",
+    },
+  });
 }

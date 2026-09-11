@@ -64,7 +64,7 @@ export default function Faq() {
               <p className="text-sm text-muted-foreground">
                 Can’t find the answer you’re looking for? <br /> I’m here to help.
               </p>
-              <Link href="https://x.com/RuneIcon" target="_blank" rel="noopener noreferrer">
+              <Link href="https://x.com/nexvyn" target="_blank" rel="noopener noreferrer">
                 <Button className="mt-6 w-fit">
                   Contact us <MessageCircle />
                 </Button>

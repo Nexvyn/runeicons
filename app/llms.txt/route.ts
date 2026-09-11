@@ -65,7 +65,7 @@ inherit the text colour of whatever they are placed inside.
 ## Source
 
 - [GitHub](https://github.com/Nexvyn/runeicons)
-- [X](https://x.com/RuneIcon)
+- [X](https://x.com/nexvyn)
 `;
 
   return new Response(body, {

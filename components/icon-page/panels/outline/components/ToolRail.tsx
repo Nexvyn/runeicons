@@ -58,13 +58,13 @@ export function ToolRail({ activeType = "normal", onTypeChange, onHelpClick, sup
                 <span>Feature Requests</span>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/about" className="flex items-center gap-2 cursor-pointer w-full">
+                <Link href="/about" prefetch={false} className="flex items-center gap-2 cursor-pointer w-full">
                   <User className="h-4 w-4" />
                   <span>About</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/changelog" className="flex items-center gap-2 cursor-pointer w-full">
+                <Link href="/changelog" prefetch={false} className="flex items-center gap-2 cursor-pointer w-full">
                   <History className="h-4 w-4" />
                   <span>Change Log</span>
                 </Link>

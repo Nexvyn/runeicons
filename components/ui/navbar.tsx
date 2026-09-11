@@ -123,6 +123,7 @@ const Navbar = ({
           <div className="flex items-center justify-center">
             <Link
               href={logoHref}
+              prefetch={false}
               aria-label="Home"
               className="-m-1.5 rounded-md p-1.5 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
             >
@@ -135,6 +136,7 @@ const Navbar = ({
                 <Link
                   key={link.href}
                   href={link.href}
+                  prefetch={false}
                   className="cursor-pointer rounded-md border border-border px-3 py-2 text-muted-foreground transition-[color,transform] duration-150 outline-none hover:text-accent-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 active:scale-[0.97]"
                 >
                   {link.label}
@@ -152,7 +154,7 @@ const Navbar = ({
                 <GithubIcon /> {githubStars}
               </Button>
             </Link>
-            <Link href="https://x.com/RuneIcon" target="_blank" rel="noopener noreferrer">
+            <Link href="https://x.com/nexvyn" target="_blank" rel="noopener noreferrer">
               <Button variant="outline" size="icon" className="text-xs" aria-label="Rune on X">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

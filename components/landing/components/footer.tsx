@@ -24,7 +24,7 @@ const Footer = () => {
       <div className="w-full rounded-3xl border border-border/60 bg-background px-6 py-8 sm:px-10 sm:py-10">
         <div className="grid gap-10 md:grid-cols-6">
           <div className="md:col-span-2">
-            <Link href="/" aria-label="Go home" className="flex size-fit items-center gap-2">
+            <Link href="/" prefetch={false} aria-label="Go home" className="flex size-fit items-center gap-2">
               <LightLogo />
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
@@ -54,7 +54,7 @@ const Footer = () => {
             <p className="text-xs font-semibold tracking-wide text-foreground uppercase">Social</p>
             <div className="flex items-center gap-4">
               <Link
-                href="https://x.com/RuneIcon"
+                href="https://x.com/nexvyn"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="X/Twitter"
@@ -94,6 +94,7 @@ const Footer = () => {
               <Link
                 key={item.title}
                 href={item.href}
+                prefetch={false}
                 className="text-muted-foreground transition-colors hover:text-foreground"
               >
                 {item.title}

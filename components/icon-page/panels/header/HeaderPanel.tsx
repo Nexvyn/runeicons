@@ -39,6 +39,7 @@ export function HeaderPanel({ className }: HeaderPanelProps) {
       <div className="relative z-10 flex h-full w-full min-w-0">
         <Link
           href="/"
+          prefetch={false}
           className="group flex h-full w-12 shrink-0 cursor-pointer items-center justify-center border-r border-border transition-colors duration-150 ease-out hover:bg-muted/50"
         >
           <span className="flex h-8 w-8 items-center justify-center transition-transform duration-150 ease-out group-hover:scale-[1.02]">
@@ -50,6 +51,7 @@ export function HeaderPanel({ className }: HeaderPanelProps) {
           <div className="relative flex h-8 items-center gap-1 rounded-md border border-border bg-[#f5f5f5] p-1 dark:bg-[#1a1a1a]">
             <Link
               href="/icons"
+              prefetch={false}
               className={cn(
                 "relative flex h-full items-center justify-center rounded-[4px] px-4 text-[11px] font-medium transition-colors duration-200",
                 !isEditorPage ? "text-foreground" : "text-muted-foreground hover:text-foreground",
@@ -66,6 +68,7 @@ export function HeaderPanel({ className }: HeaderPanelProps) {
             </Link>
             <Link
               href="/editor"
+              prefetch={false}
               className={cn(
                 "relative flex h-full items-center justify-center rounded-[4px] px-4 text-[11px] font-medium transition-colors duration-200",
                 isEditorPage ? "text-foreground" : "text-muted-foreground hover:text-foreground",
