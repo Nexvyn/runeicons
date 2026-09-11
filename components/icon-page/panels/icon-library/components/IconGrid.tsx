@@ -4,6 +4,7 @@ import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 import type { IconType } from "@/lib/icons";
+import { getSpriteHref } from "@/lib/icons";
 import { STROKE_STYLE_MAP } from "@/lib/stroke-style";
 import { CustomizationState, IconData } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,7 @@ interface IconGridProps {
 interface GridTileProps {
   icon: IconData;
   index: number;
+  iconType: IconType;
   isSelected: boolean;
   isSearching?: boolean;
   invertInDark: boolean;
@@ -36,6 +38,7 @@ interface GridTileProps {
 const GridTile = memo(function GridTile({
   icon,
   index,
+  iconType,
   isSelected,
   isSearching,
   invertInDark,
@@ -114,16 +117,12 @@ const GridTile = memo(function GridTile({
               );
             }
             return (
-              <img
-                src={icon.url}
-                alt=""
+              <svg
                 aria-hidden="true"
-                draggable={false}
-                loading={index < 15 ? "eager" : "lazy"}
-                fetchPriority={index < 15 ? "high" : "auto"}
-                decoding="async"
                 className={cn("h-5 w-5 select-none", invertInDark && "dark:invert")}
-              />
+              >
+                <use href={getSpriteHref(icon.iconType ?? iconType, icon.id)} />
+              </svg>
             );
           })()}
         </div>
@@ -324,6 +323,7 @@ function IconGridInner({
           key={icon.id}
           icon={icon}
           index={index}
+          iconType={iconType}
           isSelected={selectedIconId === icon.id}
           isSearching={isSearching}
           invertInDark={invertInDark}

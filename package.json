@@ -8,7 +8,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "start": "next start",
-    "icons:manifest": "bun scripts/build-icon-manifest.ts"
+    "icons:manifest": "bun scripts/build-icon-manifest.ts",
+    "icons:sprites": "bun scripts/build-icon-sprites.ts"
   },
   "dependencies": {
     "@creem_io/nextjs": "^0.6.0",

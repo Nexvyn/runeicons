@@ -7,6 +7,7 @@ import { AnimatePresence, useReducedMotion } from "motion/react";
 import * as m from "motion/react-m";
 
 import type { IconType } from "@/lib/icons";
+import { getSpriteHref } from "@/lib/icons";
 import type { IconData } from "@/lib/types";
 
 import { DuotoneIcon } from "../../icons/DuotoneIcon";
@@ -59,7 +60,7 @@ const Search = () => {
         <div
           className="flex h-full w-full items-center justify-center rounded-2xl bg-center bg-no-repeat p-6 max-sm:p-2 md:p-10"
           style={{
-            backgroundImage: "url('/landing/gradient/search-gradient2.png')",
+            backgroundImage: "url('/landing/gradient/search-gradient2.webp')",
             backgroundSize: "cover",
           }}
         >
@@ -112,10 +113,9 @@ const Search = () => {
                             }`}
                           >
                             {icon.url && (
-                              <m.img
+                              <m.svg
                                 key={icon.url}
-                                src={icon.url}
-                                alt={icon.name}
+                                aria-hidden="true"
                                 className={`h-5 w-5 ${
                                   iconType === "duotone"
                                     ? "brightness-0 dark:brightness-100"
@@ -123,11 +123,12 @@ const Search = () => {
                                       ? "dark:invert"
                                       : ""
                                 }`}
-                                loading="lazy"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
-                              />
+                              >
+                                <use href={getSpriteHref(icon.iconType ?? iconType, icon.id)} />
+                              </m.svg>
                             )}
                           </button>
                           <span className="w-full truncate text-center text-[10px] text-white/85">

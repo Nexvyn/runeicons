@@ -9,7 +9,7 @@ import { PixelatedIcon } from "@/components/icons/PixelatedIcon";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { CustomizationState } from "@/lib/types";
-import { getIconsForType } from "@/lib/icons";
+import { getIconsForType, getSpriteFile } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 type IconType = CustomizationState["iconType"];
 export const iconTypes: Array<{
@@ -61,12 +61,11 @@ export function IconTypeList({
     if (prefetchedRef.current.has(type)) return;
     prefetchedRef.current.add(type);
     try {
-      for (const icon of getIconsForType(type)) {
-        if (!icon.url) continue;
-        const img = new Image();
-        img.decoding = "async";
-        img.src = icon.url;
-      }
+      const link = document.createElement("link");
+      link.rel = "preload";
+      link.as = "image";
+      link.href = getSpriteFile(type);
+      document.head.appendChild(link);
     } catch {
       /* prefetch is best-effort */
     }

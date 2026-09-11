@@ -86,6 +86,14 @@ function glassToIconData(e: GlassIconEntry): IconData {
   };
 }
 
+export function getSpriteFile(iconType: IconType): string {
+  return `/sprites/${iconType}.svg`;
+}
+
+export function getSpriteHref(iconType: IconType, id: string): string {
+  return `${getSpriteFile(iconType)}#${id}`;
+}
+
 export function getIconsForType(iconType: IconType): IconData[] {
   if (iconType === "glass") {
     return GLASS_ICONS_MANIFEST.map(glassToIconData);
