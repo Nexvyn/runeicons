@@ -1,0 +1,6 @@
+# Build output
+dist/
+
+# Generated icon data (run `bun run generate` to rebuild)
+src/icons.generated.ts
+assets/
