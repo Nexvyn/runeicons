@@ -10,9 +10,6 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: projectRoot,
   },
-  images: {
-    remotePatterns: [{ hostname: "i.pinimg.com" }],
-  },
   async rewrites() {
     return [
       { source: "/apple-touch-icon.png", destination: "/apple-icon" },

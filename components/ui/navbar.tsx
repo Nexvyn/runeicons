@@ -119,7 +119,7 @@ const Navbar = ({
           showDashedBorder ? "border-b-2 border-dashed" : ""
         }`}
       >
-        <div className="flex w-[90vw] max-w-[1440px] items-center justify-between bg-[#F5F5F5] px-4 py-3 max-sm:px-1.5 2xl:w-[85vw] 2xl:max-w-[1800px] dark:bg-background">
+        <div className="relative flex w-[90vw] max-w-[1440px] items-center justify-between bg-[#F5F5F5] px-4 py-3 max-sm:px-1.5 2xl:w-[85vw] 2xl:max-w-[1800px] dark:bg-background">
           <div className="flex items-center justify-center">
             <Link
               href={logoHref}
@@ -131,7 +131,7 @@ const Navbar = ({
             </Link>
           </div>
           {links.length > 0 && (
-            <div className="flex gap-3 text-sm max-sm:hidden">
+            <div className="absolute left-1/2 hidden -translate-x-1/2 gap-3 text-sm sm:flex">
               {links.map((link) => (
                 <Link
                   key={link.href}
