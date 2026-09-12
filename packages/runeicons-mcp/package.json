@@ -1,0 +1,6 @@
+{
+  "name": "runeicons-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MCP server exposing Rune Icons to AI agents."
+}
