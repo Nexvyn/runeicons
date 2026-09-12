@@ -1,6 +1,42 @@
 {
   "name": "runeicons-react-native",
   "version": "0.1.0",
-  "private": true,
-  "description": "React Native components for Rune Icons."
+  "private": false,
+  "description": "React Native components for Rune Icons. A collection of 900+ icons available in outline, duotone, fill, pixelated, and glass styles built with react-native-svg.",
+  "main": "lib/commonjs/index.js",
+  "module": "lib/esm/index.js",
+  "types": "lib/typescript/index.d.ts",
+  "react-native": "src/index.tsx",
+  "source": "src/index.tsx",
+  "files": [
+    "src",
+    "lib",
+    "README.md"
+  ],
+  "license": "Apache-2.0",
+  "author": "Rune Icons <https://runeicons.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Nexvyn/runeicons.git",
+    "directory": "packages/runeicons-react-native"
+  },
+  "keywords": [
+    "runeicons",
+    "icons",
+    "react-native",
+    "svg",
+    "ui"
+  ],
+  "peerDependencies": {
+    "react": "*",
+    "react-native": ">= 0.60.0",
+    "react-native-svg": ">= 10.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "*",
+    "@types/react-native": "*",
+    "react": "*",
+    "react-native": "*",
+    "react-native-svg": ">= 10.0.0"
+  }
 }
