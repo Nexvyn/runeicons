@@ -14,16 +14,37 @@ const OUT_DIR = join(PUBLIC, "sprites");
 
 type SpriteType = "normal" | "duotone" | "fill" | "pixelated" | "glass";
 
+const ROOT_PAINT_ATTRS = [
+  "fill",
+  "stroke",
+  "stroke-width",
+  "stroke-linecap",
+  "stroke-linejoin",
+  "stroke-dasharray",
+  "stroke-opacity",
+  "fill-opacity",
+  "fill-rule",
+  "clip-rule",
+  "opacity",
+  "color",
+];
+
 function extractBody(svg: string): { viewBox: string; inner: string } {
   const cleaned = svg.replace(/<\?xml[^?]*\?>\s*/g, "").replace(/<!--[\s\S]*?-->/g, "");
   const openMatch = cleaned.match(/<svg\b([^>]*)>/);
   const attrs = openMatch ? openMatch[1] : "";
   const vbMatch = attrs.match(/viewBox\s*=\s*"([^"]+)"/);
   const viewBox = vbMatch ? vbMatch[1] : "0 0 24 24";
-  const inner = cleaned
+  const kept: string[] = [];
+  for (const name of ROOT_PAINT_ATTRS) {
+    const m = attrs.match(new RegExp(`${name}\\s*=\\s*"([^"]+)"`));
+    if (m) kept.push(`${name}="${m[1]}"`);
+  }
+  let inner = cleaned
     .replace(/<svg\b[^>]*>/, "")
     .replace(/<\/svg>\s*$/, "")
     .trim();
+  if (kept.length > 0) inner = `<g ${kept.join(" ")}>${inner}</g>`;
   return { viewBox, inner };
 }
 
