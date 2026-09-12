@@ -1,0 +1,35 @@
+name: runeicons
+description: Beautiful, open-source Rune Icons for Flutter, with normal, duotone, fill, pixelated, and glass SVG variants.
+version: 0.1.0
+homepage: https://runeicons.com
+repository: https://github.com/Nexvyn/runeicons/tree/main/packages/runeicons-flutter
+issue_tracker: https://github.com/Nexvyn/runeicons/issues
+
+topics:
+  - icons
+  - flutter
+  - svg
+  - design-system
+  - ui
+
+environment:
+  sdk: ^3.6.0
+  flutter: ">=3.27.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_svg: ^2.2.0
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  assets:
+    - assets/normal/
+    - assets/duotone/
+    - assets/fill/
+    - assets/pixelated/
+    - assets/glass/
