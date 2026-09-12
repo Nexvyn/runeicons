@@ -107,6 +107,7 @@ const GLASS_CATEGORY_OVERRIDES: Record<string, string> = {
   folder: "files",
   inbox: "files",
   clipboard: "files",
+  library: "files",
   // feedback
   bell: "feedback",
   check: "feedback",

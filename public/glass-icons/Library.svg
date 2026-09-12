@@ -1,0 +1,62 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<mask id="library-mask" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="1" y="2" width="23" height="21">
+<rect x="2" y="3" width="5" height="18" rx="1.5" fill="black"/>
+<rect x="8.5" y="3" width="5" height="18" rx="1.5" fill="black"/>
+<rect x="16" y="3" width="5" height="18" rx="1.5" transform="rotate(-12 18.5 12)" fill="black"/>
+</mask>
+<g mask="url(#library-mask)">
+<g filter="url(#library-blur)">
+<ellipse cx="18" cy="13" rx="2.25" ry="10" transform="rotate(20 18 13)" fill="url(#library-dark)"/>
+</g>
+</g>
+<rect x="2" y="3" width="5" height="18" rx="1.5" fill="url(#library-glass-a)" stroke="url(#library-edge-a)" stroke-width="1.25"/>
+<path d="M2.625 7H6.375M2.625 17H6.375" stroke="url(#library-band)" stroke-width="1.25" stroke-linecap="round"/>
+<path d="M3.5 4.5H5" stroke="white" stroke-opacity="0.72" stroke-linecap="round"/>
+<rect x="8.5" y="3" width="5" height="18" rx="1.5" fill="url(#library-glass-b)" stroke="url(#library-edge-b)" stroke-width="1.25"/>
+<path d="M9.125 7H12.875M9.125 17H12.875" stroke="url(#library-band)" stroke-width="1.25" stroke-linecap="round"/>
+<path d="M10 4.5H11.5" stroke="white" stroke-opacity="0.62" stroke-linecap="round"/>
+<g transform="rotate(-12 18.5 12)">
+<rect x="16" y="3" width="5" height="18" rx="1.5" fill="url(#library-glass-c)" stroke="url(#library-edge-c)" stroke-width="1.25"/>
+<path d="M16.625 7H20.375M16.625 17H20.375" stroke="url(#library-band)" stroke-width="1.25" stroke-linecap="round"/>
+<path d="M17.5 4.5H19" stroke="white" stroke-opacity="0.56" stroke-linecap="round"/>
+</g>
+<defs>
+<filter id="library-blur" x="7" y="-2" width="22" height="30" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="3" result="effect1_foregroundBlur"/>
+</filter>
+<linearGradient id="library-dark" x1="18" y1="3" x2="18" y2="23" gradientUnits="userSpaceOnUse">
+<stop stop-color="#575757"/>
+<stop offset="1" stop-color="#151515"/>
+</linearGradient>
+<linearGradient id="library-glass-a" x1="4.5" y1="3" x2="4.5" y2="21" gradientUnits="userSpaceOnUse">
+<stop stop-color="#E3E3E3" stop-opacity="0.72"/>
+<stop offset="1" stop-color="#BBBBC0" stop-opacity="0.5"/>
+</linearGradient>
+<linearGradient id="library-edge-a" x1="4.5" y1="3" x2="4.5" y2="21" gradientUnits="userSpaceOnUse">
+<stop stop-color="white"/>
+<stop offset="1" stop-color="white" stop-opacity="0.08"/>
+</linearGradient>
+<linearGradient id="library-glass-b" x1="11" y1="3" x2="11" y2="21" gradientUnits="userSpaceOnUse">
+<stop stop-color="#EEEEEE" stop-opacity="0.68"/>
+<stop offset="1" stop-color="#AEB0B7" stop-opacity="0.54"/>
+</linearGradient>
+<linearGradient id="library-edge-b" x1="11" y1="3" x2="11" y2="21" gradientUnits="userSpaceOnUse">
+<stop stop-color="white"/>
+<stop offset="1" stop-color="white" stop-opacity="0.08"/>
+</linearGradient>
+<linearGradient id="library-glass-c" x1="18.5" y1="3" x2="18.5" y2="21" gradientUnits="userSpaceOnUse">
+<stop stop-color="#E8E8E8" stop-opacity="0.65"/>
+<stop offset="1" stop-color="#A3A5AC" stop-opacity="0.58"/>
+</linearGradient>
+<linearGradient id="library-edge-c" x1="18.5" y1="3" x2="18.5" y2="21" gradientUnits="userSpaceOnUse">
+<stop stop-color="white"/>
+<stop offset="1" stop-color="white" stop-opacity="0.08"/>
+</linearGradient>
+<linearGradient id="library-band" x1="12" y1="7" x2="12" y2="18" gradientUnits="userSpaceOnUse">
+<stop stop-color="#5F6065"/>
+<stop offset="1" stop-color="#1D1E21"/>
+</linearGradient>
+</defs>
+</svg>
