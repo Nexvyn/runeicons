@@ -34,7 +34,10 @@ class RuneIconsExample extends StatelessWidget {
                 style: RuneIconStyle.pixelated,
                 size: 40,
               ),
-              RuneIcon(RuneIcons.glassBookmark, size: 40),
+              RuneIcon(
+                RuneIcons.glassHeart22,
+                size: 40,
+              )
             ],
           ),
         ),

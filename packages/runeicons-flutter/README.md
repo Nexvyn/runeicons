@@ -10,6 +10,10 @@ glass variants.
 flutter pub add runeicons
 ```
 
+<p align="center">
+  <img src="runeicons.png" alt="Rune Icons Flutter preview" width="600">
+</p>
+
 ## Usage
 
 Import the package and pass an icon from `RuneIcons` to `RuneIcon`:
@@ -35,7 +39,7 @@ const Row(
     RuneIcon(RuneIcons.heart, style: RuneIconStyle.duotone),
     RuneIcon(RuneIcons.heart, style: RuneIconStyle.fill),
     RuneIcon(RuneIcons.heart, style: RuneIconStyle.pixelated),
-    RuneIcon(RuneIcons.glassBookmark),
+    RuneIcon(RuneIcons.glassHeart22),
   ],
 )
 ```
@@ -62,6 +66,19 @@ Glass catalog entries use a `glass` prefix, such as `RuneIcons.glassBookmark`,
 and select the glass style by default. The package preserves their source SVGs;
 currently, `flutter_svg` renders their shapes and gradients but omits unsupported
 SVG filter effects such as blurred shadows.
+
+## Run the example
+
+From the repository root, install the example dependencies and launch it in
+Chrome:
+
+```sh
+cd packages/runeicons-flutter/example
+flutter pub get
+flutter run -d chrome
+```
+
+Press `q` in the terminal to stop the example.
 
 ## Regenerating the catalog
 
