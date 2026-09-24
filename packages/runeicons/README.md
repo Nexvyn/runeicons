@@ -11,7 +11,7 @@ npm install runeicons
 ```
 
 ```sh
-bun add runeicons
+pnpm add runeicons
 ```
 
 ## Usage
@@ -55,13 +55,15 @@ Each entry in `ICONS` has an `id`, `name`, `category`, `tags`, and a `variants` 
 
 ## Development
 
+From the repository root (requires [pnpm](https://pnpm.io) and [Bun](https://bun.sh)):
+
 ```sh
-bun install
-bun run test
-bun run build
+pnpm install
+pnpm --filter runeicons test
+pnpm --filter runeicons build
 ```
 
-`scripts/build.ts` generates `src/icons.generated.ts` from the SVG sources in the repository's `public/` folder and the site's icon manifest. The generated file is not committed. `bun run build` compiles to `dist/`, which is what gets published.
+`scripts/build.ts` generates `src/icons.generated.ts` from the SVG sources in the repository's `public/` folder and the site's icon manifest. The generated file is not committed. The build script compiles to `dist/`, which is what gets published.
 
 ## License
 

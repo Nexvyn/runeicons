@@ -5,14 +5,14 @@ Vue 3 components for [Rune Icons](https://runeicons.com): 900+ icons in five sty
 ## Install
 
 ```sh
-bun add runeicons-vue
+pnpm add runeicons-vue
 ```
 
 ## Usage
 
 ```vue
 <script setup>
-  import { RuneIcon } from "runeicons-vue";
+import { RuneIcon } from "runeicons-vue";
 </script>
 
 <template>
@@ -30,13 +30,15 @@ import { buildSvg, searchIcons } from "runeicons-vue";
 
 ## Development
 
+From the repository root (requires [pnpm](https://pnpm.io) and [Bun](https://bun.sh)):
+
 ```sh
-bun install
-bun test
+pnpm install
+pnpm --filter runeicons-vue test
 ```
 
-`bun test` regenerates icon data, typechecks the source, server-renders the component, and runs the unit tests. Icon data is generated from the repository SVG sources in `public/` by `scripts/build.ts` into `src/icons.generated.ts`, which is not committed.
+The test script regenerates icon data, typechecks the source, server-renders the component, and runs the unit tests. Icon data is generated from the repository SVG sources in `public/` by `scripts/build.ts` into `src/icons.generated.ts`, which is not committed.
 
 ## License
 
-Apache 2.0. Rune Icons is built by [Nexvyn](https://github.com/Nexvyn). Icons come from the [runeicons](https://github.com/Nexvyn/runeicons) repository.
+Apache 2.0. Copyright 2026 Rune Icons Team. Icons come from the [runeicons](https://github.com/Nexvyn/runeicons) repository.

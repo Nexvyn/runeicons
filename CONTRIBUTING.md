@@ -4,7 +4,7 @@ Welcome! Thank you for helping to make Rune Icons better. This guide covers setu
 
 ## Quick start
 
-Requires [Bun](https://bun.sh).
+Requires [Node.js](https://nodejs.org) 20+, [pnpm](https://pnpm.io) 10, and [Bun](https://bun.sh). pnpm installs dependencies; the icon scripts and package tests run on Bun.
 
 1. **Fork and clone** the repository:
 
@@ -18,34 +18,34 @@ Requires [Bun](https://bun.sh).
 2. **Install dependencies**:
 
    ```bash
-   bun install
+   pnpm install
    ```
 
 3. **Start the development server**:
 
    ```bash
-   bun dev
+   pnpm dev
    ```
 
    The site will be available at [http://localhost:3000](http://localhost:3000).
 
 ## Repository structure
 
-| Directory / File                         | Description                                                        |
-| :--------------------------------------- | :----------------------------------------------------------------- |
-| `app/`                                   | Next.js App Router pages, layout, and site metadata                |
-| `components/`                            | React UI components, including the icon editor                     |
-| `lib/icons/`                             | Icon registry — `index.ts` plus the generated manifest             |
-| `lib/icons/manifest.generated.ts`        | **Generated file.** Built from `public/` — never edit by hand      |
-| `public/normal/`                         | Outline-style icon SVGs, grouped by category folder                |
-| `public/duotone/`                        | Duotone-style icon SVGs                                            |
-| `public/fill/`                           | Fill-style icon SVGs                                               |
-| `public/pixelated/`                      | Pixelated-style icon SVGs                                          |
-| `public/glass-icons/`                    | Glass-style icon SVGs                                              |
-| `scripts/build-icon-manifest.ts`         | Manifest generator — scans `public/` and writes the manifest       |
-| `packages/`                              | Standalone platform packages, each with its own toolchain          |
-| `packages/runeicons-react-native/`       | React Native package — SVGR-generated icons, own yarn workspace    |
-| `docs/`                                  | Architecture and behavior notes                                    |
+| Directory / File                   | Description                                                     |
+| :--------------------------------- | :-------------------------------------------------------------- |
+| `app/`                             | Next.js App Router pages, layout, and site metadata             |
+| `components/`                      | React UI components, including the icon editor                  |
+| `lib/icons/`                       | Icon registry — `index.ts` plus the generated manifest          |
+| `lib/icons/manifest.generated.ts`  | **Generated file.** Built from `public/` — never edit by hand   |
+| `public/normal/`                   | Outline-style icon SVGs, grouped by category folder             |
+| `public/duotone/`                  | Duotone-style icon SVGs                                         |
+| `public/fill/`                     | Fill-style icon SVGs                                            |
+| `public/pixelated/`                | Pixelated-style icon SVGs                                       |
+| `public/glass-icons/`              | Glass-style icon SVGs                                           |
+| `scripts/build-icon-manifest.ts`   | Manifest generator — scans `public/` and writes the manifest    |
+| `packages/`                        | Standalone platform packages, each with its own toolchain       |
+| `packages/runeicons-react-native/` | React Native package — SVGR-generated icons, own yarn workspace |
+| `docs/`                            | Architecture and behavior notes                                 |
 
 > Never manually edit `lib/icons/manifest.generated.ts`. It is regenerated from the SVG files in `public/`.
 
@@ -54,17 +54,19 @@ Requires [Bun](https://bun.sh).
 Run these from the repository root:
 
 ```bash
-bun dev                # Start the dev server
-bun run build          # Production build
-bun start              # Serve the production build
-bun run lint           # Lint with ESLint
-bun run format         # Format with Prettier
-bun run icons:manifest # Regenerate the icon manifest from public/
-bun run icons:rn       # Regenerate the React Native icon components (see below)
+pnpm dev               # Start the dev server
+pnpm build             # Production build
+pnpm start             # Serve the production build
+pnpm lint              # Lint with ESLint
+pnpm format            # Format with Prettier
+pnpm icons:manifest    # Regenerate the icon manifest from public/
+pnpm icons:sprites     # Regenerate the per-style sprites in public/sprites/
+pnpm icons:rn          # Regenerate the React Native icon components (see below)
+pnpm -r test           # Run the tests of every package in packages/
 ```
 
 `packages/runeicons-react-native` is a standalone Yarn project, so the root
-`bun install` does not install its dependencies. Before running `icons:rn` for
+`pnpm install` does not install its dependencies. Before running `icons:rn` for
 the first time, set it up once:
 
 ```bash
@@ -75,7 +77,7 @@ cd ../..
 ```
 
 The icon components are generated, not committed, so a fresh install has none
-until `bun run icons:rn` has run.
+until `pnpm icons:rn` has run.
 
 ## Contributing new icons
 
@@ -95,11 +97,12 @@ Step-by-step:
    [Key scripts](#key-scripts)):
 
    ```bash
-   bun run icons:manifest
-   bun run icons:rn
+   pnpm icons:manifest
+   pnpm icons:sprites
+   pnpm icons:rn
    ```
 
-3. Run `bun dev` and verify the new icon appears in search with correct rendering in every style.
+3. Run `pnpm dev` and verify the new icon appears in search with correct rendering in every style.
 
 ## Submitting code changes
 
@@ -114,14 +117,14 @@ Step-by-step:
 2. **Make your changes** and verify lint and build pass:
 
    ```bash
-   bun run lint
-   bun run build
+   pnpm lint
+   pnpm build
    ```
 
 3. **Format** your changes:
 
    ```bash
-   bun run format
+   pnpm format
    ```
 
 4. **Commit** using Conventional Commits:
