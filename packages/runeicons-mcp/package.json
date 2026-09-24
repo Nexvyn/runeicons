@@ -1,6 +1,45 @@
 {
   "name": "runeicons-mcp",
   "version": "0.1.0",
-  "private": true,
-  "description": "MCP server exposing Rune Icons to AI agents."
+  "description": "MCP server exposing the Rune Icons library (900+ icons, 5 styles) to AI agents: search icons, resolve metadata, and get ready-to-use SVG source.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nexvyn/runeicons.git",
+    "directory": "packages/runeicons-mcp"
+  },
+  "bugs": "https://github.com/Nexvyn/runeicons/issues",
+  "homepage": "https://runeicons.com",
+  "keywords": [
+    "mcp",
+    "modelcontextprotocol",
+    "icons",
+    "svg",
+    "runeicons",
+    "rune-icons"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "runeicons-mcp": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "assets",
+    "LICENSE",
+    "README.md"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^4.3.6"
+  },
+  "scripts": {
+    "generate": "bun scripts/generate-icons.ts",
+    "build": "tsc -p tsconfig.json",
+    "prepublishOnly": "bun run generate && bun run build"
+  }
 }
