@@ -1,6 +1,48 @@
 {
   "name": "runeicons",
   "version": "0.1.0",
-  "private": true,
-  "description": "Core icon data and SVG source for Rune Icons."
+  "description": "Rune Icons: 900+ icons in five styles (normal, duotone, fill, pixelated, glass) as framework-free SVG data.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "homepage": "https://runeicons.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nexvyn/runeicons.git",
+    "directory": "packages/runeicons"
+  },
+  "bugs": "https://github.com/Nexvyn/runeicons/issues",
+  "keywords": [
+    "icons",
+    "svg",
+    "icon-set",
+    "duotone",
+    "pixel",
+    "glass",
+    "runeicons"
+  ],
+  "scripts": {
+    "generate": "bun run scripts/build.ts",
+    "build": "bun run generate && tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "bun run generate && bun run typecheck && bun test",
+    "prepublishOnly": "bun run test && bun run build"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.2",
+    "typescript": "^5.7.0"
+  }
 }
