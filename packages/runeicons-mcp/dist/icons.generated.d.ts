@@ -14,10 +14,10 @@ export interface GeneratedIcon {
     file: string;
 }
 export declare const ICON_COUNTS: {
-    readonly total: 904;
-    readonly normal: 217;
-    readonly duotone: 213;
-    readonly fill: 124;
+    readonly total: 913;
+    readonly normal: 220;
+    readonly duotone: 216;
+    readonly fill: 127;
     readonly pixelated: 215;
     readonly glass: 135;
 };
