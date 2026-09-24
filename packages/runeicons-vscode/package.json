@@ -1,6 +1,44 @@
 {
   "name": "runeicons-vscode",
+  "displayName": "Rune Icons",
+  "description": "Rune Icons autocomplete, hover preview, and insert command for 900+ icons in five styles.",
   "version": "0.1.0",
+  "license": "Apache-2.0",
+  "publisher": "Nexvyn",
   "private": true,
-  "description": "VS Code extension for Rune Icons."
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Nexvyn/runeicons"
+  },
+  "main": "./dist/extension.js",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "runeicons.insert",
+        "title": "Insert Icon",
+        "category": "Rune Icons"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "bun run scripts/build.ts && bun build src/extension.ts --external vscode --format cjs --outfile dist/extension.js",
+    "vscode:prepublish": "bun run build",
+    "test": "bun run build && bun run typecheck && bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.2",
+    "@types/vscode": "^1.90.0",
+    "typescript": "^5.7.0"
+  }
 }
