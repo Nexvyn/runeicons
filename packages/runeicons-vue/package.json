@@ -1,6 +1,32 @@
 {
   "name": "runeicons-vue",
   "version": "0.1.0",
+  "description": "Vue 3 components for Rune Icons: 900+ icons in five styles.",
+  "license": "Apache-2.0",
   "private": true,
-  "description": "Vue components for Rune Icons."
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Nexvyn/runeicons"
+  },
+  "scripts": {
+    "build": "bun run scripts/build.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "bun run build && bun run typecheck && bun test"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.2",
+    "@vue/server-renderer": "^3.5.0",
+    "typescript": "^5.7.0",
+    "vue": "^3.5.0"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0"
+  }
 }
