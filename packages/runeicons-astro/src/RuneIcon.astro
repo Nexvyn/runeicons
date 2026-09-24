@@ -1,0 +1,14 @@
+---
+import { getIconById, type IconType } from "./icons";
+
+interface Props {
+  name: string;
+  type?: IconType;
+  size?: number;
+}
+
+const { name, type = "normal", size = 24 } = Astro.props;
+const variant = getIconById(name)?.variants[type];
+---
+
+{variant && <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox={variant.viewBox} set:html={variant.markup} />}
