@@ -1,6 +1,35 @@
 {
   "name": "runeicons-react",
   "version": "0.1.0",
+  "description": "React components for Rune Icons: 900+ icons in five styles.",
+  "license": "Apache-2.0",
   "private": true,
-  "description": "React components for Rune Icons."
+  "type": "module",
+  "exports": {
+    ".": "./src/index.tsx"
+  },
+  "files": [
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Nexvyn/runeicons"
+  },
+  "scripts": {
+    "build": "bun run scripts/build.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "bun run build && bun run typecheck && bun test"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.2",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.7.0"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
 }
