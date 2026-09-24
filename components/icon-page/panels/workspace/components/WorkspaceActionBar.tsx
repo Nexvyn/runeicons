@@ -384,7 +384,7 @@ export function WorkspaceActionBar({
           >
             <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-black/5 to-transparent transition-transform duration-500 ease-out group-hover:translate-x-full" />
             <Download className="h-3.5 w-3.5" />
-            <span className="text-[10px] font-bold tracking-tight">
+            <span className="text-[10px] font-bold tracking-tight whitespace-nowrap">
               {isPending
                 ? "Exporting..."
                 : isAnimated && !hideAdvancedExports
@@ -394,7 +394,7 @@ export function WorkspaceActionBar({
           </button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="group flex h-full w-8 items-center justify-center rounded-[7px] bg-white text-black transition-all hover:bg-white/90 active:scale-[0.98] dark:bg-white dark:text-black">
+              <button className="group flex h-full w-8 shrink-0 items-center justify-center rounded-[7px] bg-white text-black transition-all hover:bg-white/90 active:scale-[0.98] dark:bg-white dark:text-black">
                 <ChevronDown className="h-4 w-4 opacity-70 transition-opacity group-hover:opacity-100" />
               </button>
             </DropdownMenuTrigger>

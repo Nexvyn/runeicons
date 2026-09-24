@@ -43,6 +43,8 @@ Requires [Bun](https://bun.sh).
 | `public/pixelated/`                      | Pixelated-style icon SVGs                                          |
 | `public/glass-icons/`                    | Glass-style icon SVGs                                              |
 | `scripts/build-icon-manifest.ts`         | Manifest generator — scans `public/` and writes the manifest       |
+| `packages/`                              | Standalone platform packages, each with its own toolchain          |
+| `packages/runeicons-react-native/`       | React Native package — SVGR-generated icons, own yarn workspace    |
 | `docs/`                                  | Architecture and behavior notes                                    |
 
 > Never manually edit `lib/icons/manifest.generated.ts`. It is regenerated from the SVG files in `public/`.
@@ -58,7 +60,22 @@ bun start              # Serve the production build
 bun run lint           # Lint with ESLint
 bun run format         # Format with Prettier
 bun run icons:manifest # Regenerate the icon manifest from public/
+bun run icons:rn       # Regenerate the React Native icon components (see below)
 ```
+
+`packages/runeicons-react-native` is a standalone Yarn project, so the root
+`bun install` does not install its dependencies. Before running `icons:rn` for
+the first time, set it up once:
+
+```bash
+cd packages/runeicons-react-native
+corepack enable   # activates the Yarn version the package pins
+yarn install
+cd ../..
+```
+
+The icon components are generated, not committed, so a fresh install has none
+until `bun run icons:rn` has run.
 
 ## Contributing new icons
 
@@ -73,10 +90,13 @@ Rune Icons keeps strict design guidelines for consistency:
 Step-by-step:
 
 1. Add your SVG files to the appropriate category folders under `public/normal/`, `public/duotone/`, `public/fill/`, `public/pixelated/`, and `public/glass-icons/`.
-2. Regenerate the manifest:
+2. Regenerate the manifest, and the React Native components if you are keeping
+   that package in step (after the one-time setup under
+   [Key scripts](#key-scripts)):
 
    ```bash
    bun run icons:manifest
+   bun run icons:rn
    ```
 
 3. Run `bun dev` and verify the new icon appears in search with correct rendering in every style.
@@ -113,3 +133,5 @@ Step-by-step:
    ```
 
 5. **Push and open a pull request** against the `main` branch. Please follow the [Code of Conduct](CODE_OF_CONDUCT.md) in all interactions.
+
+> No need to ask for the issue to be assigned. If an issue is open, just start and open a PR. It gets merged after review.

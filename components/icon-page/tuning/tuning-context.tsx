@@ -4,7 +4,6 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useState,
   type ReactNode,
 } from "react";
@@ -83,18 +82,18 @@ const TuningContext = createContext<TuningContextType | null>(null);
 const STORAGE_KEY = "rune-animation-tuning";
 
 export function TuningProvider({ children }: { children: ReactNode }) {
-  const [values, setValues] = useState<TuningValues>(DEFAULT_TUNING);
-
-  useEffect(() => {
+  const [values, setValues] = useState<TuningValues>(() => {
+    if (typeof window === "undefined") return DEFAULT_TUNING;
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (!saved) return;
+      if (!saved) return DEFAULT_TUNING;
       const parsed = JSON.parse(saved) as Partial<TuningValues>;
-      setValues({ ...DEFAULT_TUNING, ...parsed });
+      return { ...DEFAULT_TUNING, ...parsed };
     } catch (error) {
       console.warn("Failed to restore animation tuning:", error);
+      return DEFAULT_TUNING;
     }
-  }, []);
+  });
 
   const updateValue = useCallback(
     <K extends keyof TuningValues>(key: K, value: TuningValues[K]) => {

@@ -57,7 +57,8 @@ const Navbar = ({
   const githubStars = useGitHubStars();
 
   useEffect(() => {
-    setIconCount(900);
+    const frame = requestAnimationFrame(() => setIconCount(900));
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
@@ -151,7 +152,10 @@ const Navbar = ({
               rel="noopener noreferrer"
             >
               <Button variant="outline" className="gap-1 text-xs" aria-label="GitHub">
-                <GithubIcon /> {githubStars}
+                <GithubIcon />{" "}
+                <span className="inline-block min-w-[3ch] text-left tabular-nums">
+                  {githubStars}
+                </span>
               </Button>
             </Link>
             <Link href="https://x.com/nexvyn" target="_blank" rel="noopener noreferrer">

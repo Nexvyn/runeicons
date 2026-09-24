@@ -38,7 +38,7 @@ const TermsPage = () => {
               <h2 className="text-base font-semibold text-foreground">1. Use of Icons</h2>
               <p>
                 RuneIcons are <strong className="font-medium text-foreground">open-source</strong>{" "}
-                and distributed under the{" "}
+                and the icons are distributed under the{" "}
                 <a
                   href="https://github.com/Nexvyn/runeicons/blob/main/LICENSE"
                   target="_blank"
@@ -49,6 +49,21 @@ const TermsPage = () => {
                 </a>
                 . You may use them in personal, commercial, and client projects, subject to the
                 license terms in our GitHub repository.
+              </p>
+              <p>
+                Everything else on the site, including the landing page designs, UI components,
+                animations, and editor, is licensed under the Apache License 2.0 with an Attribution
+                Requirement and the Commons Clause. Any project that ships any part of it must{" "}
+                <strong className="font-medium text-foreground">
+                  credit the Rune Icons Team with a visible link to runeicons.com
+                </strong>
+                , placed where a visitor or user can find it, such as a site footer, an about page,
+                a credits screen, or a README. You{" "}
+                <strong className="font-medium text-foreground">
+                  may not sell, sublicense, or redistribute
+                </strong>{" "}
+                the landing page designs, components, or animations themselves, whether alone, in a
+                bundle, or as a ported version.
               </p>
             </div>
 

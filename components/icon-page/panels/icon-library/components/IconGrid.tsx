@@ -230,7 +230,7 @@ function IconGridInner({
         }
       }
     },
-    [measureTag],
+    [measureTag, showTag],
   );
 
   const hideTag = useCallback(() => {
@@ -264,9 +264,13 @@ function IconGridInner({
     };
   }, []);
 
+  const [tagIcons, setTagIcons] = useState(icons);
+  if (tagIcons !== icons) {
+    setTagIcons(icons);
+    setActiveTag(null);
+  }
   useEffect(() => {
     activeTagRef.current = null;
-    setActiveTag(null);
   }, [icons]);
 
   useEffect(() => {

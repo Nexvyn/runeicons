@@ -33,7 +33,10 @@ const HeroSection = () => {
   const [iconCount, setIconCount] = useState(0);
 
   useEffect(() => {
-    setIconCount(Math.floor(TOTAL_ICON_COUNT / 100) * 100);
+    const frame = requestAnimationFrame(() =>
+      setIconCount(Math.floor(TOTAL_ICON_COUNT / 100) * 100),
+    );
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   return (

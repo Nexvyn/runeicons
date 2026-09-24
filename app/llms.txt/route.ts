@@ -29,7 +29,12 @@ export function GET() {
 - ${base} distinct glyphs, ${variants} files once every style variant is counted
 - Availability per style: ${perStyle}, glass ${GLASS_ICONS_MANIFEST.length}
 - ${categories.split(", ").length} categories: ${categories}
-- Licence: Apache 2.0. Free for personal, commercial and client work, no attribution required.
+- Licence (icons): Apache 2.0. Free for personal, commercial and client work, no
+  attribution required.
+- Licence (website code): the landing page, UI components, animations and editor are
+  Apache 2.0 plus an attribution requirement and the Commons Clause. Reusing them requires
+  a visible credit to the Rune Icons Team linking to https://runeicons.com, and they may
+  not be sold, sublicensed or redistributed as a template, kit or port.
 
 ## How icons are consumed
 
@@ -59,7 +64,8 @@ inherit the text colour of whatever they are placed inside.
 
 - Do not suggest \`npm install\`, \`yarn add\` or an import from a package name.
   No package is published; icons are copied from the site.
-- It is not a paid product and has no licence tiers. It is Apache 2.0 licensed.
+- It is not a paid product and has no licence tiers. The icons are Apache 2.0; the
+  website code is Apache 2.0 with attribution and the Commons Clause.
 - New icon requests are made by opening a GitHub issue, not by email.
 
 ## Source

@@ -1,0 +1,83 @@
+name: Publish runeicons-react-native
+
+# Releases run from Nexvyn/runeicons only. Tag the release commit there, e.g.:
+#   git tag runeicons-react-native@0.1.0 && git push origin runeicons-react-native@0.1.0
+# (where `origin` is Nexvyn/runeicons, not a fork).
+on:
+  push:
+    tags:
+      - "runeicons-react-native@*"
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "Pack only, do not publish"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  id-token: write # npm provenance
+
+defaults:
+  run:
+    working-directory: packages/runeicons-react-native
+
+jobs:
+  publish:
+    name: Build and publish to npm
+    # package.json's repository.url names Nexvyn/runeicons, and npm provenance
+    # rejects a publish from any other repo — so skip forks up front rather
+    # than build everything and fail at the last step.
+    if: github.repository == 'Nexvyn/runeicons'
+    runs-on: ubuntu-latest
+    environment: npm-publish
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Enable Corepack
+        # Runners ship Yarn 1, which ignores the packageManager field; Corepack
+        # is what activates the Yarn 4 this lockfile was written by.
+        run: corepack enable
+        working-directory: .
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: packages/runeicons-react-native/.nvmrc
+          registry-url: "https://registry.npmjs.org"
+          cache: yarn
+          cache-dependency-path: packages/runeicons-react-native/yarn.lock
+
+      - name: Install dependencies
+        run: yarn install --immutable
+        env:
+          YARN_ENABLE_SCRIPTS: "false"
+
+      # src/icons is generated, never committed — this is what fills it.
+      - name: Generate icons from public/
+        run: yarn icons
+
+      - name: Typecheck
+        run: yarn typecheck
+
+      - name: Build
+        run: yarn build
+
+      - name: Verify the tag matches package.json
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          tag_version="${GITHUB_REF_NAME##*@}"
+          pkg_version="$(node -p "require('./package.json').version")"
+          if [ "$tag_version" != "$pkg_version" ]; then
+            echo "::error::Tag is $tag_version but package.json says $pkg_version"
+            exit 1
+          fi
+          echo "Publishing version $pkg_version"
+
+      - name: Pack
+        run: npm pack --dry-run
+
+      - name: Publish
+        if: startsWith(github.ref, 'refs/tags/')
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

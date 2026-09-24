@@ -1,3 +1,5 @@
+import type { PathAnimationOverride } from "@/lib/types";
+
 type MotionConfig = {
   animationType: string;
   duration: number;
@@ -19,7 +21,7 @@ export interface MotionPreset {
   icon: string;
   interactionMode: "animate" | "hover" | "loading" | "success" | "error";
   config: Partial<MotionConfig>;
-  buildPerPath?: (pathCount: number) => Record<string, any>;
+  buildPerPath?: (pathCount: number) => Record<string, PathAnimationOverride>;
 }
 
 export const MOTION_PRESETS: MotionPreset[] = [

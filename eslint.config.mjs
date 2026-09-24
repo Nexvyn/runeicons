@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    ".kilo/**",
+    "packages/*/node_modules/**",
+    "packages/*/dist/**",
+    // Standalone package with its own tsconfig and react-native peers.
+    "packages/runeicons-react-native/**",
   ]),
 ]);
 

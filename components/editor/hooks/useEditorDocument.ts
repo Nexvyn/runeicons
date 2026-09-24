@@ -193,15 +193,20 @@ export function useEditorDocument(assets: EditorAssetSummary[]) {
     [flushPersistence, pushHistorySnapshot],
   );
 
+  const clearDocument = useCallback(() => {
+    flushPersistence();
+    documentRef.current = null;
+    setDocument(null);
+    setSelectedPathId(null);
+  }, [flushPersistence]);
+
   useEffect(() => {
     if (!hasHydrated) return;
 
     if (!effectiveSelectedAssetId) {
       if (documentRef.current === null) return;
-      flushPersistence();
-      documentRef.current = null;
-      setDocument(null);
-      setSelectedPathId(null);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      clearDocument();
       return;
     }
 
@@ -220,8 +225,8 @@ export function useEditorDocument(assets: EditorAssetSummary[]) {
     loadDocument(nextDocument, { pushHistory: false });
   }, [
     assetMap,
+    clearDocument,
     effectiveSelectedAssetId,
-    flushPersistence,
     hasHydrated,
     loadDocument,
     persistedDocument,

@@ -115,32 +115,44 @@ export function WorkspaceShell() {
         toast.info("That icon is not available in this style");
       }
     },
-    [handleChange, handleIconSelect, selectedIcon, setSelectedIcon, state.customIcons],
+    [
+      handleChange,
+      handleIconSelect,
+      selectedIcon,
+      setSelectedIcon,
+      state.customIcons,
+      state.iconType,
+    ],
   );
 
-  const [selectedPathCount, setSelectedPathCount] = useState(0);
+  const [fetchedPathCount, setFetchedPathCount] = useState<{ url: string; count: number } | null>(
+    null,
+  );
   useEffect(() => {
+    const url = selectedIcon?.url;
+    if (!url) return;
     let cancelled = false;
-    if (!selectedIcon?.url) {
-      setSelectedPathCount(selectedIcon?.pathCount ?? 0);
-      return;
-    }
 
-    fetchSvgInnerContentRaw(selectedIcon.url)
+    fetchSvgInnerContentRaw(url)
       .then(({ content }) => {
         if (cancelled) return;
         const count =
           content.match(/<(path|circle|rect|ellipse|line|polyline|polygon)\b/gi)?.length ?? 0;
-        setSelectedPathCount(count);
+        setFetchedPathCount({ url, count });
       })
       .catch(() => {
-        if (!cancelled) setSelectedPathCount(0);
+        if (!cancelled) setFetchedPathCount({ url, count: 0 });
       });
 
     return () => {
       cancelled = true;
     };
-  }, [selectedIcon?.pathCount, selectedIcon?.url]);
+  }, [selectedIcon?.url]);
+  const selectedPathCount = !selectedIcon?.url
+    ? (selectedIcon?.pathCount ?? 0)
+    : fetchedPathCount?.url === selectedIcon.url
+      ? fetchedPathCount.count
+      : 0;
 
   const selectedIconForPanel = useMemo(
     () => (selectedIcon ? { ...selectedIcon, pathCount: selectedPathCount } : null),

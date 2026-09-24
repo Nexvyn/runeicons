@@ -65,44 +65,41 @@ export default function RocketInteractive() {
     setIsModified(false);
   };
 
-  const onMouseMove = useCallback(
-    (e: React.MouseEvent<SVGSVGElement>) => {
-      const drag = dragRef.current;
-      if (!drag) return;
-      const coord = toSvgCoords(e);
-      if (!coord || Number.isNaN(coord.x) || Number.isNaN(coord.y)) return;
+  const onMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    const drag = dragRef.current;
+    if (!drag) return;
+    const coord = toSvgCoords(e);
+    if (!coord || Number.isNaN(coord.x) || Number.isNaN(coord.y)) return;
 
-      setPaths((prev) => {
-        const next = [...prev];
-        const entry = next[drag.pathIdx];
-        const pts = clonePoints(entry.points);
-        const pt = pts[drag.ptIdx];
-        if (!pt) return prev;
+    setPaths((prev) => {
+      const next = [...prev];
+      const entry = next[drag.pathIdx];
+      const pts = clonePoints(entry.points);
+      const pt = pts[drag.ptIdx];
+      if (!pt) return prev;
 
-        const dx = coord.x - pt.x;
-        const dy = coord.y - pt.y;
-        pts[drag.ptIdx] = { ...pt, x: coord.x, y: coord.y };
+      const dx = coord.x - pt.x;
+      const dy = coord.y - pt.y;
+      pts[drag.ptIdx] = { ...pt, x: coord.x, y: coord.y };
 
-        if (!pt.isControl) {
-          for (const offset of [-2, -1, 1, 2]) {
-            const neighbor = pts[drag.ptIdx + offset];
-            if (neighbor?.isControl) {
-              pts[drag.ptIdx + offset] = { ...neighbor, x: neighbor.x + dx, y: neighbor.y + dy };
-            }
+      if (!pt.isControl) {
+        for (const offset of [-2, -1, 1, 2]) {
+          const neighbor = pts[drag.ptIdx + offset];
+          if (neighbor?.isControl) {
+            pts[drag.ptIdx + offset] = { ...neighbor, x: neighbor.x + dx, y: neighbor.y + dy };
           }
         }
+      }
 
-        next[drag.pathIdx] = { d: pointsToSvgPath(pts), points: pts };
-        return next;
-      });
-      setIsModified(true);
-    },
-    [toSvgCoords],
-  );
+      next[drag.pathIdx] = { d: pointsToSvgPath(pts), points: pts };
+      return next;
+    });
+    setIsModified(true);
+  };
 
-  const onMouseUp = useCallback(() => {
+  const onMouseUp = () => {
     dragRef.current = null;
-  }, []);
+  };
 
   const viewBox = `${VB.x} ${VB.y} ${VB.w} ${VB.h}`;
 

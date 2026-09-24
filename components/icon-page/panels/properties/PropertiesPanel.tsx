@@ -37,7 +37,7 @@ const SIZES = [16, 20, 24, 28, 32, 48, 64, 96, 128];
 
 export function PropertiesPanel({
   state,
-  selectedIcon,
+  selectedIcon = null,
   onIconSelect,
   onDeleteIcon,
   onChange,

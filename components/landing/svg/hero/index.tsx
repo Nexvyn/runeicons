@@ -37,6 +37,7 @@ const HeroSvg = () => {
   const [launchButtonState, setLaunchButtonState] = useState<"launch" | "relaunch">("launch");
   const launchButtonStateRef = useRef<"launch" | "relaunch">("launch");
   const isResettingRef = useRef(false);
+  const handleRelaunchRef = useRef<() => void>(() => {});
   useEffect(() => {
     launchButtonStateRef.current = launchButtonState;
   }, [launchButtonState]);
@@ -1007,7 +1008,7 @@ const HeroSvg = () => {
             }
 
             if (launchButtonStateRef.current === "relaunch") {
-              handleRelaunch();
+              handleRelaunchRef.current();
               return;
             }
 
@@ -1377,6 +1378,10 @@ const HeroSvg = () => {
         ease: "power2.out",
       });
   };
+
+  useEffect(() => {
+    handleRelaunchRef.current = handleRelaunch;
+  });
 
   return (
     <div className="relative h-full w-full">
