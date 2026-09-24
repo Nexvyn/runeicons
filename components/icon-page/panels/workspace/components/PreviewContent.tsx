@@ -154,7 +154,7 @@ export const PreviewContent = memo(
           const viewBoxHeight = viewBoxParts[3] || 24;
           const patternId = "preview-texture-pattern";
           result = applyTextureToSvgContent(result, patternId);
-          result = `<defs><pattern id="${patternId}" x="${viewBoxX}" y="${viewBoxY}" width="${viewBoxWidth}" height="${viewBoxHeight}" patternUnits="userSpaceOnUse"><image href="/textures/${state.texture.selected}.png" x="${viewBoxX}" y="${viewBoxY}" width="${viewBoxWidth}" height="${viewBoxHeight}" opacity="${state.texture.opacity / 100}" preserveAspectRatio="xMidYMid slice"/></pattern></defs>${result}`;
+          result = `<defs><pattern id="${patternId}" x="${viewBoxX}" y="${viewBoxY}" width="${viewBoxWidth}" height="${viewBoxHeight}" patternUnits="userSpaceOnUse"><image href="/textures/${state.texture.selected}.webp" x="${viewBoxX}" y="${viewBoxY}" width="${viewBoxWidth}" height="${viewBoxHeight}" opacity="${state.texture.opacity / 100}" preserveAspectRatio="xMidYMid slice"/></pattern></defs>${result}`;
         }
         if (effectiveIconType !== "glass") {
           result = stripSvgStrokeStyleAttributes(result);
@@ -229,7 +229,7 @@ export const PreviewContent = memo(
         );
         if (isTextureActive) {
           inner =
-            `<defs><pattern id="preview-texture-pattern" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse"><image href="/textures/${state.texture.selected}.png" x="0" y="0" width="24" height="24" opacity="${state.texture.opacity / 100}" preserveAspectRatio="xMidYMid slice"/></pattern></defs>` +
+            `<defs><pattern id="preview-texture-pattern" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse"><image href="/textures/${state.texture.selected}.webp" x="0" y="0" width="24" height="24" opacity="${state.texture.opacity / 100}" preserveAspectRatio="xMidYMid slice"/></pattern></defs>` +
             inner;
         }
         if (isDrawAnim) {
@@ -582,7 +582,7 @@ export const PreviewContent = memo(
                             WebkitMaskSize: "contain",
                             maskSize: "contain",
                             background: isTextureActive
-                              ? `url(/textures/${state.texture.selected}.png) center / cover`
+                              ? `url(/textures/${state.texture.selected}.webp) center / cover`
                               : useGradient
                                 ? gradientCss
                                 : paintColors[0] || "currentColor",

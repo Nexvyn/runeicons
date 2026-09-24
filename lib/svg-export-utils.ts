@@ -349,8 +349,8 @@ export async function generateStandaloneSvg(
   const iconScaleFactor = (vbw - 2 * paddingVB) / vbw;
 
   const textureHref = isTextureActive
-    ? await fetchAssetAsDataUrl(`/textures/${state.texture.selected}.png`).catch(
-        () => `/textures/${state.texture.selected}.png`,
+    ? await fetchAssetAsDataUrl(`/textures/${state.texture.selected}.webp`).catch(
+        () => `/textures/${state.texture.selected}.webp`,
       )
     : "";
 
