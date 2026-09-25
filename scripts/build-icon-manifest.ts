@@ -64,6 +64,7 @@ const GLASS_CATEGORY_OVERRIDES: Record<string, string> = {
   sun: "weather",
   moon: "weather",
   rain: "weather",
+  plant: "weather",
   // communication
   bubble: "communication",
   email: "communication",
