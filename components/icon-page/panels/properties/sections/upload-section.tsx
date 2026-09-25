@@ -10,13 +10,13 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { CustomizationState } from "@/lib/types";
+import { CustomizationState, IconData } from "@/lib/types";
 import { motion } from "motion/react";
 import { useTuning } from "@/components/icon-page/tuning";
 
 interface UploadSectionProps {
   state: CustomizationState;
-  onIconSelect?: (icon: any) => void;
+  onIconSelect?: (icon: IconData) => void;
   isCollapsed?: boolean;
   onToggle?: () => void;
   isDragging: boolean;
@@ -172,7 +172,6 @@ export function UploadSection({
                   onClick={() => onIconSelect?.({
                     id: icon.id,
                     name: icon.name,
-                    icon: null,
                     url: icon.url,
                     category: "custom",
                     iconType: "normal",

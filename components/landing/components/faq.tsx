@@ -39,7 +39,7 @@ const faqItems: FAQItem[] = [
     number: "03",
     question: "Is Rune Icons free to use commercially?",
     answer:
-      "It is licensed under Apache 2.0. Use it in personal work, client projects, or anything you sell. No attribution needed, though a star on GitHub never hurts.",
+      "Yes. The icons are licensed under Apache 2.0, so use them in personal work, client projects, or anything you sell, no attribution needed. The website itself (landing page, components, and animations) is Apache 2.0 with attribution and the Commons Clause: credit the Rune Icons Team with a link to runeicons.com if you reuse it, and don't resell it as a template or kit.",
   },
   {
     id: "item-4",

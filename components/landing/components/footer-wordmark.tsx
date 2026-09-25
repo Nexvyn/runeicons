@@ -52,6 +52,8 @@ const GLASS_ICONS = [
   "CirclePerson.svg",
 ];
 
+const random = () => Math.random();
+
 const pick = () => {
   if (Math.random() < 0.5) {
     return `/glass-icons/${GLASS_ICONS[Math.floor(Math.random() * GLASS_ICONS.length)]}`;
@@ -153,12 +155,12 @@ const FooterWordmark = () => {
     const slot = claimSlot(parentBucket);
     if (!slot) return;
 
-    const tx = slot.b * BUCKET + Math.random() * (BUCKET - 6) - 4;
+    const tx = slot.b * BUCKET + random() * (BUCKET - 6) - 4;
     const ty = slot.y;
     const px = parent.x;
     const py = parent.y;
-    const mx = (px + tx) / 2 + (Math.random() - 0.5) * 8;
-    const my = Math.min(py, ty) - (18 + Math.random() * 14);
+    const mx = (px + tx) / 2 + (random() - 0.5) * 8;
+    const my = Math.min(py, ty) - (18 + random() * 14);
 
     const node = makeNode(parent.href);
     pile.insertBefore(node, parent.node);
@@ -171,7 +173,7 @@ const FooterWordmark = () => {
     }
 
     node.style.transform = `translate(${px}px, ${py}px) scale(0.3)`;
-    const dur = 460 + Math.random() * 120;
+    const dur = 460 + random() * 120;
     node.animate(
       [
         {
@@ -211,7 +213,7 @@ const FooterWordmark = () => {
             neighbor = p;
           }
         }
-        if (neighbor && Math.random() < 0.65) {
+        if (neighbor && random() < 0.65) {
           cloneFrom(neighbor, 0, chain - 1);
         }
       }, delayMs + dur);

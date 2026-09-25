@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IconData } from "@/lib/types";
 
 type ShortcutHandler = (e: KeyboardEvent) => boolean | void;
@@ -157,29 +157,26 @@ export function useKeyboardShortcuts({
     },
   };
 
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (isTyping(e) && e.key !== "Escape" && e.key !== "Enter") {
-        if (e.key === "?" && !e.shiftKey) {
-          e.preventDefault();
-          setShowHelp(true);
-        }
-        return;
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (isTyping(e) && e.key !== "Escape" && e.key !== "Enter") {
+      if (e.key === "?" && !e.shiftKey) {
+        e.preventDefault();
+        setShowHelp(true);
       }
+      return;
+    }
 
-      if (/^[1-8]$/.test(e.key) && !mod(e) && !e.altKey) {
-        const idx = parseInt(e.key) - 1;
-        if (idx < trayIcons.length) {
-          e.preventDefault();
-          onSelectTraySlot?.(idx);
-        }
-        return;
+    if (/^[1-8]$/.test(e.key) && !mod(e) && !e.altKey) {
+      const idx = parseInt(e.key) - 1;
+      if (idx < trayIcons.length) {
+        e.preventDefault();
+        onSelectTraySlot?.(idx);
       }
+      return;
+    }
 
-      shortcuts[e.key]?.(e);
-    },
-    [trayIcons, onSelectTraySlot, canCopy, onCopySvg, onExport, onReset, onToggleGrid, onUndo, onRedo, onNextCategory, onPrevCategory, onNextType, onPrevType, onToggleTab, armed, showHelp]
-  );
+    shortcuts[e.key]?.(e);
+  };
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);

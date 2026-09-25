@@ -4,7 +4,7 @@ import { animate } from "motion/react";
 export function useGitHubStars() {
   const [displayCount, setDisplayCount] = useState<string>("0");
   useEffect(() => {
-    let controls: any;
+    let controls: ReturnType<typeof animate> | undefined;
     const fetchStars = async () => {
       try {
         const response = await fetch("https://api.github.com/repos/Nexvyn/runeicons");

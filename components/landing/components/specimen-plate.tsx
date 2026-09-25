@@ -200,7 +200,9 @@ const SpecimenPlate = ({ iconType, onChange, paused, icon }: SpecimenPlateProps)
   });
 
   const holdRef = useRef({ iconType, onChange });
-  holdRef.current = { iconType, onChange };
+  useEffect(() => {
+    holdRef.current = { iconType, onChange };
+  }, [iconType, onChange]);
 
   useEffect(() => {
     if (paused || shouldReduceMotion || !inView) return;
@@ -227,11 +229,16 @@ const SpecimenPlate = ({ iconType, onChange, paused, icon }: SpecimenPlateProps)
       }
     }
     if (!url) return;
-    if (url.includes("glass-icons")) {
-      setView({ kind: "glass", url, key });
-      return;
-    }
     let alive = true;
+    if (url.includes("glass-icons")) {
+      const glassUrl = url;
+      queueMicrotask(() => {
+        if (alive) setView({ kind: "glass", url: glassUrl, key });
+      });
+      return () => {
+        alive = false;
+      };
+    }
     loadSvg(url).then(({ vb, paths }) => {
       if (!alive) return;
       setView({

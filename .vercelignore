@@ -1,9 +1,8 @@
-# Web deploy does not need platform packages.
-packages/runeicons-react-native
-packages/runeicons-flutter
-packages/runeicons-figma
-packages/runeicons-vscode
-packages/runeicons-mcp
-packages/runeicons-vue
-packages/runeicons-svelte
-packages/runeicons-astro
+packages
+docs
+.github
+.agents
+.claude
+.hermes
+.kilo
+.vscode

@@ -1,0 +1,70 @@
+name: React Native package
+
+# The icon components are generated from public/ by SVGR and are not committed,
+# so every check here builds them first.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/runeicons-react-native/**"
+      - "public/**"
+      - ".github/workflows/react-native.yml"
+  pull_request:
+    paths:
+      - "packages/runeicons-react-native/**"
+      - "public/**"
+      - ".github/workflows/react-native.yml"
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: packages/runeicons-react-native
+
+jobs:
+  build:
+    name: Generate, lint, typecheck, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Enable Corepack
+        # Runners ship Yarn 1, which ignores the packageManager field; Corepack
+        # is what activates the Yarn 4 this lockfile was written by.
+        run: corepack enable
+        working-directory: .
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: packages/runeicons-react-native/.nvmrc
+          cache: yarn
+          cache-dependency-path: packages/runeicons-react-native/yarn.lock
+
+      # `prepare` would run the icon build during install; do it explicitly
+      # instead so a failure points at the step that caused it.
+      - name: Install dependencies
+        run: yarn install --immutable
+        env:
+          YARN_ENABLE_SCRIPTS: "false"
+
+      - name: Generate icons
+        run: yarn icons
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Typecheck
+        run: yarn typecheck
+
+      - name: Build
+        run: yarn build
+
+      - name: Check the published surface
+        run: |
+          test -f lib/module/index.js
+          test -f lib/module/manifest.js
+          test -f lib/typescript/src/index.d.ts
+          # Deep imports are what keeps the package usable under Metro.
+          test -f lib/module/icons/arrow-up.js
+          test -f lib/module/icons/arrow-up-duotone.js
+          test -f lib/module/icons/archive-glass.js
+          echo "icon modules built: $(find lib/module/icons -name '*.js' | wc -l)"

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import {
   BlossomColorPicker as VendorBlossomColorPicker,
@@ -14,6 +14,8 @@ import { hexToPickerValue, VENDOR_PICKER_DEFAULTS } from './vendor-bridge';
 import { usePickerPortal } from '@/components/icon-page/panels/properties/picker-portal-context';
 
 let stylesInjected = false;
+
+const subscribeNoop = () => () => {};
 
 function injectStyles(): void {
   if (stylesInjected || typeof document === 'undefined') return;
@@ -41,15 +43,18 @@ export const BlossomColorPicker = ({
 
   // Prefer the panel-level portal container from context; fall back to prop or body.
   const panelPortal = usePickerPortal();
-  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
 
-  onChangeRef.current = onChange;
-  onDismissRef.current = onDismiss;
+  useLayoutEffect(() => {
+    onChangeRef.current = onChange;
+    onDismissRef.current = onDismiss;
+  }, [onChange, onDismiss]);
 
-  // Resolve portal target: panel portal (absolute) > prop > document.body (fixed)
-  useEffect(() => {
-    setPortalTarget(panelPortal ?? portalContainer ?? document.body);
-  }, [panelPortal, portalContainer]);
+  const isClient = useSyncExternalStore(
+    subscribeNoop,
+    () => true,
+    () => false,
+  );
+  const portalTarget = isClient ? (panelPortal ?? portalContainer ?? document.body) : null;
 
   const syncPortalPosition = useCallback(() => {
     if (rafRef.current !== null) return;
@@ -110,8 +115,9 @@ export const BlossomColorPicker = ({
       disabled,
     });
 
-    const originalSetExpanded = (instance as any).setExpanded.bind(instance);
-    (instance as any).setExpanded = function (expanded: boolean) {
+    const patchable = instance as unknown as { setExpanded: (expanded: boolean) => void };
+    const originalSetExpanded = patchable.setExpanded.bind(instance);
+    patchable.setExpanded = function (expanded: boolean) {
       originalSetExpanded(expanded);
       if (expanded && portal.parentNode && portal.parentNode.lastChild !== portal) {
         portal.parentNode.appendChild(portal);

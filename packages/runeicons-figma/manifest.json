@@ -1,0 +1,9 @@
+{
+  "name": "Rune Icons",
+  "id": "0000000000",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "ui": "dist/ui.html",
+  "editorType": ["figma"],
+  "networkAccess": "disallow"
+}

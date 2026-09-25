@@ -57,7 +57,8 @@ const Navbar = ({
   const githubStars = useGitHubStars();
 
   useEffect(() => {
-    setIconCount(900);
+    const frame = requestAnimationFrame(() => setIconCount(900));
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
@@ -98,11 +99,12 @@ const Navbar = ({
               className="relative block overflow-hidden border-b border-black/15 px-4 py-2 text-center text-xs font-medium text-white sm:px-8 md:px-24"
             >
               <Image
-                src="/landing/gradient/cta-gradient.png"
+                src="/landing/gradient/cta-gradient.webp"
                 className="absolute inset-0 h-full w-full object-cover"
                 alt=""
                 fill
                 sizes="100vw"
+                unoptimized
               />
               <span className="relative z-10 flex flex-wrap items-center justify-center text-[10px] leading-tight sm:text-xs sm:leading-snug">
                 Rune Icons now includes&nbsp;
@@ -151,7 +153,10 @@ const Navbar = ({
               rel="noopener noreferrer"
             >
               <Button variant="outline" className="gap-1 text-xs" aria-label="GitHub">
-                <GithubIcon /> {githubStars}
+                <GithubIcon />{" "}
+                <span className="inline-block min-w-[3ch] text-left tabular-nums">
+                  {githubStars}
+                </span>
               </Button>
             </Link>
             <Link href="https://x.com/nexvyn" target="_blank" rel="noopener noreferrer">

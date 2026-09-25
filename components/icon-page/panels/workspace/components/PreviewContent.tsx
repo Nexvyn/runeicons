@@ -26,7 +26,22 @@ interface PreviewContentProps {
 }
 export const PreviewContent = memo(
   forwardRef<HTMLDivElement, PreviewContentProps>(
-    ({ state, selectedIcon, dropShadow, supportsFilter, noiseFilter, blurFilter }, ref) => {
+    (
+      { state, selectedIcon: requestedIcon, dropShadow, supportsFilter, noiseFilter, blurFilter },
+      ref,
+    ) => {
+      const [resolved, setResolved] = useState<{
+        icon: IconData;
+        data: { content: string; viewBox: string } | null;
+      } | null>(null);
+      const requestedUrl = requestedIcon?.url;
+      const resolvedMatches = !!requestedUrl && resolved?.icon.url === requestedUrl;
+      const selectedIcon = !requestedIcon
+        ? null
+        : !requestedUrl || resolvedMatches
+          ? requestedIcon
+          : (resolved?.icon ?? null);
+      const svgData = requestedUrl ? (resolved?.data ?? null) : null;
       const SelectedIconComponent = selectedIcon?.icon;
       const lucideWrapRef = useRef<HTMLDivElement>(null);
       const motionEnabled = state.motion?.enabled === true;
@@ -37,16 +52,20 @@ export const PreviewContent = memo(
       const motionDuration = Math.max(0.2, state.motion?.duration ?? 2);
       const motionDelay = Math.max(0, state.motion?.delay ?? 0);
       const iterationCount = (state.motion?.loop ?? true) ? "infinite" : "1";
-      const [svgData, setSvgData] = useState<{ content: string; viewBox: string } | null>(null);
       useEffect(() => {
-        if (selectedIcon?.url) {
-          fetchSvgInnerContentRaw(selectedIcon.url)
-            .then(setSvgData)
-            .catch(() => setSvgData(null));
-        } else {
-          setSvgData(null);
-        }
-      }, [selectedIcon?.url]);
+        if (!requestedIcon?.url) return;
+        let cancelled = false;
+        fetchSvgInnerContentRaw(requestedIcon.url)
+          .then((data) => {
+            if (!cancelled) setResolved({ icon: requestedIcon, data });
+          })
+          .catch(() => {
+            if (!cancelled) setResolved({ icon: requestedIcon, data: null });
+          });
+        return () => {
+          cancelled = true;
+        };
+      }, [requestedIcon]);
       const isDrawAnim = motionEnabled && (animationType === "draw" || animationType === "stroke");
       const effectiveIconType =
         selectedIcon?.category === "custom" ? "normal" : (selectedIcon?.iconType ?? state.iconType);
@@ -135,7 +154,7 @@ export const PreviewContent = memo(
           const viewBoxHeight = viewBoxParts[3] || 24;
           const patternId = "preview-texture-pattern";
           result = applyTextureToSvgContent(result, patternId);
-          result = `<defs><pattern id="${patternId}" x="${viewBoxX}" y="${viewBoxY}" width="${viewBoxWidth}" height="${viewBoxHeight}" patternUnits="userSpaceOnUse"><image href="/textures/${state.texture.selected}.png" x="${viewBoxX}" y="${viewBoxY}" width="${viewBoxWidth}" height="${viewBoxHeight}" opacity="${state.texture.opacity / 100}" preserveAspectRatio="xMidYMid slice"/></pattern></defs>${result}`;
+          result = `<defs><pattern id="${patternId}" x="${viewBoxX}" y="${viewBoxY}" width="${viewBoxWidth}" height="${viewBoxHeight}" patternUnits="userSpaceOnUse"><image href="/textures/${state.texture.selected}.webp" x="${viewBoxX}" y="${viewBoxY}" width="${viewBoxWidth}" height="${viewBoxHeight}" opacity="${state.texture.opacity / 100}" preserveAspectRatio="xMidYMid slice"/></pattern></defs>${result}`;
         }
         if (effectiveIconType !== "glass") {
           result = stripSvgStrokeStyleAttributes(result);
@@ -196,7 +215,7 @@ export const PreviewContent = memo(
             : "none";
       const lucideInnerContent = useMemo(() => {
         if (!SelectedIconComponent || svgData) return null;
-        const LucideIcon = SelectedIconComponent as any;
+        const LucideIcon = SelectedIconComponent;
         const markup = renderToStaticMarkup(
           <LucideIcon
             size={24}
@@ -210,7 +229,7 @@ export const PreviewContent = memo(
         );
         if (isTextureActive) {
           inner =
-            `<defs><pattern id="preview-texture-pattern" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse"><image href="/textures/${state.texture.selected}.png" x="0" y="0" width="24" height="24" opacity="${state.texture.opacity / 100}" preserveAspectRatio="xMidYMid slice"/></pattern></defs>` +
+            `<defs><pattern id="preview-texture-pattern" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse"><image href="/textures/${state.texture.selected}.webp" x="0" y="0" width="24" height="24" opacity="${state.texture.opacity / 100}" preserveAspectRatio="xMidYMid slice"/></pattern></defs>` +
             inner;
         }
         if (isDrawAnim) {
@@ -363,10 +382,12 @@ export const PreviewContent = memo(
       }, [
         animationType,
         easingValue,
+        effectiveIconType,
         iterationCount,
         motionDelay,
         motionDuration,
         state,
+        svgData?.viewBox,
         svgPathCount,
       ]);
       const strokeAttrs =
@@ -498,7 +519,7 @@ export const PreviewContent = memo(
                       />
                     ) : SelectedIconComponent ? (
                       (() => {
-                        const LucideIcon = SelectedIconComponent as any;
+                        const LucideIcon = SelectedIconComponent;
                         return (
                           <LucideIcon
                             className={cn(
@@ -561,7 +582,7 @@ export const PreviewContent = memo(
                             WebkitMaskSize: "contain",
                             maskSize: "contain",
                             background: isTextureActive
-                              ? `url(/textures/${state.texture.selected}.png) center / cover`
+                              ? `url(/textures/${state.texture.selected}.webp) center / cover`
                               : useGradient
                                 ? gradientCss
                                 : paintColors[0] || "currentColor",

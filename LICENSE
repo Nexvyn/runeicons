@@ -1,3 +1,84 @@
+Rune Icons License
+
+Copyright (c) 2026 Rune Icons Team
+
+This repository is covered by two licenses, depending on what you use.
+
+================================================================================
+Part 1. The Icons: Apache License 2.0
+================================================================================
+
+The Icons are free to use under the Apache License, Version 2.0 (reproduced in
+full below), with no additional conditions.
+
+"Icons" means the icon artwork and the files that distribute it:
+
+  - public/normal/, public/duotone/, public/fill/, public/pixelated/,
+    public/glass-icons/ and public/sprites/
+  - lib/icons/
+  - packages/ (the Rune Icons packages, plugins and extensions)
+
+You may use, copy, modify, and redistribute the Icons, including for
+commercial purposes, as permitted by the Apache License, Version 2.0.
+
+================================================================================
+Part 2. Everything else: Apache License 2.0 + Attribution + Commons Clause
+================================================================================
+
+Everything in this repository that is not an Icon (the "Site Software"),
+including the landing page and its designs, the UI components, the animations
+and motion code, the icon page and editor, and all other website source code
+and assets, is licensed under the Apache License, Version 2.0, subject to the
+Attribution Requirement and the Commons Clause License Condition v1.0 below. If
+these conditions conflict with the Apache License, these conditions prevail.
+
+Attribution Requirement
+
+Any project that ships any part of the Site Software must credit the Rune Icons
+Team with a visible link to https://runeicons.com, placed where a visitor or
+user can find it, such as a site footer, an about page, a credits screen or a
+README, for example: "Built with Rune Icons by the Rune Icons Team
+(https://runeicons.com)". The credit and the copyright notice above must not be
+removed from the source you copied.
+
+Commons Clause License Condition v1.0
+
+The Software is provided to you by the Licensor under the License, as defined
+below, subject to the following condition.
+
+Without limiting other conditions in the License, the grant of rights under the
+License will not include, and the License does not grant to you, the right to
+Sell the Software.
+
+For purposes of the foregoing, "Sell" means practicing any or all of the rights
+granted to you under the License to provide to third parties, for a fee or
+other consideration (including without limitation fees for hosting or
+consulting/support services related to the Software), a product or service
+whose value derives, entirely or substantially, from the functionality of the
+Software. This includes selling, sublicensing, or redistributing the landing
+page designs, components, or animations themselves, whether alone, in a
+bundle, in a template or UI kit, or as a ported version.
+
+You may use the Site Software, including for any commercial purpose, as part
+of an application, website, or product whose value does not derive
+substantially from the Site Software itself.
+
+Software: Rune Icons Site Software (everything except the Icons)
+License: Apache License, Version 2.0
+Licensor: Rune Icons Team
+
+No Warranty
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+--------------------------------------------------------------------------------
+
                                  Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
@@ -186,7 +267,7 @@
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright 2026 Runeicons
+   Copyright 2026 Rune Icons Team
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

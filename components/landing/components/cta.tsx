@@ -47,11 +47,12 @@ const CTA = () => {
   return (
     <section className="relative h-full w-full overflow-hidden rounded-3xl py-24">
       <Image
-        src="/landing/gradient/cta-gradient.png"
+        src="/landing/gradient/cta-gradient.webp"
         className="absolute inset-0 h-full w-full object-cover"
         alt=""
         fill
         sizes="100vw"
+        unoptimized
       />
       <div className="pointer-events-none absolute inset-0 z-0">
         <div className="absolute inset-0 mask-[radial-gradient(ellipse_at_center,white,transparent_80%)] opacity-[0.03] dark:opacity-[0.05]">
@@ -147,7 +148,7 @@ const CTA = () => {
             onMouseEnter={() => setStage(3)}
             onMouseLeave={() => setStage(2)}
           >
-            <Link href="/icons">
+            <Link href="/icons" prefetch={false}>
               <Button size="lg" variant="default">
                 Browse Icons
               </Button>

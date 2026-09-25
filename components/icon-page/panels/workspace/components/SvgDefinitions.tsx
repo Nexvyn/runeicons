@@ -159,7 +159,7 @@ export const SvgDefinitions = memo(function SvgDefinitions({ state }: SvgDefinit
         {state.texture.enabled && state.texture.selected !== "none" && (
           <pattern id="texture-pattern" width="24" height="24" patternUnits="userSpaceOnUse">
             <image
-              href={`/textures/${state.texture.selected}.png`}
+              href={`/textures/${state.texture.selected}.webp`}
               width="24"
               height="24"
               opacity={state.texture.opacity / 100}

@@ -1,9 +1,9 @@
-import { CustomizationState } from "@/lib/types";
+import { CustomizationState, IconData } from "@/lib/types";
 
 export interface PropertiesPanelProps {
   state: CustomizationState;
-  selectedIcon?: any;
-  onIconSelect?: (icon: any) => void;
+  selectedIcon?: IconData | null;
+  onIconSelect?: (icon: IconData) => void;
   onDeleteIcon?: (id: string) => void;
   onChange: (updates: Partial<CustomizationState>) => void;
   onReset: () => void;

@@ -1,7 +1,8 @@
 {
   "name": "rune-icons",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
+  "packageManager": "pnpm@10.34.5",
   "scripts": {
     "build": "next build",
     "dev": "next dev",
@@ -9,7 +10,8 @@
     "format": "prettier --write .",
     "start": "next start",
     "icons:manifest": "bun scripts/build-icon-manifest.ts",
-    "icons:sprites": "bun scripts/build-icon-sprites.ts"
+    "icons:sprites": "bun scripts/build-icon-sprites.ts",
+    "icons:rn": "cd packages/runeicons-react-native && yarn icons"
   },
   "dependencies": {
     "@creem_io/nextjs": "^0.6.0",
@@ -45,7 +47,8 @@
     "@types/node": "^25",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^10.2.0",
+    "babel-plugin-react-compiler": "1.0.0",
+    "eslint": "^9.39.5",
     "eslint-config-next": "16.2.2",
     "playwright": "^1.62.1",
     "postcss": "^8.5",

@@ -17,6 +17,15 @@ type ChangelogEntry = {
 
 const CHANGELOG: ChangelogEntry[] = [
   {
+    date: "September 25, 2026",
+    title: "Platform packages, pnpm & lighter assets",
+    items: [
+      "Added the core runeicons package plus React, Vue, Svelte, Astro, React Native, Flutter, VS Code, Figma, and MCP packages.",
+      "Moved the repository to a single pnpm workspace.",
+      "Converted textures and the CTA gradient to WebP and removed unused images, cutting several megabytes per visit.",
+    ],
+  },
+  {
     date: "August 26, 2026",
     title: "Landing refresh, legal pages & site metadata",
     items: [

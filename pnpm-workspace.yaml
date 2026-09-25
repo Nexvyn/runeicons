@@ -1,0 +1,9 @@
+packages:
+  - "packages/*"
+  - "!packages/runeicons-react-native"
+  - "!packages/runeicons-flutter"
+
+onlyBuiltDependencies:
+  - esbuild
+  - sharp
+  - unrs-resolver

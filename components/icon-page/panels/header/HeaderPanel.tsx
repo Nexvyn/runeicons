@@ -1,5 +1,4 @@
 "use client";
-import { useEffect, useState } from "react";
 
 import { useTheme } from "next-themes";
 import Link from "next/link";
@@ -20,14 +19,10 @@ interface HeaderPanelProps {
 }
 export function HeaderPanel({ className }: HeaderPanelProps) {
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const displayCount = useGitHubStars();
   const isEditorPage = pathname === "/editor";
-  useEffect(() => {
-    setMounted(true);
-  }, []);
   return (
     <header
       className={cn(
@@ -97,7 +92,10 @@ export function HeaderPanel({ className }: HeaderPanelProps) {
               className="h-8 gap-2 border-border bg-white px-3 text-[11px] font-medium opacity-100 shadow-none dark:bg-[#1a1a1a]"
               aria-label="GitHub"
             >
-              <Github className="size-3.5" /> {displayCount}
+              <Github className="size-3.5" />{" "}
+              <span className="inline-block min-w-[3ch] text-left tabular-nums">
+                {displayCount}
+              </span>
             </Button>
           </Link>
           {/* <Link href="/sponsor" rel="noopener noreferrer">
