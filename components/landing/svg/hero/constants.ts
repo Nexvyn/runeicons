@@ -221,3 +221,31 @@ export const BLAST_ICONS = BLAST_ICON_SEATS.map((rawSeat, i) => {
     delay: round3((1 - centrality) * 0.18 + rand(5) * 0.06),
   };
 });
+
+export const BURST = {
+  climb: -150,
+  climbDuration: 1.05,
+  hitPoint: 0.62,
+  flashRadius: 70,
+  shards: 34,
+  glyphs: 7,
+  speedMin: 160,
+  speedMax: 420,
+  inheritedLift: -140,
+  gravity: 520,
+  drag: 2.2,
+  lifeMin: 1.1,
+  lifeMax: 1.9,
+  rings: [
+    { delay: 0, radius: 150, duration: 0.7, width: 2, dash: "none", opacity: 0.9 },
+    { delay: 0.09, radius: 115, duration: 0.8, width: 1.2, dash: "4 6", opacity: 0.6 },
+    { delay: 0.2, radius: 80, duration: 0.9, width: 0.8, dash: "none", opacity: 0.35 },
+  ],
+  smoke: [
+    { dx: 0, dy: 0, r: 22, rise: 34, life: 1.4 },
+    { dx: -26, dy: 14, r: 16, rise: 26, life: 1.25 },
+    { dx: 24, dy: 10, r: 17, rise: 30, life: 1.3 },
+    { dx: -10, dy: -22, r: 14, rise: 40, life: 1.5 },
+    { dx: 14, dy: 26, r: 12, rise: 18, life: 1.1 },
+  ],
+} as const;

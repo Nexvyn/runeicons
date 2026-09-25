@@ -5,9 +5,11 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 
+import { burstRocket } from "./burst";
 import {
   BLAST_ICONS,
   BLAST_ICONS_CFG,
+  BURST,
   CLOUDS,
   CLOUDS_CFG,
   COUNTDOWN_TICKS,
@@ -29,8 +31,13 @@ import ScenePipesAndPulse from "./scene-pipes-and-pulse";
 
 gsap.registerPlugin(useGSAP, MotionPathPlugin);
 
-const HeroSvg = () => {
+type HeroSvgProps = {
+  variant?: "launch" | "burst";
+};
+
+const HeroSvg = ({ variant = "launch" }: HeroSvgProps) => {
   const svgRef = useRef<SVGSVGElement>(null);
+  const burstCleanupRef = useRef<(() => void) | null>(null);
   const [isResetting, setIsResetting] = useState(false);
   const [animationRun, setAnimationRun] = useState(0);
   const [labelText, setLabelText] = useState("BUILD");
@@ -635,15 +642,27 @@ const HeroSvg = () => {
                 }
               }
 
-              rocketTl.to(
-                rocketEl,
-                {
-                  y: -760,
-                  duration: LAUNCH.rocketDuration,
-                  ease: "power2.out",
-                },
-                LAUNCH.hold,
-              );
+              if (variant === "burst") {
+                rocketTl.to(
+                  rocketEl,
+                  {
+                    y: BURST.climb,
+                    duration: BURST.climbDuration,
+                    ease: "power1.in",
+                  },
+                  LAUNCH.hold,
+                );
+              } else {
+                rocketTl.to(
+                  rocketEl,
+                  {
+                    y: -760,
+                    duration: LAUNCH.rocketDuration,
+                    ease: "power2.out",
+                  },
+                  LAUNCH.hold,
+                );
+              }
 
               let vibration: gsap.core.Timeline | null = null;
               if (fullMotion) {
@@ -662,18 +681,33 @@ const HeroSvg = () => {
                 });
               }
 
-              rocketTl.to(
-                rocketEl,
-                {
-                  opacity: 0,
-                  duration: 0.42,
-                  ease: "power1.out",
-                  onStart: function () {
+              if (variant === "burst") {
+                rocketTl.call(
+                  () => {
                     vibration?.kill();
+                    const svg = svgRef.current;
+                    if (!svg) return;
+                    burstCleanupRef.current?.();
+                    burstCleanupRef.current = burstRocket(svg, rocketEl, fullMotion);
                   },
-                },
-                "+=0.1",
-              );
+                  [],
+                  LAUNCH.hold + BURST.climbDuration,
+                );
+                rocketTl.to({}, { duration: BURST.lifeMax }, ">");
+              } else {
+                rocketTl.to(
+                  rocketEl,
+                  {
+                    opacity: 0,
+                    duration: 0.42,
+                    ease: "power1.out",
+                    onStart: function () {
+                      vibration?.kill();
+                    },
+                  },
+                  "+=0.1",
+                );
+              }
             }
           }
 
@@ -1047,6 +1081,8 @@ const HeroSvg = () => {
 
   const handleRelaunch = () => {
     if (isResetting) return;
+    burstCleanupRef.current?.();
+    burstCleanupRef.current = null;
 
     const btn = svgRef.current?.querySelector<SVGGElement>(".LaunchButton");
     if (btn) {
@@ -1159,6 +1195,7 @@ const HeroSvg = () => {
         x: 0,
         rotation: 0,
         opacity: 1,
+        ...(variant === "burst" ? { y: -520 } : {}),
       })
       .to(
         coreEls,
@@ -1382,6 +1419,13 @@ const HeroSvg = () => {
   useEffect(() => {
     handleRelaunchRef.current = handleRelaunch;
   });
+
+  useEffect(
+    () => () => {
+      burstCleanupRef.current?.();
+    },
+    [],
+  );
 
   return (
     <div className="relative h-full w-full">
