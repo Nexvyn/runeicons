@@ -7,8 +7,8 @@ Figma plugin for [Rune Icons](https://runeicons.com): search and insert 900+ ico
 Build the plugin and import it into the Figma desktop app:
 
 ```sh
-bun install
-bun run build
+pnpm install
+pnpm --filter runeicons-figma build
 ```
 
 In Figma: menu, Plugins, Development, Import plugin from manifest, pick `manifest.json` from this directory. For publishing, replace the placeholder `id` in `manifest.json` with the id Figma assigns your plugin.
@@ -20,12 +20,12 @@ Run the plugin from the development menu or your published plugins. Search by na
 ## Development
 
 ```sh
-bun install
-bun test
+pnpm install
+pnpm --filter runeicons-figma test
 ```
 
-`bun test` regenerates icon data, bundles `dist/code.js` and `dist/ui.html`, typechecks the source, and runs the unit tests. Icon data is generated from the repository SVG sources in `public/` by `scripts/build.ts` into `src/icons.generated.ts`, which is not committed.
+The test script regenerates icon data, bundles `dist/code.js` and `dist/ui.html`, typechecks the source, and runs the unit tests. Icon data is generated from the repository SVG sources in `public/` by `scripts/build.ts` into `src/icons.generated.ts`, which is not committed.
 
 ## License
 
-Apache 2.0. Rune Icons is built by [Nexvyn](https://github.com/Nexvyn). Icons come from the [runeicons](https://github.com/Nexvyn/runeicons) repository.
+Apache 2.0. Copyright 2026 Rune Icons Team. Icons come from the [runeicons](https://github.com/Nexvyn/runeicons) repository.

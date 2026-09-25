@@ -99,11 +99,12 @@ const Navbar = ({
               className="relative block overflow-hidden border-b border-black/15 px-4 py-2 text-center text-xs font-medium text-white sm:px-8 md:px-24"
             >
               <Image
-                src="/landing/gradient/cta-gradient.png"
+                src="/landing/gradient/cta-gradient.webp"
                 className="absolute inset-0 h-full w-full object-cover"
                 alt=""
                 fill
                 sizes="100vw"
+                unoptimized
               />
               <span className="relative z-10 flex flex-wrap items-center justify-center text-[10px] leading-tight sm:text-xs sm:leading-snug">
                 Rune Icons now includes&nbsp;

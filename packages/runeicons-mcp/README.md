@@ -100,15 +100,16 @@ navigation        76      24       24     2         24      2
 
 ## Development
 
-From the repository root (requires [Bun](https://bun.sh)):
+From the repository root (requires [pnpm](https://pnpm.io) and [Bun](https://bun.sh)):
 
 ```sh
 cd packages/runeicons-mcp
-bun run generate   # rebuild src/icons.generated.ts + assets/ from public/
-bun run build      # type-check and emit dist/
+pnpm install
+pnpm --filter runeicons-mcp generate   # rebuild src/icons.generated.ts + assets/ from public/
+pnpm --filter runeicons-mcp build      # type-check and emit dist/
 ```
 
-`bun run generate` scans the icon SVGs in the repository's `public/` directory and regenerates the
+The generate script scans the icon SVGs in the repository's `public/` directory and regenerates the
 bundled registry, so the MCP package always mirrors the main icon set.
 
 ## License

@@ -18,31 +18,34 @@ An open-source icon library where every glyph comes in five styles: outline, duo
 
 ## Quick start
 
-Requires [Bun](https://bun.sh).
+Requires [Node.js](https://nodejs.org) 20+, [pnpm](https://pnpm.io) 10, and [Bun](https://bun.sh) (the icon scripts and package tests run on Bun).
 
 ```bash
 git clone https://github.com/Nexvyn/runeicons.git
 cd runeicons
-bun install
-bun dev
+pnpm install
+pnpm dev
 ```
 
 The site will be available at [http://localhost:3000](http://localhost:3000).
 
 ## Scripts
 
-| Command                  | Description                                                 |
-| :----------------------- | :---------------------------------------------------------- |
-| `bun dev`                | Start the Next.js development server                        |
-| `bun run build`          | Production build                                            |
-| `bun start`              | Serve the production build                                  |
-| `bun run lint`           | Lint with ESLint                                            |
-| `bun run format`         | Format the codebase with Prettier                           |
-| `bun run icons:manifest` | Regenerate `lib/icons/manifest.generated.ts` from `public/` |
+| Command               | Description                                                 |
+| :-------------------- | :---------------------------------------------------------- |
+| `pnpm dev`            | Start the Next.js development server                        |
+| `pnpm build`          | Production build                                            |
+| `pnpm start`          | Serve the production build                                  |
+| `pnpm lint`           | Lint with ESLint                                            |
+| `pnpm format`         | Format the codebase with Prettier                           |
+| `pnpm icons:manifest` | Regenerate `lib/icons/manifest.generated.ts` from `public/` |
+| `pnpm icons:sprites`  | Regenerate the per-style sprites in `public/sprites/`       |
+
+The JavaScript packages in `packages/` are part of the same pnpm workspace. Run one package's tests with `pnpm --filter runeicons-react test`, or every package with `pnpm -r test`.
 
 ## Tech stack
 
-Next.js 16 · React 19 · Tailwind CSS v4 · Bun
+Next.js 16 · React 19 · Tailwind CSS v4 · pnpm
 
 ## Contributing
 
